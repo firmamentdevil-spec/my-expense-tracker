@@ -27,6 +27,7 @@
     }
     .container { max-width: 640px; margin: 0 auto; padding: 14px; }
 
+    /* 第一行：品牌與今日日期 */
     header {
       display: flex; justify-content: space-between; align-items: center;
       gap: 10px; margin-bottom: 10px;
@@ -42,33 +43,52 @@
       border: 1px solid var(--border); padding: 4px 10px; border-radius: 999px;
     }
 
-    /* 周日 ~ 周六 星期列 */
-    .weekday-bar {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+    /* 第二行：2026/11 可選取月份 + 周日~周六 + 23~29 每日按鈕 */
+    .cal-strip-card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 8px 6px; margin-bottom: 10px;
+      border-radius: 14px; padding: 10px 12px; margin-bottom: 12px;
+    }
+    .month-select-row {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 8px; margin-bottom: 8px;
+    }
+    .month-display-label {
+      font-size: 1rem; font-weight: 800; color: var(--accent);
+    }
+    .month-picker-inline {
+      background: var(--bg); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 5px 8px; font-size: 0.86rem; width: auto;
+    }
+    .week-row-top {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+      text-align: center; margin-bottom: 6px;
+    }
+    .wk-head {
+      font-size: 0.78rem; font-weight: 700; color: var(--muted);
+      padding: 2px 0;
+    }
+    .week-row-days {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
       text-align: center;
     }
-    .weekday-cell {
-      font-size: 0.8rem; font-weight: 700; color: var(--muted);
-      padding: 4px 2px; border-radius: 8px;
+    .day-btn {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-size: 0.86rem; font-weight: 700;
+      padding: 7px 2px; cursor: pointer; width: 100%;
     }
-    .weekday-cell.today-wk {
-      color: var(--accent); background: var(--accent-soft);
+    .day-btn.active {
+      border-color: var(--accent); background: var(--accent-soft); color: var(--accent);
     }
-
-    .selector-row {
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      margin-bottom: 12px; background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 10px 12px;
+    .cal-strip-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 8px; font-size: 0.76rem; color: var(--muted);
     }
-    .range-text { font-size: 0.82rem; color: var(--muted); text-align: right; }
-    .picker-input {
-      background: var(--bg); color: var(--text); border: 1px solid var(--border);
-      border-radius: 8px; padding: 6px 10px; font-size: 0.9rem; width: auto;
+    .clear-day-btn {
+      width: auto; padding: 3px 8px; font-size: 0.74rem; border-radius: 6px;
+      background: var(--card-2); border: 1px solid var(--border); color: var(--text); cursor: pointer;
     }
 
-    /* 本月支出 */
+    /* 月支出 */
     .hero-expense {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 14px 16px; margin-bottom: 12px;
@@ -122,7 +142,7 @@
       cursor: pointer; width: auto; padding: 10px 14px; font-size: 0.88rem;
     }
 
-    /* 日期群組流水帳：11/22 + 周一/周二/周三 */
+    /* 日期群組流水帳 */
     .day-group { margin-bottom: 12px; }
     .day-group:last-child { margin-bottom: 0; }
     .day-header {
@@ -185,6 +205,7 @@
 </head>
 <body>
   <div class="container">
+    <!-- 第一行 -->
     <header>
       <div class="brand">
         <span class="brand-badge">帳本</span>
@@ -193,19 +214,33 @@
       <span id="todayBadge" class="today-pill"></span>
     </header>
 
-    <!-- 周日 周一 周二 周三 周四 周五 周六 -->
-    <div id="weekdayBar" class="weekday-bar"></div>
+    <!-- 第二行：2026/11 可選取月份 + 周日~周六 + 23~29 每日按鈕 -->
+    <section class="cal-strip-card">
+      <div class="month-select-row">
+        <span id="monthSlashLabel" class="month-display-label">2026/11</span>
+        <input type="month" id="monthPicker" class="month-picker-inline" />
+      </div>
+      <div class="week-row-top">
+        <div class="wk-head">周日</div>
+        <div class="wk-head">周一</div>
+        <div class="wk-head">周二</div>
+        <div class="wk-head">周三</div>
+        <div class="wk-head">周四</div>
+        <div class="wk-head">周五</div>
+        <div class="wk-head">周六</div>
+      </div>
+      <div id="weekDaysRow" class="week-row-days"></div>
+      <div class="cal-strip-footer">
+        <span id="dayFilterStatus">顯示整月明細（點上方日期可看當日）</span>
+        <button type="button" id="clearDayBtn" class="clear-day-btn" style="display:none;">看整月</button>
+      </div>
+    </section>
 
-    <div class="selector-row">
-      <input type="month" id="monthPicker" class="picker-input" />
-      <span id="monthRangeText" class="range-text"></span>
-    </div>
-
-    <!-- 本月支出 -->
+    <!-- 月支出 -->
     <section class="hero-expense">
       <div>
-        <div class="hero-label">本月支出</div>
-        <div class="hero-sub">僅計算支出金額</div>
+        <div class="hero-label" id="expTitleLabel">月支出</div>
+        <div class="hero-sub" id="expSubLabel">僅計算支出金額</div>
       </div>
       <div class="hero-val" id="totalExpense">$0</div>
     </section>
@@ -260,7 +295,7 @@
 
     <section class="card">
       <div class="section-head">
-        <strong>本月明細</strong>
+        <strong id="listHeading">本月明細</strong>
         <span id="countLabel" class="section-sub">0 筆</span>
       </div>
       <div id="txList"></div>
@@ -293,18 +328,24 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_v2';
+    const STORAGE_KEY = 'pwa_expense_cw_v3';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
+    let selectedYmd = null;
     let editingId = null;
     let records = loadRecords();
 
     const el = {
       todayBadge: document.getElementById('todayBadge'),
-      weekdayBar: document.getElementById('weekdayBar'),
+      monthSlashLabel: document.getElementById('monthSlashLabel'),
       monthPicker: document.getElementById('monthPicker'),
-      monthRangeText: document.getElementById('monthRangeText'),
+      weekDaysRow: document.getElementById('weekDaysRow'),
+      dayFilterStatus: document.getElementById('dayFilterStatus'),
+      clearDayBtn: document.getElementById('clearDayBtn'),
+      expTitleLabel: document.getElementById('expTitleLabel'),
+      expSubLabel: document.getElementById('expSubLabel'),
+      listHeading: document.getElementById('listHeading'),
       totalExpense: document.getElementById('totalExpense'),
       catGrid: document.getElementById('catGrid'),
       formHeading: document.getElementById('formHeading'),
@@ -356,6 +397,24 @@
       return { start: formatYmd(sunday), end: formatYmd(saturday) };
     }
 
+    // 取得目前月份或選取日期所屬的周日~周六 7 天按鈕
+    function getWeekStripDays() {
+      const ym = el.monthPicker.value || todayStr().slice(0, 7);
+      const nowYmd = todayStr();
+      let anchorYmd = selectedYmd || (nowYmd.startsWith(ym) ? nowYmd : `${ym}-23`);
+      const dt = parseLocalDate(anchorYmd);
+      const sunday = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dt.getDay());
+      const arr = [];
+      for (let i = 0; i < 7; i++) {
+        const dObj = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i);
+        arr.push({
+          ymd: formatYmd(dObj),
+          dayNum: dObj.getDate()
+        });
+      }
+      return arr;
+    }
+
     function loadRecords() {
       try {
         const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -381,17 +440,43 @@
       return '$' + Math.abs(Number(n || 0)).toLocaleString('zh-Hant-TW', { maximumFractionDigits: 2 });
     }
 
-    function renderWeekdayBar() {
-      const todayIdx = parseLocalDate(todayStr()).getDay();
-      el.weekdayBar.innerHTML = WEEKDAYS_SHORT.map((label, idx) => `
-        <div class="weekday-cell ${idx === todayIdx ? 'today-wk' : ''}">${label}</div>
-      `).join('');
-    }
-
     function renderCategories() {
       el.category.innerHTML = CATEGORIES
         .map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
         .join('');
+    }
+
+    function renderMonthAndDays() {
+      const ym = el.monthPicker.value || todayStr().slice(0, 7);
+      el.monthSlashLabel.textContent = ym.replace('-', '/');
+
+      const days = getWeekStripDays();
+      el.weekDaysRow.innerHTML = days.map(d => {
+        const active = selectedYmd === d.ymd;
+        return `
+          <button type="button" class="day-btn ${active ? 'active' : ''}" data-ymd="${escapeHtml(d.ymd)}">
+            ${d.dayNum}
+          </button>
+        `;
+      }).join('');
+
+      if (selectedYmd) {
+        const dt = parseLocalDate(selectedYmd);
+        el.dayFilterStatus.textContent = `當日明細：${formatMonthDay(selectedYmd)}（${WEEKDAYS_SHORT[dt.getDay()]}）`;
+        el.clearDayBtn.style.display = 'inline-block';
+      } else {
+        el.dayFilterStatus.textContent = '顯示整月明細（點上方日期可看當日）';
+        el.clearDayBtn.style.display = 'none';
+      }
+
+      for (const btn of el.weekDaysRow.querySelectorAll('.day-btn')) {
+        btn.addEventListener('click', () => {
+          const clickedYmd = btn.dataset.ymd;
+          selectedYmd = selectedYmd === clickedYmd ? null : clickedYmd;
+          el.date.value = clickedYmd;
+          render();
+        });
+      }
     }
 
     function exitEditMode(resetToday = true) {
@@ -402,7 +487,7 @@
       el.cancelEditBtn.style.display = 'none';
       el.amount.value = '';
       el.note.value = '';
-      if (resetToday) el.date.value = todayStr();
+      if (resetToday) el.date.value = selectedYmd || todayStr();
     }
 
     function startEditRecord(id) {
@@ -473,7 +558,7 @@
 
     function renderGroupedTransactions(filtered) {
       if (!filtered.length) {
-        el.txList.innerHTML = '<div class="empty">這個月份還沒有支出紀錄</div>';
+        el.txList.innerHTML = `<div class="empty">${selectedYmd ? '這一天還沒有支出紀錄' : '這個月份還沒有支出紀錄'}</div>`;
         return;
       }
 
@@ -529,11 +614,24 @@
     }
 
     function render() {
+      renderMonthAndDays();
       const m = el.monthPicker.value;
-      el.monthRangeText.textContent = m ? `${m} 月份` : '';
-      const filtered = records.filter(r => !m || (r.date && r.date.startsWith(m)));
-      const totalExp = sumExpenses(filtered);
+      const monthRecords = records.filter(r => !m || (r.date && r.date.startsWith(m)));
+      const filtered = selectedYmd
+        ? monthRecords.filter(r => r.date === selectedYmd)
+        : monthRecords;
 
+      if (selectedYmd) {
+        el.expTitleLabel.textContent = `${formatMonthDay(selectedYmd)} 支出`;
+        el.expSubLabel.textContent = '當日支出金額';
+        el.listHeading.textContent = `${formatMonthDay(selectedYmd)} 明細`;
+      } else {
+        el.expTitleLabel.textContent = '月支出';
+        el.expSubLabel.textContent = '僅計算支出金額';
+        el.listHeading.textContent = '本月明細';
+      }
+
+      const totalExp = sumExpenses(filtered);
       el.totalExpense.textContent = formatMoney(totalExp);
       el.countLabel.textContent = `${filtered.length} 筆`;
 
@@ -542,7 +640,16 @@
       renderBottomBalances();
     }
 
-    el.monthPicker.addEventListener('change', render);
+    el.monthPicker.addEventListener('change', () => {
+      selectedYmd = null;
+      render();
+    });
+
+    el.clearDayBtn.addEventListener('click', () => {
+      selectedYmd = null;
+      render();
+    });
+
     el.category.addEventListener('change', render);
     el.cancelEditBtn.addEventListener('click', () => exitEditMode(true));
 
@@ -628,7 +735,6 @@
     el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
     el.date.value = nowDate;
     el.monthPicker.value = nowDate.slice(0, 7);
-    renderWeekdayBar();
     renderCategories();
     render();
   </script>
