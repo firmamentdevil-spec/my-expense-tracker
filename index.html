@@ -43,22 +43,48 @@
       border: 1px solid var(--border); padding: 4px 10px; border-radius: 999px;
     }
 
-    /* 第二行：2026/11 可選取月份 + 周日~周六 + 23~29 每日按鈕 */
+    /* 第二行：美化後的月份選取 + 周日~周六 + 每日按鈕 */
     .cal-strip-card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 10px 12px; margin-bottom: 12px;
     }
     .month-select-row {
       display: flex; justify-content: space-between; align-items: center;
-      gap: 8px; margin-bottom: 8px;
+      gap: 8px; margin-bottom: 10px;
     }
+    .month-stepper {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 999px; padding: 3px;
+    }
+    .step-btn {
+      width: 28px; height: 28px; border-radius: 999px;
+      border: none; background: var(--card-2); color: var(--text);
+      font-size: 0.78rem; font-weight: 800; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0;
+    }
+    .step-btn:active { background: var(--accent); color: #1c1917; }
     .month-display-label {
       font-size: 1rem; font-weight: 800; color: var(--accent);
+      padding: 0 6px; letter-spacing: 0.03em;
+    }
+    .month-picker-wrap {
+      position: relative; display: inline-flex; align-items: center;
+      background: var(--accent-soft); border: 1px solid rgba(245, 158, 11, 0.45);
+      border-radius: 999px; padding: 5px 12px; gap: 6px;
+    }
+    .month-picker-text {
+      font-size: 0.8rem; font-weight: 700; color: var(--accent);
+      pointer-events: none; white-space: nowrap;
     }
     .month-picker-inline {
-      background: var(--bg); color: var(--text); border: 1px solid var(--border);
-      border-radius: 8px; padding: 5px 8px; font-size: 0.86rem; width: auto;
+      background: transparent; color: var(--accent); border: none;
+      font-size: 0.84rem; font-weight: 700; width: auto; padding: 0;
+      cursor: pointer;
     }
+    .month-picker-inline:focus { outline: none; }
+
     .week-row-top {
       display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
       text-align: center; margin-bottom: 6px;
@@ -214,11 +240,18 @@
       <span id="todayBadge" class="today-pill"></span>
     </header>
 
-    <!-- 第二行：2026/11 可選取月份 + 周日~周六 + 23~29 每日按鈕 -->
+    <!-- 第二行：美化後的月份選取 + 周日~周六 + 每日按鈕 -->
     <section class="cal-strip-card">
       <div class="month-select-row">
-        <span id="monthSlashLabel" class="month-display-label">2026/11</span>
-        <input type="month" id="monthPicker" class="month-picker-inline" />
+        <div class="month-stepper">
+          <button type="button" id="prevMonthBtn" class="step-btn" title="上一個月">◀</button>
+          <span id="monthSlashLabel" class="month-display-label">2026/11</span>
+          <button type="button" id="nextMonthBtn" class="step-btn" title="下一個月">▶</button>
+        </div>
+        <label class="month-picker-wrap" for="monthPicker">
+          <span class="month-picker-text">選月份</span>
+          <input type="month" id="monthPicker" class="month-picker-inline" />
+        </label>
       </div>
       <div class="week-row-top">
         <div class="wk-head">周日</div>
@@ -338,6 +371,8 @@
 
     const el = {
       todayBadge: document.getElementById('todayBadge'),
+      prevMonthBtn: document.getElementById('prevMonthBtn'),
+      nextMonthBtn: document.getElementById('nextMonthBtn'),
       monthSlashLabel: document.getElementById('monthSlashLabel'),
       monthPicker: document.getElementById('monthPicker'),
       weekDaysRow: document.getElementById('weekDaysRow'),
@@ -390,6 +425,13 @@
       return `${Number(m)}/${Number(d)}`;
     }
 
+    function shiftYearMonth(ymStr, deltaMonths) {
+      const base = /^\d{4}-\d{2}$/.test(ymStr) ? ymStr : todayStr().slice(0, 7);
+      const [y, m] = base.split('-').map(Number);
+      const dt = new Date(y, (m || 1) - 1 + deltaMonths, 1);
+      return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
+    }
+
     function getCurrentWeekRange(baseYmd) {
       const dt = parseLocalDate(baseYmd);
       const sunday = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dt.getDay());
@@ -397,11 +439,10 @@
       return { start: formatYmd(sunday), end: formatYmd(saturday) };
     }
 
-    // 取得目前月份或選取日期所屬的周日~周六 7 天按鈕
     function getWeekStripDays() {
       const ym = el.monthPicker.value || todayStr().slice(0, 7);
       const nowYmd = todayStr();
-      let anchorYmd = selectedYmd || (nowYmd.startsWith(ym) ? nowYmd : `${ym}-23`);
+      const anchorYmd = selectedYmd || (nowYmd.startsWith(ym) ? nowYmd : `${ym}-23`);
       const dt = parseLocalDate(anchorYmd);
       const sunday = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dt.getDay());
       const arr = [];
@@ -639,6 +680,18 @@
       renderGroupedTransactions(filtered);
       renderBottomBalances();
     }
+
+    el.prevMonthBtn.addEventListener('click', () => {
+      el.monthPicker.value = shiftYearMonth(el.monthPicker.value, -1);
+      selectedYmd = null;
+      render();
+    });
+
+    el.nextMonthBtn.addEventListener('click', () => {
+      el.monthPicker.value = shiftYearMonth(el.monthPicker.value, 1);
+      selectedYmd = null;
+      render();
+    });
 
     el.monthPicker.addEventListener('change', () => {
       selectedYmd = null;
