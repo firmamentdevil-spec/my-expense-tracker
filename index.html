@@ -29,7 +29,7 @@
 
     header {
       display: flex; justify-content: space-between; align-items: center;
-      gap: 10px; margin-bottom: 12px;
+      gap: 10px; margin-bottom: 10px;
     }
     .brand { display: flex; align-items: center; gap: 8px; }
     .brand-badge {
@@ -42,17 +42,19 @@
       border: 1px solid var(--border); padding: 4px 10px; border-radius: 999px;
     }
 
-    /* 週 / 月 / 年 切換 */
-    .period-bar {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-      margin-bottom: 10px;
+    /* 周日 ~ 周六 星期列 */
+    .weekday-bar {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 8px 6px; margin-bottom: 10px;
+      text-align: center;
     }
-    .period-btn {
-      padding: 8px; border-radius: 10px; border: 1px solid var(--border);
-      background: var(--card); color: var(--muted); font-weight: 700; cursor: pointer;
+    .weekday-cell {
+      font-size: 0.8rem; font-weight: 700; color: var(--muted);
+      padding: 4px 2px; border-radius: 8px;
     }
-    .period-btn.active {
-      background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
+    .weekday-cell.today-wk {
+      color: var(--accent); background: var(--accent-soft);
     }
 
     .selector-row {
@@ -66,13 +68,13 @@
       border-radius: 8px; padding: 6px 10px; font-size: 0.9rem; width: auto;
     }
 
-    /* 只有本月（或該區間）支出 */
+    /* 本月支出 */
     .hero-expense {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 14px 16px; margin-bottom: 12px;
       display: flex; justify-content: space-between; align-items: center;
     }
-    .hero-label { font-size: 0.85rem; color: var(--muted); }
+    .hero-label { font-size: 0.92rem; font-weight: 700; color: var(--text); }
     .hero-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
     .hero-val { font-size: 1.55rem; font-weight: 800; color: var(--expense); }
 
@@ -120,7 +122,7 @@
       cursor: pointer; width: auto; padding: 10px 14px; font-size: 0.88rem;
     }
 
-    /* CWMoney 風格流水帳：左側 11/22 + 周一/周二/周三 */
+    /* 日期群組流水帳：11/22 + 周一/周二/周三 */
     .day-group { margin-bottom: 12px; }
     .day-group:last-child { margin-bottom: 0; }
     .day-header {
@@ -191,22 +193,19 @@
       <span id="todayBadge" class="today-pill"></span>
     </header>
 
-    <div class="period-bar">
-      <button type="button" class="period-btn" data-period="week">週紀錄</button>
-      <button type="button" class="period-btn active" data-period="month">月紀錄</button>
-      <button type="button" class="period-btn" data-period="year">年紀錄</button>
-    </div>
+    <!-- 周日 周一 周二 周三 周四 周五 周六 -->
+    <div id="weekdayBar" class="weekday-bar"></div>
 
     <div class="selector-row">
-      <div id="periodPickerWrap"></div>
-      <span id="periodRangeText" class="range-text"></span>
+      <input type="month" id="monthPicker" class="picker-input" />
+      <span id="monthRangeText" class="range-text"></span>
     </div>
 
-    <!-- 只有支出（預設本月支出，隨上方週/月/年切換） -->
+    <!-- 本月支出 -->
     <section class="hero-expense">
       <div>
-        <div class="hero-label" id="expLabel">本月支出</div>
-        <div class="hero-sub" id="expSub">僅計算支出金額</div>
+        <div class="hero-label">本月支出</div>
+        <div class="hero-sub">僅計算支出金額</div>
       </div>
       <div class="hero-val" id="totalExpense">$0</div>
     </section>
@@ -261,13 +260,13 @@
 
     <section class="card">
       <div class="section-head">
-        <strong id="listTitle">本月明細</strong>
+        <strong>本月明細</strong>
         <span id="countLabel" class="section-sub">0 筆</span>
       </div>
       <div id="txList"></div>
     </section>
 
-    <!-- 本週 / 本月 / 本年 結餘排列在下方 -->
+    <!-- 下方：本週 / 本月 / 本年 結餘排列 -->
     <section class="bottom-summary">
       <div class="bottom-title">期間結餘總覽</div>
       <div class="bottom-list">
@@ -294,26 +293,22 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_expense_only_v1';
+    const STORAGE_KEY = 'pwa_expense_cw_v2';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
-    let currentPeriod = 'month'; // 'week' | 'month' | 'year'
     let editingId = null;
     let records = loadRecords();
 
     const el = {
       todayBadge: document.getElementById('todayBadge'),
-      periodBtns: Array.from(document.querySelectorAll('.period-btn')),
-      periodPickerWrap: document.getElementById('periodPickerWrap'),
-      periodRangeText: document.getElementById('periodRangeText'),
-      expLabel: document.getElementById('expLabel'),
-      expSub: document.getElementById('expSub'),
+      weekdayBar: document.getElementById('weekdayBar'),
+      monthPicker: document.getElementById('monthPicker'),
+      monthRangeText: document.getElementById('monthRangeText'),
       totalExpense: document.getElementById('totalExpense'),
       catGrid: document.getElementById('catGrid'),
       formHeading: document.getElementById('formHeading'),
       editHint: document.getElementById('editHint'),
-      listTitle: document.getElementById('listTitle'),
       form: document.getElementById('txForm'),
       amount: document.getElementById('amount'),
       date: document.getElementById('date'),
@@ -354,30 +349,11 @@
       return `${Number(m)}/${Number(d)}`;
     }
 
-    function getIsoWeekValue(ymd) {
-      const dt = parseLocalDate(ymd);
-      const target = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()));
-      const dayNum = target.getUTCDay() || 7;
-      target.setUTCDate(target.getUTCDate() + 4 - dayNum);
-      const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1));
-      const weekNo = Math.ceil((((target - yearStart) / 86400000) + 1) / 7);
-      return `${target.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
-    }
-
-    function getWeekRange(weekStr) {
-      const match = /^(\d{4})-W(\d{2})$/.exec(weekStr || '');
-      if (!match) return { start: '', end: '' };
-      const year = Number(match[1]);
-      const week = Number(match[2]);
-      const jan4 = new Date(Date.UTC(year, 0, 4));
-      const jan4Day = jan4.getUTCDay() || 7;
-      const mondayUtc = new Date(jan4);
-      mondayUtc.setUTCDate(jan4.getUTCDate() - jan4Day + 1 + (week - 1) * 7);
-      const sundayUtc = new Date(mondayUtc);
-      sundayUtc.setUTCDate(mondayUtc.getUTCDate() + 6);
-      const start = new Date(mondayUtc.getUTCFullYear(), mondayUtc.getUTCMonth(), mondayUtc.getUTCDate());
-      const end = new Date(sundayUtc.getUTCFullYear(), sundayUtc.getUTCMonth(), sundayUtc.getUTCDate());
-      return { start: formatYmd(start), end: formatYmd(end) };
+    function getCurrentWeekRange(baseYmd) {
+      const dt = parseLocalDate(baseYmd);
+      const sunday = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dt.getDay());
+      const saturday = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + 6);
+      return { start: formatYmd(sunday), end: formatYmd(saturday) };
     }
 
     function loadRecords() {
@@ -403,6 +379,13 @@
 
     function formatMoney(n) {
       return '$' + Math.abs(Number(n || 0)).toLocaleString('zh-Hant-TW', { maximumFractionDigits: 2 });
+    }
+
+    function renderWeekdayBar() {
+      const todayIdx = parseLocalDate(todayStr()).getDay();
+      el.weekdayBar.innerHTML = WEEKDAYS_SHORT.map((label, idx) => `
+        <div class="weekday-cell ${idx === todayIdx ? 'today-wk' : ''}">${label}</div>
+      `).join('');
     }
 
     function renderCategories() {
@@ -438,61 +421,6 @@
       el.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    function renderPeriodPicker() {
-      const nowYmd = todayStr();
-      const nowYear = nowYmd.slice(0, 4);
-      const nowMonth = nowYmd.slice(0, 7);
-      const nowWeek = getIsoWeekValue(nowYmd);
-
-      if (currentPeriod === 'week') {
-        el.periodPickerWrap.innerHTML = `<input type="week" id="periodInput" class="picker-input" value="${nowWeek}" />`;
-      } else if (currentPeriod === 'month') {
-        el.periodPickerWrap.innerHTML = `<input type="month" id="periodInput" class="picker-input" value="${nowMonth}" />`;
-      } else {
-        const years = new Set([nowYear]);
-        for (const r of records) {
-          if (r.date && /^\d{4}/.test(r.date)) years.add(r.date.slice(0, 4));
-        }
-        const sortedYears = Array.from(years).sort((a, b) => b.localeCompare(a));
-        el.periodPickerWrap.innerHTML = `<select id="periodInput" class="picker-input">${
-          sortedYears.map(y => `<option value="${y}" ${y === nowYear ? 'selected' : ''}>${y} 年</option>`).join('')
-        }</select>`;
-      }
-
-      document.getElementById('periodInput').addEventListener('change', render);
-    }
-
-    function setPeriod(period) {
-      currentPeriod = period;
-      for (const btn of el.periodBtns) {
-        btn.className = 'period-btn' + (btn.dataset.period === period ? ' active' : '');
-      }
-      const prefix = period === 'week' ? '本週' : period === 'month' ? '本月' : '本年';
-      el.expLabel.textContent = `${prefix}支出`;
-      el.listTitle.textContent = `${prefix}明細`;
-      renderPeriodPicker();
-      render();
-    }
-
-    function filterByCurrentPeriod() {
-      const input = document.getElementById('periodInput');
-      const val = input ? input.value : '';
-
-      if (currentPeriod === 'week') {
-        const { start, end } = getWeekRange(val);
-        el.periodRangeText.textContent = start && end ? `${formatMonthDay(start)} ～ ${formatMonthDay(end)}` : '';
-        return records.filter(r => r.date && r.date >= start && r.date <= end);
-      }
-
-      if (currentPeriod === 'month') {
-        el.periodRangeText.textContent = val ? `${val} 月份` : '';
-        return records.filter(r => r.date && r.date.startsWith(val));
-      }
-
-      el.periodRangeText.textContent = val ? `${val} 年度` : '';
-      return records.filter(r => r.date && r.date.startsWith(val));
-    }
-
     function sumExpenses(list) {
       let total = 0;
       for (const r of list) total += Number(r.amount) || 0;
@@ -501,12 +429,11 @@
 
     function renderBottomBalances() {
       const nowYmd = todayStr();
-      const { start, end } = getWeekRange(getIsoWeekValue(nowYmd));
+      const { start, end } = getCurrentWeekRange(nowYmd);
       const weekList = records.filter(r => r.date && r.date >= start && r.date <= end);
       const monthList = records.filter(r => r.date && r.date.startsWith(nowYmd.slice(0, 7)));
       const yearList = records.filter(r => r.date && r.date.startsWith(nowYmd.slice(0, 4)));
 
-      // 不顯示減號，以正值金額呈現各期間支出結餘
       el.weekBalance.textContent = formatMoney(sumExpenses(weekList));
       el.monthBalance.textContent = formatMoney(sumExpenses(monthList));
       el.yearBalance.textContent = formatMoney(sumExpenses(yearList));
@@ -546,7 +473,7 @@
 
     function renderGroupedTransactions(filtered) {
       if (!filtered.length) {
-        el.txList.innerHTML = '<div class="empty">這個區間還沒有支出紀錄</div>';
+        el.txList.innerHTML = '<div class="empty">這個月份還沒有支出紀錄</div>';
         return;
       }
 
@@ -602,7 +529,9 @@
     }
 
     function render() {
-      const filtered = filterByCurrentPeriod();
+      const m = el.monthPicker.value;
+      el.monthRangeText.textContent = m ? `${m} 月份` : '';
+      const filtered = records.filter(r => !m || (r.date && r.date.startsWith(m)));
       const totalExp = sumExpenses(filtered);
 
       el.totalExpense.textContent = formatMoney(totalExp);
@@ -613,12 +542,9 @@
       renderBottomBalances();
     }
 
+    el.monthPicker.addEventListener('change', render);
     el.category.addEventListener('change', render);
     el.cancelEditBtn.addEventListener('click', () => exitEditMode(true));
-
-    for (const btn of el.periodBtns) {
-      btn.addEventListener('click', () => setPeriod(btn.dataset.period));
-    }
 
     el.form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -647,7 +573,6 @@
       saveRecords();
       exitEditMode(true);
       el.amount.focus();
-      if (currentPeriod === 'year') renderPeriodPicker();
       render();
     });
 
@@ -689,7 +614,6 @@
         for (const item of data) if (item && item.id) map.set(item.id, item);
         records = Array.from(map.values());
         saveRecords();
-        if (currentPeriod === 'year') renderPeriodPicker();
         render();
         alert('備份匯入完成！');
       } catch {
@@ -703,8 +627,10 @@
     const nowDt = parseLocalDate(nowDate);
     el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
     el.date.value = nowDate;
+    el.monthPicker.value = nowDate.slice(0, 7);
+    renderWeekdayBar();
     renderCategories();
-    setPeriod('month');
+    render();
   </script>
 </body>
 </html>
