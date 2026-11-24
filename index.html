@@ -17,11 +17,31 @@
       background: var(--bg); color: var(--text); padding-bottom: 48px;
     }
     .container { max-width: 640px; margin: 0 auto; padding: 16px; }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 10px; margin-bottom: 12px; flex-wrap: wrap;
+    }
     h1 { font-size: 1.25rem; margin: 0; }
-    .month-picker {
-      background: var(--card); color: var(--text); border: 1px solid var(--border);
-      border-radius: 8px; padding: 6px 10px; font-size: 0.95rem;
+    .period-bar {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      margin-bottom: 10px;
+    }
+    .period-btn {
+      padding: 8px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--card); color: var(--muted); font-weight: 600; cursor: pointer;
+    }
+    .period-btn.active {
+      background: rgba(56, 189, 248, 0.16); border-color: var(--accent); color: var(--accent);
+    }
+    .selector-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      margin-bottom: 14px; background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 12px;
+    }
+    .selector-row .range-text { font-size: 0.85rem; color: var(--muted); }
+    .picker-input {
+      background: var(--bg); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 10px; font-size: 0.92rem; width: auto;
     }
     .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
     .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
@@ -62,13 +82,26 @@
   <div class="container">
     <header>
       <h1>隨手記帳</h1>
-      <input type="month" id="monthFilter" class="month-picker" />
+      <span id="todayBadge" style="font-size:0.82rem; color:var(--muted);"></span>
     </header>
+
+    <div class="period-bar">
+      <button type="button" class="period-btn" data-period="week">週紀錄</button>
+      <button type="button" class="period-btn active" data-period="month">月紀錄</button>
+      <button type="button" class="period-btn" data-period="year">年紀錄</button>
+    </div>
+
+    <div class="selector-row">
+      <div id="periodPickerWrap"></div>
+      <span id="periodRangeText" class="range-text"></span>
+    </div>
+
     <section class="summary">
-      <div class="stat"><div class="label">本月支出</div><div class="val expense-text" id="totalExpense">$0</div></div>
-      <div class="stat"><div class="label">本月收入</div><div class="val income-text" id="totalIncome">$0</div></div>
-      <div class="stat"><div class="label">本月結餘</div><div class="val" id="totalBalance">$0</div></div>
+      <div class="stat"><div class="label" id="expLabel">本月支出</div><div class="val expense-text" id="totalExpense">$0</div></div>
+      <div class="stat"><div class="label" id="incLabel">本月收入</div><div class="val income-text" id="totalIncome">$0</div></div>
+      <div class="stat"><div class="label" id="balLabel">本月結餘</div><div class="val" id="totalBalance">$0</div></div>
     </section>
+
     <section class="card">
       <div class="type-toggle">
         <button type="button" id="btnExpense" class="type-btn active-expense">支出</button>
@@ -83,19 +116,20 @@
             <label for="account">帳戶</label>
             <select id="account">
               <option value="現金">現金</option>
-              <option value="簽帳卡/信用卡">簽帳卡/信用卡</option>
+              <option value="信用卡">信用卡</option>
               <option value="銀行帳戶">銀行帳戶</option>
               <option value="電子支付">電子支付</option>
             </select>
           </div>
-          <div class="full"><label for="note">備註（選填）</label><input type="text" id="note" placeholder="例如：午餐、捷運、薪水" /></div>
+          <div class="full"><label for="note">備註（選填）</label><input type="text" id="note" placeholder="例如：午餐、捷運、帳單、維修" /></div>
         </div>
         <button type="submit" class="primary">新增紀錄</button>
       </form>
     </section>
+
     <section class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <strong>明細紀錄</strong>
+        <strong id="listTitle">明細紀錄</strong>
         <span id="countLabel" style="font-size:0.8rem; color:var(--muted);">0 筆</span>
       </div>
       <div id="txList" class="tx-list"></div>
@@ -106,108 +140,302 @@
       </div>
     </section>
   </div>
+
   <script>
-    const STORAGE_KEY = 'pwa_expense_records_v1';
-    const CATEGORIES = {
-      expense: ['餐飲', '交通', '購物', '生活用品', '娛樂', '醫療/保健', '其他支出'],
-      income: ['薪水', '獎金', '投資/利息', '兼職', '其他收入']
-    };
+    const STORAGE_KEY = 'pwa_expense_records_v2';
+    const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
+
     let currentType = 'expense';
+    let currentPeriod = 'month'; // 'week' | 'month' | 'year'
     let records = loadRecords();
+
     const el = {
-      monthFilter: document.getElementById('monthFilter'), btnExpense: document.getElementById('btnExpense'),
-      btnIncome: document.getElementById('btnIncome'), form: document.getElementById('txForm'),
-      amount: document.getElementById('amount'), date: document.getElementById('date'),
-      category: document.getElementById('category'), account: document.getElementById('account'),
-      note: document.getElementById('note'), txList: document.getElementById('txList'),
-      countLabel: document.getElementById('countLabel'), totalExpense: document.getElementById('totalExpense'),
-      totalIncome: document.getElementById('totalIncome'), totalBalance: document.getElementById('totalBalance'),
-      exportBtn: document.getElementById('exportBtn'), importBtn: document.getElementById('importBtn'),
+      todayBadge: document.getElementById('todayBadge'),
+      periodBtns: Array.from(document.querySelectorAll('.period-btn')),
+      periodPickerWrap: document.getElementById('periodPickerWrap'),
+      periodRangeText: document.getElementById('periodRangeText'),
+      expLabel: document.getElementById('expLabel'),
+      incLabel: document.getElementById('incLabel'),
+      balLabel: document.getElementById('balLabel'),
+      listTitle: document.getElementById('listTitle'),
+      btnExpense: document.getElementById('btnExpense'),
+      btnIncome: document.getElementById('btnIncome'),
+      form: document.getElementById('txForm'),
+      amount: document.getElementById('amount'),
+      date: document.getElementById('date'),
+      category: document.getElementById('category'),
+      account: document.getElementById('account'),
+      note: document.getElementById('note'),
+      txList: document.getElementById('txList'),
+      countLabel: document.getElementById('countLabel'),
+      totalExpense: document.getElementById('totalExpense'),
+      totalIncome: document.getElementById('totalIncome'),
+      totalBalance: document.getElementById('totalBalance'),
+      exportBtn: document.getElementById('exportBtn'),
+      importBtn: document.getElementById('importBtn'),
       importFile: document.getElementById('importFile')
     };
+
     function todayStr() {
       const d = new Date();
       return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
     }
+
+    function parseLocalDate(ymd) {
+      const [y, m, d] = ymd.split('-').map(Number);
+      return new Date(y, (m || 1) - 1, d || 1);
+    }
+
+    function formatYmd(dt) {
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const d = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    // 計算 ISO 週次字串，例如 2026-W48
+    function getIsoWeekValue(ymd) {
+      const dt = parseLocalDate(ymd);
+      const target = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()));
+      const dayNum = target.getUTCDay() || 7;
+      target.setUTCDate(target.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1));
+      const weekNo = Math.ceil((((target - yearStart) / 86400000) + 1) / 7);
+      return `${target.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+    }
+
+    // 依週次取得該週一到週日區間
+    function getWeekRange(weekStr) {
+      const match = /^(\d{4})-W(\d{2})$/.exec(weekStr || '');
+      if (!match) return { start: '', end: '' };
+      const year = Number(match[1]);
+      const week = Number(match[2]);
+      const jan4 = new Date(Date.UTC(year, 0, 4));
+      const jan4Day = jan4.getUTCDay() || 7;
+      const mondayUtc = new Date(jan4);
+      mondayUtc.setUTCDate(jan4.getUTCDate() - jan4Day + 1 + (week - 1) * 7);
+      const sundayUtc = new Date(mondayUtc);
+      sundayUtc.setUTCDate(mondayUtc.getUTCDate() + 6);
+      const start = new Date(mondayUtc.getUTCFullYear(), mondayUtc.getUTCMonth(), mondayUtc.getUTCDate());
+      const end = new Date(sundayUtc.getUTCFullYear(), sundayUtc.getUTCMonth(), sundayUtc.getUTCDate());
+      return { start: formatYmd(start), end: formatYmd(end) };
+    }
+
     function loadRecords() {
-      try { const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); return Array.isArray(p) ? p : []; }
-      catch { return []; }
+      try {
+        const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        return Array.isArray(p) ? p : [];
+      } catch {
+        return [];
+      }
     }
-    function saveRecords() { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
+
+    function saveRecords() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
     function escapeHtml(str) {
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
+
     function renderCategories() {
-      el.category.innerHTML = (CATEGORIES[currentType] || []).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      el.category.innerHTML = CATEGORIES
+        .map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
+        .join('');
     }
+
     function setType(type) {
       currentType = type;
       el.btnExpense.className = 'type-btn' + (type === 'expense' ? ' active-expense' : '');
       el.btnIncome.className = 'type-btn' + (type === 'income' ? ' active-income' : '');
-      renderCategories();
     }
-    function formatMoney(n) { return '$' + Number(n || 0).toLocaleString('zh-Hant-TW', { maximumFractionDigits: 2 }); }
+
+    function renderPeriodPicker() {
+      const nowYmd = todayStr();
+      const nowYear = nowYmd.slice(0, 4);
+      const nowMonth = nowYmd.slice(0, 7);
+      const nowWeek = getIsoWeekValue(nowYmd);
+
+      if (currentPeriod === 'week') {
+        el.periodPickerWrap.innerHTML = `<input type="week" id="periodInput" class="picker-input" value="${nowWeek}" />`;
+      } else if (currentPeriod === 'month') {
+        el.periodPickerWrap.innerHTML = `<input type="month" id="periodInput" class="picker-input" value="${nowMonth}" />`;
+      } else {
+        const years = new Set([nowYear]);
+        for (const r of records) {
+          if (r.date && /^\d{4}/.test(r.date)) years.add(r.date.slice(0, 4));
+        }
+        const sortedYears = Array.from(years).sort((a, b) => b.localeCompare(a));
+        el.periodPickerWrap.innerHTML = `<select id="periodInput" class="picker-input">${
+          sortedYears.map(y => `<option value="${y}" ${y === nowYear ? 'selected' : ''}>${y} 年</option>`).join('')
+        }</select>`;
+      }
+
+      document.getElementById('periodInput').addEventListener('change', render);
+    }
+
+    function setPeriod(period) {
+      currentPeriod = period;
+      for (const btn of el.periodBtns) {
+        btn.className = 'period-btn' + (btn.dataset.period === period ? ' active' : '');
+      }
+      const prefix = period === 'week' ? '本週' : period === 'month' ? '本月' : '本年';
+      el.expLabel.textContent = `${prefix}支出`;
+      el.incLabel.textContent = `${prefix}收入`;
+      el.balLabel.textContent = `${prefix}結餘`;
+      el.listTitle.textContent = `${prefix}明細`;
+      renderPeriodPicker();
+      render();
+    }
+
+    function formatMoney(n) {
+      return '$' + Number(n || 0).toLocaleString('zh-Hant-TW', { maximumFractionDigits: 2 });
+    }
+
+    function filterByCurrentPeriod() {
+      const input = document.getElementById('periodInput');
+      const val = input ? input.value : '';
+
+      if (currentPeriod === 'week') {
+        const { start, end } = getWeekRange(val);
+        el.periodRangeText.textContent = start && end ? `${start} ～ ${end}` : '';
+        return records.filter(r => r.date && r.date >= start && r.date <= end);
+      }
+
+      if (currentPeriod === 'month') {
+        el.periodRangeText.textContent = val ? `${val} 月份` : '';
+        return records.filter(r => r.date && r.date.startsWith(val));
+      }
+
+      el.periodRangeText.textContent = val ? `${val} 年度` : '';
+      return records.filter(r => r.date && r.date.startsWith(val));
+    }
+
     function render() {
-      const m = el.monthFilter.value;
-      const filtered = records
-        .filter(r => !m || (r.date && r.date.startsWith(m)))
-        .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0));
-      let exp = 0, inc = 0;
+      const filtered = filterByCurrentPeriod().sort(
+        (a, b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0)
+      );
+
+      let exp = 0;
+      let inc = 0;
       for (const r of filtered) {
         const amt = Number(r.amount) || 0;
-        if (r.type === 'income') inc += amt; else exp += amt;
+        if (r.type === 'income') inc += amt;
+        else exp += amt;
       }
       const bal = inc - exp;
+
       el.totalExpense.textContent = formatMoney(exp);
       el.totalIncome.textContent = formatMoney(inc);
       el.totalBalance.textContent = (bal < 0 ? '-' : '') + formatMoney(Math.abs(bal));
       el.totalBalance.className = 'val ' + (bal < 0 ? 'expense-text' : bal > 0 ? 'income-text' : '');
       el.countLabel.textContent = `${filtered.length} 筆`;
-      if (!filtered.length) { el.txList.innerHTML = '<div class="empty">這個月份還沒有紀錄</div>'; return; }
-      el.txList.innerHTML = filtered.map(r => {
-        const isInc = r.type === 'income';
-        return `<div class="tx-item"><div class="tx-main"><div class="tx-title">${escapeHtml(r.category)}${r.note ? ' · ' + escapeHtml(r.note) : ''}</div><div class="tx-meta">${escapeHtml(r.date)} · ${escapeHtml(r.account || '現金')}</div></div><div class="tx-right"><div class="tx-amt ${isInc ? 'income-text' : 'expense-text'}">${isInc ? '+' : '-'}${formatMoney(r.amount)}</div><button type="button" class="del-btn" data-id="${escapeHtml(r.id)}" title="刪除">✕</button></div></div>`;
-      }).join('');
+
+      if (!filtered.length) {
+        el.txList.innerHTML = '<div class="empty">這個區間還沒有紀錄</div>';
+        return;
+      }
+
+      el.txList.innerHTML = filtered
+        .map(r => {
+          const isInc = r.type === 'income';
+          return `
+            <div class="tx-item">
+              <div class="tx-main">
+                <div class="tx-title">${escapeHtml(r.category)}${r.note ? ' · ' + escapeHtml(r.note) : ''}</div>
+                <div class="tx-meta">${escapeHtml(r.date)} · ${escapeHtml(r.account || '現金')}</div>
+              </div>
+              <div class="tx-right">
+                <div class="tx-amt ${isInc ? 'income-text' : 'expense-text'}">
+                  ${isInc ? '+' : '-'}${formatMoney(r.amount)}
+                </div>
+                <button type="button" class="del-btn" data-id="${escapeHtml(r.id)}" title="刪除">✕</button>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
     }
+
     el.btnExpense.addEventListener('click', () => setType('expense'));
     el.btnIncome.addEventListener('click', () => setType('income'));
-    el.monthFilter.addEventListener('change', render);
+    for (const btn of el.periodBtns) {
+      btn.addEventListener('click', () => setPeriod(btn.dataset.period));
+    }
+
     el.form.addEventListener('submit', (e) => {
       e.preventDefault();
       const amount = parseFloat(el.amount.value);
       if (!amount || amount <= 0) return;
+
       records.push({
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-        type: currentType, amount, date: el.date.value || todayStr(),
-        category: el.category.value, account: el.account.value, note: el.note.value.trim(), createdAt: Date.now()
+        type: currentType,
+        amount,
+        date: el.date.value || todayStr(),
+        category: el.category.value,
+        account: el.account.value,
+        note: el.note.value.trim(),
+        createdAt: Date.now()
       });
-      saveRecords(); el.amount.value = ''; el.note.value = ''; el.amount.focus(); render();
+
+      saveRecords();
+      el.amount.value = '';
+      el.note.value = '';
+      el.date.value = todayStr();
+      el.amount.focus();
+      if (currentPeriod === 'year') renderPeriodPicker();
+      render();
     });
+
     el.txList.addEventListener('click', (e) => {
       const btn = e.target.closest('.del-btn');
       if (!btn) return;
       records = records.filter(r => r.id !== btn.getAttribute('data-id'));
-      saveRecords(); render();
+      saveRecords();
+      render();
     });
+
     el.exportBtn.addEventListener('click', () => {
       const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' }));
-      const a = document.createElement('a'); a.href = url; a.download = `expense-backup-${todayStr()}.json`; a.click(); URL.revokeObjectURL(url);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `expense-backup-${todayStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
     });
+
     el.importBtn.addEventListener('click', () => el.importFile.click());
     el.importFile.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0]; if (!file) return;
+      const file = e.target.files?.[0];
+      if (!file) return;
       try {
         const data = JSON.parse(await file.text());
         if (!Array.isArray(data)) throw new Error();
         const map = new Map(records.map(i => [i.id, i]));
         for (const item of data) if (item && item.id) map.set(item.id, item);
-        records = Array.from(map.values()); saveRecords(); render(); alert('備份匯入完成！');
-      } catch { alert('匯入失敗，請確認選擇的是正確的 JSON 備份檔。'); }
-      finally { e.target.value = ''; }
+        records = Array.from(map.values());
+        saveRecords();
+        if (currentPeriod === 'year') renderPeriodPicker();
+        render();
+        alert('備份匯入完成！');
+      } catch {
+        alert('匯入失敗，請確認選擇的是正確的 JSON 備份檔。');
+      } finally {
+        e.target.value = '';
+      }
     });
+
     const nowDate = todayStr();
-    el.date.value = nowDate; el.monthFilter.value = nowDate.slice(0, 7);
-    setType('expense'); render();
+    el.todayBadge.textContent = `今天：${nowDate}`;
+    el.date.value = nowDate;
+    renderCategories();
+    setType('expense');
+    setPeriod('month');
   </script>
 </body>
 </html>
