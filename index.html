@@ -43,39 +43,47 @@
       border: 1px solid var(--border); padding: 4px 10px; border-radius: 999px;
     }
 
-    /* 第二行：左邊小一點顯示當月 + 右邊美化下拉選單 */
+    /* 第二行：左邊當月 + 提示文字並排 + 右邊美化下拉選單 */
     .cal-strip-card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 10px 12px; margin-bottom: 12px;
     }
     .month-select-row {
       display: flex; justify-content: space-between; align-items: center;
-      gap: 10px; margin-bottom: 10px;
+      gap: 8px; margin-bottom: 10px;
+    }
+    .month-left-group {
+      display: flex; align-items: center; gap: 8px;
+      min-width: 0; flex: 1;
     }
     .current-month-btn {
       width: auto; padding: 5px 10px; border-radius: 999px;
       background: var(--card-2); color: var(--accent);
       border: 1px solid rgba(245, 158, 11, 0.45);
       font-size: 0.78rem; font-weight: 800; cursor: pointer;
-      white-space: nowrap;
+      white-space: nowrap; flex-shrink: 0;
     }
     .current-month-btn:active { background: var(--accent); color: #1c1917; }
+    .day-filter-inline {
+      font-size: 0.72rem; color: var(--muted);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
 
     .month-dropdown-wrap {
-      position: relative; flex: 1; max-width: 190px;
+      position: relative; width: 112px; flex-shrink: 0;
     }
     .month-dropdown {
       width: 100%; appearance: none; -webkit-appearance: none;
       background: var(--bg); color: var(--text);
       border: 1px solid rgba(245, 158, 11, 0.5);
-      border-radius: 10px; padding: 7px 32px 7px 12px;
-      font-size: 0.88rem; font-weight: 700; cursor: pointer;
+      border-radius: 10px; padding: 6px 26px 6px 10px;
+      font-size: 0.84rem; font-weight: 700; cursor: pointer;
     }
     .month-dropdown:focus { outline: none; border-color: var(--accent); }
     .dropdown-arrow {
       pointer-events: none;
-      position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
-      color: var(--accent); font-size: 0.72rem; font-weight: 800;
+      position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+      color: var(--accent); font-size: 0.7rem; font-weight: 800;
     }
 
     .week-row-top {
@@ -98,24 +106,23 @@
     .day-btn.active {
       border-color: var(--accent); background: var(--accent-soft); color: var(--accent);
     }
-    .cal-strip-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-top: 8px; font-size: 0.76rem; color: var(--muted);
+    .cal-strip-footer-action {
+      display: flex; justify-content: flex-end; margin-top: 6px;
     }
     .clear-day-btn {
       width: auto; padding: 3px 8px; font-size: 0.74rem; border-radius: 6px;
       background: var(--card-2); border: 1px solid var(--border); color: var(--text); cursor: pointer;
     }
 
-    /* 月支出 */
+    /* 月支出：只要一行 */
     .hero-expense {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 14px 16px; margin-bottom: 12px;
+      border-radius: 14px; padding: 12px 16px; margin-bottom: 12px;
       display: flex; justify-content: space-between; align-items: center;
+      gap: 12px;
     }
-    .hero-label { font-size: 0.92rem; font-weight: 700; color: var(--text); }
-    .hero-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
-    .hero-val { font-size: 1.55rem; font-weight: 800; color: var(--expense); }
+    .hero-label { font-size: 0.96rem; font-weight: 700; color: var(--text); white-space: nowrap; }
+    .hero-val { font-size: 1.45rem; font-weight: 800; color: var(--expense); white-space: nowrap; }
 
     /* 卡片與分類（單行不溢出、縮小字體） */
     .card {
@@ -333,10 +340,13 @@
       <span id="todayBadge" class="today-pill"></span>
     </header>
 
-    <!-- 第二行：左邊小一點顯示當月 + 右邊美化下拉選單 -->
+    <!-- 第二行：左邊當月 + 提示文字並排 + 右邊美化下拉選單 -->
     <section class="cal-strip-card">
       <div class="month-select-row">
-        <button type="button" id="currentMonthBtn" class="current-month-btn">當月</button>
+        <div class="month-left-group">
+          <button type="button" id="currentMonthBtn" class="current-month-btn">當月</button>
+          <span id="dayFilterStatus" class="day-filter-inline">顯示整月明細（點上方日期可看當日）</span>
+        </div>
         <div class="month-dropdown-wrap">
           <select id="monthSelect" class="month-dropdown" aria-label="選擇月份"></select>
           <span class="dropdown-arrow">▼</span>
@@ -352,20 +362,17 @@
         <div class="wk-head">周六</div>
       </div>
       <div id="weekDaysRow" class="week-row-days"></div>
-      <div class="cal-strip-footer">
-        <span id="dayFilterStatus">顯示整月明細（點上方日期可看當日）</span>
+      <div class="cal-strip-footer-action">
         <button type="button" id="clearDayBtn" class="clear-day-btn" style="display:none;">看整月</button>
       </div>
     </section>
 
     <!-- 首頁內容 -->
     <div id="homeView">
+      <!-- 月支出：只要一行 -->
       <section class="hero-expense">
-        <div>
-          <div class="hero-label" id="expTitleLabel">月支出</div>
-          <div class="hero-sub" id="expSubLabel">僅計算支出金額</div>
-        </div>
-        <div class="hero-val" id="totalExpense">$0</div>
+        <span class="hero-label" id="expTitleLabel">月支出</span>
+        <span class="hero-val" id="totalExpense">$0</span>
       </section>
 
       <!-- 分類支出：單行不溢出、縮小字體 -->
@@ -481,7 +488,7 @@
   </nav>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_v8';
+    const STORAGE_KEY = 'pwa_expense_cw_v9';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const PALETTE = ['#f59e0b', '#38bdf8', '#4ade80', '#f87171', '#a78bfa', '#fb7185', '#2dd4bf', '#facc15', '#60a5fa', '#e879f9'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -510,7 +517,6 @@
       reportMonthLabel: document.getElementById('reportMonthLabel'),
       reportBody: document.getElementById('reportBody'),
       expTitleLabel: document.getElementById('expTitleLabel'),
-      expSubLabel: document.getElementById('expSubLabel'),
       listHeading: document.getElementById('listHeading'),
       totalExpense: document.getElementById('totalExpense'),
       catRow: document.getElementById('catRow'),
@@ -680,7 +686,7 @@
 
       if (selectedYmd) {
         const dt = parseLocalDate(selectedYmd);
-        el.dayFilterStatus.textContent = `當日明細：${formatMonthDay(selectedYmd)}（${WEEKDAYS_SHORT[dt.getDay()]}）`;
+        el.dayFilterStatus.textContent = `當日：${formatMonthDay(selectedYmd)}（${WEEKDAYS_SHORT[dt.getDay()]}）`;
         el.clearDayBtn.style.display = 'inline-block';
       } else {
         el.dayFilterStatus.textContent = '顯示整月明細（點上方日期可看當日）';
@@ -744,7 +750,6 @@
       el.yearBalance.textContent = formatMoney(sumExpenses(yearList));
     }
 
-    // 分類支出：單行不溢出、縮小字體
     function renderCategoryRow(filtered) {
       const catTotals = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
       for (const r of filtered) {
@@ -833,7 +838,6 @@
       el.txList.innerHTML = html;
     }
 
-    // 圓餅圖顯示字體（扇形內顯示標籤與占比 + 中心顯示總計）
     function buildPieChartHtml(slices, centerTitle, emptyMsg) {
       const positiveSlices = slices.filter(s => s.value > 0);
       const total = positiveSlices.reduce((acc, s) => acc + s.value, 0);
@@ -995,11 +999,9 @@
 
       if (selectedYmd) {
         el.expTitleLabel.textContent = `${formatMonthDay(selectedYmd)} 支出`;
-        el.expSubLabel.textContent = '當日支出金額';
         el.listHeading.textContent = `${formatMonthDay(selectedYmd)} 明細`;
       } else {
         el.expTitleLabel.textContent = '月支出';
-        el.expSubLabel.textContent = '僅計算支出金額';
         el.listHeading.textContent = '本月明細';
       }
 
