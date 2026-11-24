@@ -106,13 +106,6 @@
     .day-btn.active {
       border-color: var(--accent); background: var(--accent-soft); color: var(--accent);
     }
-    .cal-strip-footer-action {
-      display: flex; justify-content: flex-end; margin-top: 6px;
-    }
-    .clear-day-btn {
-      width: auto; padding: 3px 8px; font-size: 0.74rem; border-radius: 6px;
-      background: var(--card-2); border: 1px solid var(--border); color: var(--text); cursor: pointer;
-    }
 
     /* 月支出：只要一行 */
     .hero-expense {
@@ -362,9 +355,6 @@
         <div class="wk-head">周六</div>
       </div>
       <div id="weekDaysRow" class="week-row-days"></div>
-      <div class="cal-strip-footer-action">
-        <button type="button" id="clearDayBtn" class="clear-day-btn" style="display:none;">看整月</button>
-      </div>
     </section>
 
     <!-- 首頁內容 -->
@@ -488,7 +478,7 @@
   </nav>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_v9';
+    const STORAGE_KEY = 'pwa_expense_cw_v10';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const PALETTE = ['#f59e0b', '#38bdf8', '#4ade80', '#f87171', '#a78bfa', '#fb7185', '#2dd4bf', '#facc15', '#60a5fa', '#e879f9'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -504,7 +494,6 @@
       monthSelect: document.getElementById('monthSelect'),
       weekDaysRow: document.getElementById('weekDaysRow'),
       dayFilterStatus: document.getElementById('dayFilterStatus'),
-      clearDayBtn: document.getElementById('clearDayBtn'),
       homeView: document.getElementById('homeView'),
       reportView: document.getElementById('reportView'),
       tabHome: document.getElementById('tabHome'),
@@ -687,10 +676,8 @@
       if (selectedYmd) {
         const dt = parseLocalDate(selectedYmd);
         el.dayFilterStatus.textContent = `當日：${formatMonthDay(selectedYmd)}（${WEEKDAYS_SHORT[dt.getDay()]}）`;
-        el.clearDayBtn.style.display = 'inline-block';
       } else {
         el.dayFilterStatus.textContent = '顯示整月明細（點上方日期可看當日）';
-        el.clearDayBtn.style.display = 'none';
       }
 
       if (!editingId) {
@@ -1024,11 +1011,6 @@
     });
 
     el.monthSelect.addEventListener('change', () => {
-      selectedYmd = null;
-      render();
-    });
-
-    el.clearDayBtn.addEventListener('click', () => {
       selectedYmd = null;
       render();
     });
