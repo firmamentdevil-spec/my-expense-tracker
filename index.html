@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>隨手記帳</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-2: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --expense: #f87171;
+      --income: #4ade80;
+      --border: rgba(148, 163, 184, 0.16);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 48px;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    h1 { font-size: 1.25rem; margin: 0; }
+    .month-picker {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.95rem;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .stat .label { font-size: 0.78rem; color: var(--muted); }
+    .stat .val { font-size: 1.05rem; font-weight: 700; margin-top: 4px; }
+    .expense-text { color: var(--expense); }
+    .income-text { color: var(--income); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+    input, select, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      background: var(--bg);
+      color: var(--text);
+    }
+    button.primary {
+      background: var(--accent);
+      color: #082f49;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    button.secondary {
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+    }
+    .type-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .type-btn {
+      padding: 9px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .type-btn.active-expense {
+      background: rgba(248, 113, 113, 0.16);
+      border-color: var(--expense);
+      color: var(--expense);
+    }
+    .type-btn.active-income {
+      background: rgba(74, 222, 128, 0.16);
+      border-color: var(--income);
+      color: var(--income);
+    }
+
+    .tx-list { display: flex; flex-direction: column; gap: 8px; }
+    .tx-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      gap: 8px;
+    }
+    .tx-main { min-width: 0; }
+    .tx-title { font-weight: 600; font-size: 0.95rem; }
+    .tx-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+    .tx-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .tx-amt { font-weight: 700; font-size: 0.98rem; }
+    .del-btn {
+      width: auto;
+      padding: 5px 8px;
+      font-size: 0.78rem;
+      background: transparent;
+      color: var(--muted);
+      border-color: transparent;
+      cursor: pointer;
+    }
+    .del-btn:hover { color: var(--expense); }
+
+    .tools {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .empty { text-align: center; color: var(--muted); padding: 20px 0; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>隨手記帳</h1>
+      <input type="month" id="monthFilter" class="month-picker" />
+    </header>
+
+    <section class="summary">
+      <div class="stat">
+        <div class="label">本月支出</div>
+        <div class="val expense-text" id="totalExpense">$0</div>
+      </div>
+      <div class="stat">
+        <div class="label">本月收入</div>
+        <div class="val income-text" id="totalIncome">$0</div>
+      </div>
+      <div class="stat">
+        <div class="label">本月結餘</div>
+        <div class="val" id="totalBalance">$0</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="type-toggle">
+        <button type="button" id="btnExpense" class="type-btn active-expense">支出</button>
+        <button type="button" id="btnIncome" class="type-btn">收入</button>
+      </div>
+
+      <form id="txForm">
+        <div class="form-grid">
+          <div>
+            <label for="amount">金額</label>
+            <input type="number" id="amount" inputmode="decimal" step="any" min="0.01" placeholder="0" required />
+          </div>
+          <div>
+            <label for="date">日期</label>
+            <input type="date" id="date" required />
+          </div>
+          <div>
+            <label for="category">分類</label>
+            <select id="category"></select>
+          </div>
+          <div>
+            <label for="account">帳戶</label>
+            <select id="account">
+              <option value="現金">現金</option>
+              <option value="簽帳卡/信用卡">簽帳卡/信用卡</option>
+              <option value="銀行帳戶">銀行帳戶</option>
+              <option value="電子支付">電子支付</option>
+            </select>
+          </div>
+          <div class="full">
+            <label for="note">備註（選填）</label>
+            <input type="text" id="note" placeholder="例如：午餐、捷運、薪水" />
+          </div>
+        </div>
+        <button type="submit" class="primary">新增紀錄</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <strong>明細紀錄</strong>
+        <span id="countLabel" style="font-size:0.8rem; color:var(--muted);">0 筆</span>
+      </div>
+      <div id="txList" class="tx-list"></div>
+
+      <div class="tools">
+        <button type="button" id="exportBtn" class="secondary">匯出備份 (JSON)</button>
+        <button type="button" id="importBtn" class="secondary">匯入備份</button>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none;" />
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'pwa_expense_records_v1';
+    const CATEGORIES = {
+      expense: ['餐飲', '交通', '購物', '生活用品', '娛樂', '醫療/保健', '其他支出'],
+      income: ['薪水', '獎金', '投資/利息', '兼職', '其他收入']
+    };
+
+    let currentType = 'expense';
+    let records = loadRecords();
+
+    const el = {
+      monthFilter: document.getElementById('monthFilter'),
+      btnExpense: document.getElementById('btnExpense'),
+      btnIncome: document.getElementById('btnIncome'),
+      form: document.getElementById('txForm'),
+      amount: document.getElementById('amount'),
+      date: document.getElementById('date'),
+      category: document.getElementById('category'),
+      account: document.getElementById('account'),
+      note: document.getElementById('note'),
+      txList: document.getElementById('txList'),
+      countLabel: document.getElementById('countLabel'),
+      totalExpense: document.getElementById('totalExpense'),
+      totalIncome: document.getElementById('totalIncome'),
+      totalBalance: document.getElementById('totalBalance'),
+      exportBtn: document.getElementById('exportBtn'),
+      importBtn: document.getElementById('importBtn'),
+      importFile: document.getElementById('importFile')
+    };
+
+    function todayStr() {
+      const d = new Date();
+      const tzOffset = d.getTimezoneOffset() * 60000;
+      return new Date(d.getTime() - tzOffset).toISOString().slice(0, 10);
+    }
+
+    function loadRecords() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveRecords() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function renderCategories() {
+      const list = CATEGORIES[currentType] || [];
+      el.category.innerHTML = list.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    }
+
+    function setType(type) {
+      currentType = type;
+      el.btnExpense.className = 'type-btn' + (type === 'expense' ? ' active-expense' : '');
+      el.btnIncome.className = 'type-btn' + (type === 'income' ? ' active-income' : '');
+      renderCategories();
+    }
+
+    function formatMoney(n) {
+      return '$' + Number(n || 0).toLocaleString('zh-Hant-TW', { maximumFractionDigits: 2 });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function render() {
+      const selectedMonth = el.monthFilter.value;
+      const filtered = records
+        .filter(r => !selectedMonth || (r.date && r.date.startsWith(selectedMonth)))
+        .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0));
+
+      let exp = 0, inc = 0;
+      for (const r of filtered) {
+        const amt = Number(r.amount) || 0;
+        if (r.type === 'income') inc += amt;
+        else exp += amt;
+      }
+      const bal = inc - exp;
+
+      el.totalExpense.textContent = formatMoney(exp);
+      el.totalIncome.textContent = formatMoney(inc);
+      el.totalBalance.textContent = (bal < 0 ? '-' : '') + formatMoney(Math.abs(bal));
+      el.totalBalance.className = 'val ' + (bal < 0 ? 'expense-text' : bal > 0 ? 'income-text' : '');
+      el.countLabel.textContent = `${filtered.length} 筆`;
+
+      if (!filtered.length) {
+        el.txList.innerHTML = '<div class="empty">這個月份還沒有紀錄</div>';
+        return;
+      }
+
+      el.txList.innerHTML = filtered.map(r => {
+        const isInc = r.type === 'income';
+        return `
+          <div class="tx-item">
+            <div class="tx-main">
+              <div class="tx-title">${escapeHtml(r.category)}${r.note ? ' · ' + escapeHtml(r.note) : ''}</div>
+              <div class="tx-meta">${escapeHtml(r.date)} · ${escapeHtml(r.account || '現金')}</div>
+            </div>
+            <div class="tx-right">
+              <div class="tx-amt ${isInc ? 'income-text' : 'expense-text'}">
+                ${isInc ? '+' : '-'}${formatMoney(r.amount)}
+              </div>
+              <button type="button" class="del-btn" data-id="${escapeHtml(r.id)}" title="刪除">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    el.btnExpense.addEventListener('click', () => setType('expense'));
+    el.btnIncome.addEventListener('click', () => setType('income'));
+    el.monthFilter.addEventListener('change', render);
+
+    el.form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const amount = parseFloat(el.amount.value);
+      if (!amount || amount <= 0) return;
+
+      records.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        type: currentType,
+        amount,
+        date: el.date.value || todayStr(),
+        category: el.category.value,
+        account: el.account.value,
+        note: el.note.value.trim(),
+        createdAt: Date.now()
+      });
+
+      saveRecords();
+      el.amount.value = '';
+      el.note.value = '';
+      el.amount.focus();
+      render();
+    });
+
+    el.txList.addEventListener('click', (e) => {
+      const btn = e.target.closest('.del-btn');
+      if (!btn) return;
+      const id = btn.getAttribute('data-id');
+      records = records.filter(r => r.id !== id);
+      saveRecords();
+      render();
+    });
+
+    el.exportBtn.addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `expense-backup-${todayStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    el.importBtn.addEventListener('click', () => el.importFile.click());
+    el.importFile.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!Array.isArray(data)) throw new Error('格式錯誤');
+        const map = new Map(records.map(item => [item.id, item]));
+        for (const item of data) {
+          if (item && item.id) map.set(item.id, item);
+        }
+        records = Array.from(map.values());
+        saveRecords();
+        render();
+        alert('備份匯入完成！');
+      } catch {
+        alert('匯入失敗，請確認選擇的是正確的 JSON 備份檔。');
+      } finally {
+        e.target.value = '';
+      }
+    });
+
+    // 初始化
+    const nowDate = todayStr();
+    el.date.value = nowDate;
+    el.monthFilter.value = nowDate.slice(0, 7);
+    setType('expense');
+    render();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
