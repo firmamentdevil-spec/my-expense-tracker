@@ -117,7 +117,7 @@
     .hero-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
     .hero-val { font-size: 1.55rem; font-weight: 800; color: var(--expense); }
 
-    /* 卡片與分類（全部一行呈現） */
+    /* 卡片與分類（總共三行、縮成格子） */
     .card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 14px; margin-bottom: 12px;
@@ -128,28 +128,30 @@
     }
     .section-title { font-weight: 700; font-size: 0.96rem; }
     .section-sub { font-size: 0.78rem; color: var(--muted); }
-    .cat-list {
-      display: flex; flex-direction: column; gap: 6px;
+    .cat-grid-3rows {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
     }
-    .cat-row {
+    .cat-cell {
       display: flex; justify-content: space-between; align-items: center;
-      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
-      padding: 9px 12px; cursor: pointer; color: var(--text); width: 100%;
+      gap: 6px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 9px; cursor: pointer; color: var(--text);
+      width: 100%; min-width: 0;
     }
-    .cat-row.selected {
+    .cat-cell.selected {
       border-color: var(--accent); background: var(--accent-soft);
     }
-    .cat-row-left {
-      display: inline-flex; align-items: center; gap: 8px;
+    .cat-cell-left {
+      display: inline-flex; align-items: center; gap: 5px;
+      min-width: 0; overflow: hidden;
     }
     .cat-dot {
-      width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
     }
-    .cat-name { font-weight: 700; font-size: 0.9rem; }
-    .cat-pct { font-size: 0.76rem; color: var(--muted); }
-    .cat-amt { font-size: 0.92rem; font-weight: 800; color: var(--expense); }
+    .cat-name { font-weight: 700; font-size: 0.84rem; white-space: nowrap; }
+    .cat-pct { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+    .cat-amt { font-size: 0.84rem; font-weight: 800; color: var(--expense); white-space: nowrap; }
 
-    /* 記帳表單（無日期與帳戶） */
+    /* 記帳表單（金額可加減） */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .full { grid-column: 1 / -1; }
     label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
@@ -157,6 +159,20 @@
       width: 100%; border-radius: 10px; border: 1px solid var(--border);
       padding: 10px 12px; font-size: 0.95rem; background: var(--bg); color: var(--text);
     }
+    .calc-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+      margin-top: 6px;
+    }
+    .calc-chip {
+      padding: 6px 4px; font-size: 0.8rem; font-weight: 800;
+      border-radius: 8px; background: var(--card-2);
+      border: 1px solid var(--border); color: var(--accent); cursor: pointer;
+    }
+    .calc-chip:active { background: var(--accent); color: #1c1917; }
+    .calc-preview {
+      font-size: 0.75rem; color: var(--muted); margin-top: 5px;
+    }
+
     .form-actions { display: flex; gap: 8px; margin-top: 12px; }
     button.primary {
       background: var(--accent); color: #1c1917; font-weight: 800;
@@ -338,16 +354,16 @@
         <div class="hero-val" id="totalExpense">$0</div>
       </section>
 
-      <!-- 分類支出：全部用一行呈現 -->
+      <!-- 分類支出：總共三行、縮成格子 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title">分類支出</span>
-          <span class="section-sub">點選分類可快速帶入</span>
+          <span class="section-sub">點選格子可帶入分類</span>
         </div>
-        <div id="catList" class="cat-list"></div>
+        <div id="catGrid" class="cat-grid-3rows"></div>
       </section>
 
-      <!-- 新增支出：不用日期跟帳戶 -->
+      <!-- 新增支出：金額支援加減運算 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title" id="formHeading">新增支出</span>
@@ -360,8 +376,17 @@
               <select id="category"></select>
             </div>
             <div>
-              <label for="amount">金額</label>
-              <input type="number" id="amount" inputmode="decimal" step="any" min="0.01" placeholder="0" required />
+              <label for="amount">金額（可加減，如 100+50-20）</label>
+              <input type="text" id="amount" inputmode="decimal" placeholder="0" required />
+            </div>
+            <div class="full">
+              <div class="calc-bar">
+                <button type="button" class="calc-chip" data-delta="10">+10</button>
+                <button type="button" class="calc-chip" data-delta="50">+50</button>
+                <button type="button" class="calc-chip" data-delta="100">+100</button>
+                <button type="button" class="calc-chip" data-delta="-10">-10</button>
+              </div>
+              <div id="calcPreview" class="calc-preview">計算結果：$0</div>
             </div>
             <div class="full">
               <label for="note">備註（選填）</label>
@@ -438,7 +463,7 @@
   </nav>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_v5';
+    const STORAGE_KEY = 'pwa_expense_cw_v6';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const PALETTE = ['#f59e0b', '#38bdf8', '#4ade80', '#f87171', '#a78bfa', '#fb7185', '#2dd4bf', '#facc15', '#60a5fa', '#e879f9'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -466,11 +491,12 @@
       expSubLabel: document.getElementById('expSubLabel'),
       listHeading: document.getElementById('listHeading'),
       totalExpense: document.getElementById('totalExpense'),
-      catList: document.getElementById('catList'),
+      catGrid: document.getElementById('catGrid'),
       formHeading: document.getElementById('formHeading'),
       editHint: document.getElementById('editHint'),
       form: document.getElementById('txForm'),
       amount: document.getElementById('amount'),
+      calcPreview: document.getElementById('calcPreview'),
       category: document.getElementById('category'),
       note: document.getElementById('note'),
       submitBtn: document.getElementById('submitBtn'),
@@ -512,6 +538,38 @@
       const [y, m] = base.split('-').map(Number);
       const dt = new Date(y, (m || 1) - 1 + deltaMonths, 1);
       return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    // 安全解析金額加減算式（僅允許數字、+、-、小數點與空白）
+    function evalAddSubAmount(rawInput) {
+      const cleaned = String(rawInput ?? '').replace(/\s+/g, '');
+      if (!cleaned) return null;
+      if (!/^[+-]?\d+(\.\d+)?([+-]\d+(\.\d+)?)*$/.test(cleaned)) return null;
+      const tokens = cleaned.match(/[+-]?\d+(\.\d+)?/g);
+      if (!tokens) return null;
+      let sum = 0;
+      for (const t of tokens) {
+        sum += Number(t);
+      }
+      return Math.round(sum * 100) / 100;
+    }
+
+    function updateCalcPreview() {
+      const val = evalAddSubAmount(el.amount.value);
+      if (val === null) {
+        el.calcPreview.textContent = el.amount.value.trim() ? '請輸入有效數字或加減式（如 50+30-10）' : '計算結果：$0';
+        return;
+      }
+      el.calcPreview.textContent = `計算結果：${formatMoney(val)}`;
+    }
+
+    function applyDeltaToAmount(delta) {
+      const current = evalAddSubAmount(el.amount.value);
+      const base = current === null ? 0 : current;
+      const next = Math.max(0, Math.round((base + delta) * 100) / 100);
+      el.amount.value = next > 0 ? String(next) : '';
+      updateCalcPreview();
+      el.amount.focus();
     }
 
     function buildMonthOptions(activeYm) {
@@ -638,19 +696,21 @@
       el.cancelEditBtn.style.display = 'none';
       el.amount.value = '';
       el.note.value = '';
+      updateCalcPreview();
     }
 
     function startEditRecord(id) {
       const target = records.find(r => r.id === id);
       if (!target) return;
       editingId = target.id;
-      el.amount.value = target.amount;
+      el.amount.value = String(target.amount);
       el.category.value = CATEGORIES.includes(target.category) ? target.category : '其他';
       el.note.value = target.note || '';
       el.formHeading.textContent = '編輯支出';
       el.editHint.textContent = `原日期 ${formatMonthDay(target.date || todayStr())} · 修改後按更新`;
       el.submitBtn.textContent = '更新支出';
       el.cancelEditBtn.style.display = 'inline-block';
+      updateCalcPreview();
       el.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
@@ -672,8 +732,8 @@
       el.yearBalance.textContent = formatMoney(sumExpenses(yearList));
     }
 
-    // 分類支出：全部用一行呈現
-    function renderCategoryRows(filtered, totalExp) {
+    // 分類支出：總共三行（2欄 x 3列）、縮成格子
+    function renderCategoryGrid(filtered, totalExp) {
       const catTotals = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
       for (const r of filtered) {
         const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
@@ -681,14 +741,14 @@
       }
 
       const activeCat = el.category.value;
-      el.catList.innerHTML = CATEGORIES.map((cat, idx) => {
+      el.catGrid.innerHTML = CATEGORIES.map((cat, idx) => {
         const amt = catTotals[cat] || 0;
         const pct = totalExp > 0 ? Math.round((amt / totalExp) * 100) : 0;
         const isSel = activeCat === cat;
         const color = PALETTE[idx % PALETTE.length];
         return `
-          <button type="button" class="cat-row ${isSel ? 'selected' : ''}" data-cat="${escapeHtml(cat)}">
-            <span class="cat-row-left">
+          <button type="button" class="cat-cell ${isSel ? 'selected' : ''}" data-cat="${escapeHtml(cat)}">
+            <span class="cat-cell-left">
               <span class="cat-dot" style="background:${color};"></span>
               <span class="cat-name">${escapeHtml(cat)}</span>
               <span class="cat-pct">${pct}%</span>
@@ -698,11 +758,11 @@
         `;
       }).join('');
 
-      for (const row of el.catList.querySelectorAll('.cat-row')) {
-        row.addEventListener('click', () => {
-          el.category.value = row.dataset.cat;
+      for (const cell of el.catGrid.querySelectorAll('.cat-cell')) {
+        cell.addEventListener('click', () => {
+          el.category.value = cell.dataset.cat;
           el.amount.focus();
-          renderCategoryRows(filtered, totalExp);
+          renderCategoryGrid(filtered, totalExp);
         });
       }
     }
@@ -763,7 +823,6 @@
       el.txList.innerHTML = html;
     }
 
-    // 繪製圓餅圖 SVG + 圖例清單
     function buildPieChartHtml(slices, emptyMsg) {
       const positiveSlices = slices.filter(s => s.value > 0);
       const total = positiveSlices.reduce((acc, s) => acc + s.value, 0);
@@ -859,7 +918,6 @@
         return;
       }
 
-      // dayExpense：當月每日支出圓餅圖
       const monthRecords = records.filter(r => r.date && r.date.startsWith(ym));
       const dayMap = new Map();
       for (const r of monthRecords) {
@@ -910,10 +968,18 @@
       el.totalExpense.textContent = formatMoney(totalExp);
       el.countLabel.textContent = `${filtered.length} 筆`;
 
-      renderCategoryRows(filtered, totalExp);
+      renderCategoryGrid(filtered, totalExp);
       renderGroupedTransactions(filtered);
       renderBottomBalances();
       if (currentTab === 'report') renderReport();
+    }
+
+    el.amount.addEventListener('input', updateCalcPreview);
+
+    for (const chip of document.querySelectorAll('.calc-chip')) {
+      chip.addEventListener('click', () => {
+        applyDeltaToAmount(Number(chip.dataset.delta));
+      });
     }
 
     el.currentMonthBtn.addEventListener('click', () => {
@@ -941,8 +1007,11 @@
 
     el.form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const amount = Math.abs(parseFloat(el.amount.value));
-      if (!amount || amount <= 0) return;
+      const amount = evalAddSubAmount(el.amount.value);
+      if (amount === null || amount <= 0) {
+        alert('請輸入大於 0 的金額或加減算式');
+        return;
+      }
 
       const cat = CATEGORIES.includes(el.category.value) ? el.category.value : '其他';
       const note = el.note.value.trim();
@@ -1019,6 +1088,7 @@
     el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
     buildMonthOptions(nowDate.slice(0, 7));
     renderCategories();
+    updateCalcPreview();
     render();
   </script>
 </body>
