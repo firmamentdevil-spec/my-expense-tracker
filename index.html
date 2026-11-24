@@ -117,7 +117,7 @@
     .hero-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
     .hero-val { font-size: 1.55rem; font-weight: 800; color: var(--expense); }
 
-    /* 卡片與分類（總共三行、縮成格子） */
+    /* 卡片與分類（全部歸類在同一行） */
     .card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 14px; margin-bottom: 12px;
@@ -128,30 +128,29 @@
     }
     .section-title { font-weight: 700; font-size: 0.96rem; }
     .section-sub { font-size: 0.78rem; color: var(--muted); }
-    .cat-grid-3rows {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+    .cat-strip-1row {
+      display: flex; flex-direction: row; gap: 6px;
+      overflow-x: auto; padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
     }
-    .cat-cell {
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 6px; background: var(--bg); border: 1px solid var(--border);
-      border-radius: 8px; padding: 7px 9px; cursor: pointer; color: var(--text);
-      width: 100%; min-width: 0;
+    .cat-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 7px 10px; cursor: pointer; color: var(--text);
+      width: auto; flex-shrink: 0; white-space: nowrap;
     }
-    .cat-cell.selected {
+    .cat-chip.selected {
       border-color: var(--accent); background: var(--accent-soft);
-    }
-    .cat-cell-left {
-      display: inline-flex; align-items: center; gap: 5px;
-      min-width: 0; overflow: hidden;
     }
     .cat-dot {
       width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
     }
-    .cat-name { font-weight: 700; font-size: 0.84rem; white-space: nowrap; }
-    .cat-pct { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
-    .cat-amt { font-size: 0.84rem; font-weight: 800; color: var(--expense); white-space: nowrap; }
+    .cat-name { font-weight: 700; font-size: 0.84rem; }
+    .cat-pct { font-size: 0.72rem; color: var(--muted); }
+    .cat-amt { font-size: 0.84rem; font-weight: 800; color: var(--expense); }
 
-    /* 記帳表單（金額可加減） */
+    /* 記帳表單（金額可加減，無快捷加減按鈕列） */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .full { grid-column: 1 / -1; }
     label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
@@ -159,18 +158,8 @@
       width: 100%; border-radius: 10px; border: 1px solid var(--border);
       padding: 10px 12px; font-size: 0.95rem; background: var(--bg); color: var(--text);
     }
-    .calc-bar {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-      margin-top: 6px;
-    }
-    .calc-chip {
-      padding: 6px 4px; font-size: 0.8rem; font-weight: 800;
-      border-radius: 8px; background: var(--card-2);
-      border: 1px solid var(--border); color: var(--accent); cursor: pointer;
-    }
-    .calc-chip:active { background: var(--accent); color: #1c1917; }
     .calc-preview {
-      font-size: 0.75rem; color: var(--muted); margin-top: 5px;
+      font-size: 0.76rem; color: var(--muted); margin-top: 5px;
     }
 
     .form-actions { display: flex; gap: 8px; margin-top: 12px; }
@@ -354,16 +343,16 @@
         <div class="hero-val" id="totalExpense">$0</div>
       </section>
 
-      <!-- 分類支出：總共三行、縮成格子 -->
+      <!-- 分類支出：全部歸類在同一行 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title">分類支出</span>
-          <span class="section-sub">點選格子可帶入分類</span>
+          <span class="section-sub">點選可帶入分類</span>
         </div>
-        <div id="catGrid" class="cat-grid-3rows"></div>
+        <div id="catStrip" class="cat-strip-1row"></div>
       </section>
 
-      <!-- 新增支出：金額支援加減運算 -->
+      <!-- 新增支出：金額支援加減運算，已移除快捷加減按鈕列 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title" id="formHeading">新增支出</span>
@@ -378,14 +367,6 @@
             <div>
               <label for="amount">金額（可加減，如 100+50-20）</label>
               <input type="text" id="amount" inputmode="decimal" placeholder="0" required />
-            </div>
-            <div class="full">
-              <div class="calc-bar">
-                <button type="button" class="calc-chip" data-delta="10">+10</button>
-                <button type="button" class="calc-chip" data-delta="50">+50</button>
-                <button type="button" class="calc-chip" data-delta="100">+100</button>
-                <button type="button" class="calc-chip" data-delta="-10">-10</button>
-              </div>
               <div id="calcPreview" class="calc-preview">計算結果：$0</div>
             </div>
             <div class="full">
@@ -463,7 +444,7 @@
   </nav>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_v6';
+    const STORAGE_KEY = 'pwa_expense_cw_v7';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const PALETTE = ['#f59e0b', '#38bdf8', '#4ade80', '#f87171', '#a78bfa', '#fb7185', '#2dd4bf', '#facc15', '#60a5fa', '#e879f9'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -491,7 +472,7 @@
       expSubLabel: document.getElementById('expSubLabel'),
       listHeading: document.getElementById('listHeading'),
       totalExpense: document.getElementById('totalExpense'),
-      catGrid: document.getElementById('catGrid'),
+      catStrip: document.getElementById('catStrip'),
       formHeading: document.getElementById('formHeading'),
       editHint: document.getElementById('editHint'),
       form: document.getElementById('txForm'),
@@ -561,15 +542,6 @@
         return;
       }
       el.calcPreview.textContent = `計算結果：${formatMoney(val)}`;
-    }
-
-    function applyDeltaToAmount(delta) {
-      const current = evalAddSubAmount(el.amount.value);
-      const base = current === null ? 0 : current;
-      const next = Math.max(0, Math.round((base + delta) * 100) / 100);
-      el.amount.value = next > 0 ? String(next) : '';
-      updateCalcPreview();
-      el.amount.focus();
     }
 
     function buildMonthOptions(activeYm) {
@@ -732,8 +704,8 @@
       el.yearBalance.textContent = formatMoney(sumExpenses(yearList));
     }
 
-    // 分類支出：總共三行（2欄 x 3列）、縮成格子
-    function renderCategoryGrid(filtered, totalExp) {
+    // 分類支出：全部歸類在同一行
+    function renderCategoryStrip(filtered, totalExp) {
       const catTotals = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
       for (const r of filtered) {
         const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
@@ -741,28 +713,26 @@
       }
 
       const activeCat = el.category.value;
-      el.catGrid.innerHTML = CATEGORIES.map((cat, idx) => {
+      el.catStrip.innerHTML = CATEGORIES.map((cat, idx) => {
         const amt = catTotals[cat] || 0;
         const pct = totalExp > 0 ? Math.round((amt / totalExp) * 100) : 0;
         const isSel = activeCat === cat;
         const color = PALETTE[idx % PALETTE.length];
         return `
-          <button type="button" class="cat-cell ${isSel ? 'selected' : ''}" data-cat="${escapeHtml(cat)}">
-            <span class="cat-cell-left">
-              <span class="cat-dot" style="background:${color};"></span>
-              <span class="cat-name">${escapeHtml(cat)}</span>
-              <span class="cat-pct">${pct}%</span>
-            </span>
+          <button type="button" class="cat-chip ${isSel ? 'selected' : ''}" data-cat="${escapeHtml(cat)}">
+            <span class="cat-dot" style="background:${color};"></span>
+            <span class="cat-name">${escapeHtml(cat)}</span>
+            <span class="cat-pct">${pct}%</span>
             <span class="cat-amt">${formatMoney(amt)}</span>
           </button>
         `;
       }).join('');
 
-      for (const cell of el.catGrid.querySelectorAll('.cat-cell')) {
-        cell.addEventListener('click', () => {
-          el.category.value = cell.dataset.cat;
+      for (const chip of el.catStrip.querySelectorAll('.cat-chip')) {
+        chip.addEventListener('click', () => {
+          el.category.value = chip.dataset.cat;
           el.amount.focus();
-          renderCategoryGrid(filtered, totalExp);
+          renderCategoryStrip(filtered, totalExp);
         });
       }
     }
@@ -968,19 +938,13 @@
       el.totalExpense.textContent = formatMoney(totalExp);
       el.countLabel.textContent = `${filtered.length} 筆`;
 
-      renderCategoryGrid(filtered, totalExp);
+      renderCategoryStrip(filtered, totalExp);
       renderGroupedTransactions(filtered);
       renderBottomBalances();
       if (currentTab === 'report') renderReport();
     }
 
     el.amount.addEventListener('input', updateCalcPreview);
-
-    for (const chip of document.querySelectorAll('.calc-chip')) {
-      chip.addEventListener('click', () => {
-        applyDeltaToAmount(Number(chip.dataset.delta));
-      });
-    }
 
     el.currentMonthBtn.addEventListener('click', () => {
       el.monthSelect.value = todayStr().slice(0, 7);
