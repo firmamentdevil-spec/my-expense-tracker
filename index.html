@@ -27,19 +27,38 @@
     }
     .container { max-width: 640px; margin: 0 auto; padding: 14px; }
 
-    header {
+    /* 第二行：周日~周六 + 日期列（預設顯示 11/22、11/23 起算之週列） */
+    .week-strip-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 10px 12px; margin-bottom: 12px;
+    }
+    .week-row-top {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+      text-align: center; margin-bottom: 6px;
+    }
+    .wk-head {
+      font-size: 0.78rem; font-weight: 700; color: var(--muted);
+      padding: 2px 0;
+    }
+    .week-row-dates {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+      text-align: center;
+    }
+    .wk-date-btn {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-size: 0.78rem; font-weight: 700;
+      padding: 6px 2px; cursor: pointer; width: 100%;
+    }
+    .wk-date-btn.active {
+      border-color: var(--accent); background: var(--accent-soft); color: var(--accent);
+    }
+    .week-strip-footer {
       display: flex; justify-content: space-between; align-items: center;
-      gap: 10px; margin-bottom: 12px;
+      margin-top: 8px; font-size: 0.75rem; color: var(--muted);
     }
-    .brand { display: flex; align-items: center; gap: 8px; }
-    .brand-badge {
-      background: var(--accent); color: #1c1917; font-weight: 800;
-      font-size: 0.78rem; padding: 3px 8px; border-radius: 999px;
-    }
-    h1 { font-size: 1.2rem; margin: 0; }
-    .today-pill {
-      font-size: 0.8rem; color: var(--muted); background: var(--card);
-      border: 1px solid var(--border); padding: 4px 10px; border-radius: 999px;
+    .clear-day-btn {
+      width: auto; padding: 3px 8px; font-size: 0.74rem; border-radius: 6px;
+      background: var(--card-2); border: 1px solid var(--border); color: var(--text); cursor: pointer;
     }
 
     /* 週 / 月 / 年 切換 */
@@ -66,13 +85,13 @@
       border-radius: 8px; padding: 6px 10px; font-size: 0.9rem; width: auto;
     }
 
-    /* 只有本月（或該區間）支出 */
+    /* 月支出（預設顯示） */
     .hero-expense {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 14px 16px; margin-bottom: 12px;
       display: flex; justify-content: space-between; align-items: center;
     }
-    .hero-label { font-size: 0.85rem; color: var(--muted); }
+    .hero-label { font-size: 0.92rem; font-weight: 700; color: var(--text); }
     .hero-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
     .hero-val { font-size: 1.55rem; font-weight: 800; color: var(--expense); }
 
@@ -120,7 +139,7 @@
       cursor: pointer; width: auto; padding: 10px 14px; font-size: 0.88rem;
     }
 
-    /* CWMoney 風格流水帳：左側 11/22 + 周一/周二/周三 */
+    /* 日期群組流水帳 */
     .day-group { margin-bottom: 12px; }
     .day-group:last-child { margin-bottom: 0; }
     .day-header {
@@ -183,13 +202,23 @@
 </head>
 <body>
   <div class="container">
-    <header>
-      <div class="brand">
-        <span class="brand-badge">帳本</span>
-        <h1>隨手記帳</h1>
+    <!-- 第二行：周日~周六 + 日期列 -->
+    <section class="week-strip-card">
+      <div class="week-row-top">
+        <div class="wk-head">周日</div>
+        <div class="wk-head">周一</div>
+        <div class="wk-head">周二</div>
+        <div class="wk-head">周三</div>
+        <div class="wk-head">周四</div>
+        <div class="wk-head">周五</div>
+        <div class="wk-head">周六</div>
       </div>
-      <span id="todayBadge" class="today-pill"></span>
-    </header>
+      <div id="weekDateRow" class="week-row-dates"></div>
+      <div class="week-strip-footer">
+        <span id="selectedDayHint">顯示目前區間全部日期</span>
+        <button type="button" id="clearDayBtn" class="clear-day-btn" style="display:none;">顯示全部</button>
+      </div>
+    </section>
 
     <div class="period-bar">
       <button type="button" class="period-btn" data-period="week">週紀錄</button>
@@ -202,10 +231,10 @@
       <span id="periodRangeText" class="range-text"></span>
     </div>
 
-    <!-- 只有支出（預設本月支出，隨上方週/月/年切換） -->
+    <!-- 預設顯示「月支出」 -->
     <section class="hero-expense">
       <div>
-        <div class="hero-label" id="expLabel">本月支出</div>
+        <div class="hero-label" id="expLabel">月支出</div>
         <div class="hero-sub" id="expSub">僅計算支出金額</div>
       </div>
       <div class="hero-val" id="totalExpense">$0</div>
@@ -261,13 +290,13 @@
 
     <section class="card">
       <div class="section-head">
-        <strong id="listTitle">本月明細</strong>
+        <strong id="listTitle">月明細</strong>
         <span id="countLabel" class="section-sub">0 筆</span>
       </div>
       <div id="txList"></div>
     </section>
 
-    <!-- 本週 / 本月 / 本年 結餘排列在下方 -->
+    <!-- 下方：本週 / 本月 / 本年 結餘排列 -->
     <section class="bottom-summary">
       <div class="bottom-title">期間結餘總覽</div>
       <div class="bottom-list">
@@ -294,21 +323,23 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_expense_only_v1';
+    const STORAGE_KEY = 'pwa_expense_cw_strip_v1';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
     let currentPeriod = 'month'; // 'week' | 'month' | 'year'
+    let selectedYmdFilter = null;
     let editingId = null;
     let records = loadRecords();
 
     const el = {
-      todayBadge: document.getElementById('todayBadge'),
+      weekDateRow: document.getElementById('weekDateRow'),
+      selectedDayHint: document.getElementById('selectedDayHint'),
+      clearDayBtn: document.getElementById('clearDayBtn'),
       periodBtns: Array.from(document.querySelectorAll('.period-btn')),
       periodPickerWrap: document.getElementById('periodPickerWrap'),
       periodRangeText: document.getElementById('periodRangeText'),
       expLabel: document.getElementById('expLabel'),
-      expSub: document.getElementById('expSub'),
       totalExpense: document.getElementById('totalExpense'),
       catGrid: document.getElementById('catGrid'),
       formHeading: document.getElementById('formHeading'),
@@ -352,6 +383,17 @@
     function formatMonthDay(ymd) {
       const [, m, d] = (ymd || todayStr()).split('-');
       return `${Number(m)}/${Number(d)}`;
+    }
+
+    // 取得以周日為起點的 7 天日期清單
+    function getSundayWeekDays(baseYmd) {
+      const dt = parseLocalDate(baseYmd);
+      const sunday = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dt.getDay());
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        days.push(formatYmd(new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i)));
+      }
+      return days;
     }
 
     function getIsoWeekValue(ymd) {
@@ -411,6 +453,38 @@
         .join('');
     }
 
+    function renderWeekStrip() {
+      const anchor = selectedYmdFilter || el.date.value || todayStr();
+      const days = getSundayWeekDays(anchor);
+
+      el.weekDateRow.innerHTML = days.map(ymd => {
+        const isSelected = selectedYmdFilter === ymd;
+        return `
+          <button type="button" class="wk-date-btn ${isSelected ? 'active' : ''}" data-ymd="${escapeHtml(ymd)}">
+            ${escapeHtml(formatMonthDay(ymd))}
+          </button>
+        `;
+      }).join('');
+
+      if (selectedYmdFilter) {
+        const dt = parseLocalDate(selectedYmdFilter);
+        el.selectedDayHint.textContent = `已篩選 ${formatMonthDay(selectedYmdFilter)}（${WEEKDAYS_SHORT[dt.getDay()]}）`;
+        el.clearDayBtn.style.display = 'inline-block';
+      } else {
+        el.selectedDayHint.textContent = `本週起算 ${formatMonthDay(days[0])}、${formatMonthDay(days[1])}…`;
+        el.clearDayBtn.style.display = 'none';
+      }
+
+      for (const btn of el.weekDateRow.querySelectorAll('.wk-date-btn')) {
+        btn.addEventListener('click', () => {
+          const ymd = btn.dataset.ymd;
+          selectedYmdFilter = selectedYmdFilter === ymd ? null : ymd;
+          el.date.value = ymd;
+          render();
+        });
+      }
+    }
+
     function exitEditMode(resetToday = true) {
       editingId = null;
       el.formHeading.textContent = '新增支出';
@@ -467,7 +541,7 @@
       for (const btn of el.periodBtns) {
         btn.className = 'period-btn' + (btn.dataset.period === period ? ' active' : '');
       }
-      const prefix = period === 'week' ? '本週' : period === 'month' ? '本月' : '本年';
+      const prefix = period === 'week' ? '週' : period === 'month' ? '月' : '年';
       el.expLabel.textContent = `${prefix}支出`;
       el.listTitle.textContent = `${prefix}明細`;
       renderPeriodPicker();
@@ -477,20 +551,24 @@
     function filterByCurrentPeriod() {
       const input = document.getElementById('periodInput');
       const val = input ? input.value : '';
+      let baseList = records;
 
       if (currentPeriod === 'week') {
         const { start, end } = getWeekRange(val);
         el.periodRangeText.textContent = start && end ? `${formatMonthDay(start)} ～ ${formatMonthDay(end)}` : '';
-        return records.filter(r => r.date && r.date >= start && r.date <= end);
-      }
-
-      if (currentPeriod === 'month') {
+        baseList = records.filter(r => r.date && r.date >= start && r.date <= end);
+      } else if (currentPeriod === 'month') {
         el.periodRangeText.textContent = val ? `${val} 月份` : '';
-        return records.filter(r => r.date && r.date.startsWith(val));
+        baseList = records.filter(r => r.date && r.date.startsWith(val));
+      } else {
+        el.periodRangeText.textContent = val ? `${val} 年度` : '';
+        baseList = records.filter(r => r.date && r.date.startsWith(val));
       }
 
-      el.periodRangeText.textContent = val ? `${val} 年度` : '';
-      return records.filter(r => r.date && r.date.startsWith(val));
+      if (selectedYmdFilter) {
+        return baseList.filter(r => r.date === selectedYmdFilter);
+      }
+      return baseList;
     }
 
     function sumExpenses(list) {
@@ -506,7 +584,6 @@
       const monthList = records.filter(r => r.date && r.date.startsWith(nowYmd.slice(0, 7)));
       const yearList = records.filter(r => r.date && r.date.startsWith(nowYmd.slice(0, 4)));
 
-      // 不顯示減號，以正值金額呈現各期間支出結餘
       el.weekBalance.textContent = formatMoney(sumExpenses(weekList));
       el.monthBalance.textContent = formatMoney(sumExpenses(monthList));
       el.yearBalance.textContent = formatMoney(sumExpenses(yearList));
@@ -584,127 +661,4 @@
                   <div class="tx-item" data-edit-id="${escapeHtml(r.id)}" title="點擊編輯">
                     <div class="tx-main">
                       <div class="tx-title">${escapeHtml(cat)}${r.note ? ' · ' + escapeHtml(r.note) : ''}</div>
-                      <div class="tx-meta">${escapeHtml(r.account || '現金')}</div>
-                    </div>
-                    <div class="tx-right">
-                      <div class="tx-amt">${formatMoney(r.amount)}</div>
-                      <button type="button" class="del-btn" data-del-id="${escapeHtml(r.id)}" title="刪除">✕</button>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        `;
-      }
-
-      el.txList.innerHTML = html;
-    }
-
-    function render() {
-      const filtered = filterByCurrentPeriod();
-      const totalExp = sumExpenses(filtered);
-
-      el.totalExpense.textContent = formatMoney(totalExp);
-      el.countLabel.textContent = `${filtered.length} 筆`;
-
-      renderCategoryTiles(filtered, totalExp);
-      renderGroupedTransactions(filtered);
-      renderBottomBalances();
-    }
-
-    el.category.addEventListener('change', render);
-    el.cancelEditBtn.addEventListener('click', () => exitEditMode(true));
-
-    for (const btn of el.periodBtns) {
-      btn.addEventListener('click', () => setPeriod(btn.dataset.period));
-    }
-
-    el.form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const amount = Math.abs(parseFloat(el.amount.value));
-      if (!amount || amount <= 0) return;
-
-      const payload = {
-        type: 'expense',
-        amount,
-        date: el.date.value || todayStr(),
-        category: CATEGORIES.includes(el.category.value) ? el.category.value : '其他',
-        account: el.account.value,
-        note: el.note.value.trim()
-      };
-
-      if (editingId) {
-        records = records.map(r => (r.id === editingId ? { ...r, ...payload } : r));
-      } else {
-        records.push({
-          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-          ...payload,
-          createdAt: Date.now()
-        });
-      }
-
-      saveRecords();
-      exitEditMode(true);
-      el.amount.focus();
-      if (currentPeriod === 'year') renderPeriodPicker();
-      render();
-    });
-
-    el.txList.addEventListener('click', (e) => {
-      const delBtn = e.target.closest('[data-del-id]');
-      if (delBtn) {
-        e.stopPropagation();
-        const id = delBtn.getAttribute('data-del-id');
-        records = records.filter(r => r.id !== id);
-        if (editingId === id) exitEditMode(true);
-        saveRecords();
-        render();
-        return;
-      }
-
-      const item = e.target.closest('[data-edit-id]');
-      if (item) {
-        startEditRecord(item.getAttribute('data-edit-id'));
-      }
-    });
-
-    el.exportBtn.addEventListener('click', () => {
-      const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' }));
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `expense-backup-${todayStr()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    el.importBtn.addEventListener('click', () => el.importFile.click());
-    el.importFile.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const data = JSON.parse(await file.text());
-        if (!Array.isArray(data)) throw new Error();
-        const map = new Map(records.map(i => [i.id, i]));
-        for (const item of data) if (item && item.id) map.set(item.id, item);
-        records = Array.from(map.values());
-        saveRecords();
-        if (currentPeriod === 'year') renderPeriodPicker();
-        render();
-        alert('備份匯入完成！');
-      } catch {
-        alert('匯入失敗，請確認選擇的是正確的 JSON 備份檔。');
-      } finally {
-        e.target.value = '';
-      }
-    });
-
-    const nowDate = todayStr();
-    const nowDt = parseLocalDate(nowDate);
-    el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
-    el.date.value = nowDate;
-    renderCategories();
-    setPeriod('month');
-  </script>
-</body>
-</html>
+                      <div class="tx-meta">${escapeHtml(r.account ||
