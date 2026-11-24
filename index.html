@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
-  <title>隨手記帳 · CWMoney 風</title>
+  <title>隨手記帳</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -12,10 +12,9 @@
       --card-2: #273549;
       --text: #f8fafc;
       --muted: #94a3b8;
-      --accent: #f59e0b; /* CWMoney 暖橘金主色調 */
+      --accent: #f59e0b;
       --accent-soft: rgba(245, 158, 11, 0.16);
       --expense: #f87171;
-      --income: #4ade80;
       --border: rgba(148, 163, 184, 0.16);
     }
     * { box-sizing: border-box; }
@@ -28,7 +27,6 @@
     }
     .container { max-width: 640px; margin: 0 auto; padding: 14px; }
 
-    /* 頂部標題列 */
     header {
       display: flex; justify-content: space-between; align-items: center;
       gap: 10px; margin-bottom: 12px;
@@ -57,7 +55,6 @@
       background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
     }
 
-    /* 區間選擇器 */
     .selector-row {
       display: flex; align-items: center; justify-content: space-between; gap: 10px;
       margin-bottom: 12px; background: var(--card); border: 1px solid var(--border);
@@ -69,36 +66,17 @@
       border-radius: 8px; padding: 6px 10px; font-size: 0.9rem; width: auto;
     }
 
-    /* CWMoney 風格收支總覽卡 */
-    .summary-card {
+    /* 只有本月（或該區間）支出 */
+    .hero-expense {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 14px; margin-bottom: 12px;
+      border-radius: 14px; padding: 14px 16px; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center;
     }
-    .summary-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;
-    }
-    .stat-box {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 10px; padding: 10px 8px;
-    }
-    .stat-label { font-size: 0.76rem; color: var(--muted); }
-    .stat-val { font-size: 1.04rem; font-weight: 800; margin-top: 4px; }
-    .expense-text { color: var(--expense); }
-    .income-text { color: var(--income); }
-    .ratio-bar {
-      height: 7px; border-radius: 999px; background: var(--bg);
-      overflow: hidden; margin-top: 12px; border: 1px solid var(--border);
-    }
-    .ratio-fill {
-      height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--expense));
-      transition: width 0.25s ease;
-    }
-    .ratio-caption {
-      display: flex; justify-content: space-between; font-size: 0.75rem;
-      color: var(--muted); margin-top: 6px;
-    }
+    .hero-label { font-size: 0.85rem; color: var(--muted); }
+    .hero-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+    .hero-val { font-size: 1.55rem; font-weight: 800; color: var(--expense); }
 
-    /* 分類快捷方塊（六大分類） */
+    /* 六大分類 */
     .card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 14px; margin-bottom: 12px;
@@ -115,9 +93,7 @@
     .cat-tile {
       background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
       padding: 10px; text-align: left; cursor: pointer; color: var(--text);
-      transition: border-color 0.15s ease, transform 0.12s ease;
     }
-    .cat-tile:active { transform: scale(0.98); }
     .cat-tile.selected {
       border-color: var(--accent); background: var(--accent-soft);
     }
@@ -126,20 +102,7 @@
     .cat-pct { font-size: 0.74rem; color: var(--muted); }
     .cat-amt { font-size: 0.88rem; font-weight: 700; color: var(--expense); margin-top: 6px; }
 
-    /* 記帳輸入區 */
-    .type-toggle {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
-    }
-    .type-btn {
-      padding: 9px; border-radius: 10px; border: 1px solid var(--border);
-      background: var(--bg); color: var(--muted); font-weight: 700; cursor: pointer;
-    }
-    .type-btn.active-expense {
-      background: rgba(248, 113, 113, 0.16); border-color: var(--expense); color: var(--expense);
-    }
-    .type-btn.active-income {
-      background: rgba(74, 222, 128, 0.16); border-color: var(--income); color: var(--income);
-    }
+    /* 記帳表單 */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .full { grid-column: 1 / -1; }
     label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
@@ -157,7 +120,7 @@
       cursor: pointer; width: auto; padding: 10px 14px; font-size: 0.88rem;
     }
 
-    /* 依日期分組的流水帳明細 */
+    /* CWMoney 風格流水帳：左側 11/22 + 周一/周二/周三 */
     .day-group { margin-bottom: 12px; }
     .day-group:last-child { margin-bottom: 0; }
     .day-header {
@@ -165,7 +128,14 @@
       padding: 6px 10px; background: var(--card-2); border-radius: 8px;
       font-size: 0.8rem; color: var(--muted); margin-bottom: 6px;
     }
-    .day-date { font-weight: 700; color: var(--text); }
+    .day-date-badge {
+      display: inline-flex; align-items: baseline; gap: 6px;
+      color: var(--text); font-weight: 700;
+    }
+    .day-md { font-size: 0.92rem; }
+    .day-wk { font-size: 0.78rem; color: var(--accent); }
+    .day-sum { font-weight: 700; color: var(--expense); }
+
     .tx-list { display: flex; flex-direction: column; gap: 6px; }
     .tx-item {
       display: flex; justify-content: space-between; align-items: center;
@@ -177,14 +147,33 @@
     .tx-title { font-weight: 700; font-size: 0.93rem; }
     .tx-meta { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
     .tx-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .tx-amt { font-weight: 800; font-size: 0.96rem; }
+    .tx-amt { font-weight: 800; font-size: 0.96rem; color: var(--expense); }
     .del-btn {
       width: auto; padding: 5px 8px; font-size: 0.78rem;
       background: transparent; color: var(--muted); border-color: transparent; cursor: pointer;
     }
     .del-btn:hover { color: var(--expense); }
 
-    .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    /* 下方：本週 / 本月 / 本年 結餘排列 */
+    .bottom-summary {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px; margin-bottom: 12px;
+    }
+    .bottom-title {
+      font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; color: var(--text);
+    }
+    .bottom-list {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .bottom-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    .bottom-row-label { font-size: 0.9rem; font-weight: 700; }
+    .bottom-row-val { font-size: 1rem; font-weight: 800; color: var(--text); }
+
+    .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     button.secondary {
       background: var(--card-2); color: var(--text); border: 1px solid var(--border);
       cursor: pointer; padding: 8px 10px; font-size: 0.85rem;
@@ -213,44 +202,27 @@
       <span id="periodRangeText" class="range-text"></span>
     </div>
 
-    <section class="summary-card">
-      <div class="summary-grid">
-        <div class="stat-box">
-          <div class="stat-label" id="expLabel">本月支出</div>
-          <div class="stat-val expense-text" id="totalExpense">$0</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label" id="incLabel">本月收入</div>
-          <div class="stat-val income-text" id="totalIncome">$0</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label" id="balLabel">本月結餘</div>
-          <div class="stat-val" id="totalBalance">$0</div>
-        </div>
+    <!-- 只有支出（預設本月支出，隨上方週/月/年切換） -->
+    <section class="hero-expense">
+      <div>
+        <div class="hero-label" id="expLabel">本月支出</div>
+        <div class="hero-sub" id="expSub">僅計算支出金額</div>
       </div>
-      <div class="ratio-bar"><div class="ratio-fill" id="ratioFill"></div></div>
-      <div class="ratio-caption">
-        <span>支出佔收入比</span>
-        <span id="ratioText">0%</span>
-      </div>
+      <div class="hero-val" id="totalExpense">$0</div>
     </section>
 
     <section class="card">
       <div class="section-head">
-        <span class="section-title">分類支出總覽</span>
-        <span class="section-sub">點選分類可快速帶入記帳</span>
+        <span class="section-title">分類支出</span>
+        <span class="section-sub">點選分類可快速帶入</span>
       </div>
       <div id="catGrid" class="cat-grid"></div>
     </section>
 
     <section class="card">
       <div class="section-head">
-        <span class="section-title" id="formHeading">新增帳目</span>
+        <span class="section-title" id="formHeading">新增支出</span>
         <span class="section-sub" id="editHint">每天預設今日日期</span>
-      </div>
-      <div class="type-toggle">
-        <button type="button" id="btnExpense" class="type-btn active-expense">支出</button>
-        <button type="button" id="btnIncome" class="type-btn">收入</button>
       </div>
       <form id="txForm">
         <div class="form-grid">
@@ -281,7 +253,7 @@
           </div>
         </div>
         <div class="form-actions">
-          <button type="submit" class="primary" id="submitBtn">儲存帳目</button>
+          <button type="submit" class="primary" id="submitBtn">儲存支出</button>
           <button type="button" class="ghost" id="cancelEditBtn" style="display:none;">取消編輯</button>
         </div>
       </form>
@@ -289,24 +261,43 @@
 
     <section class="card">
       <div class="section-head">
-        <strong id="listTitle">本月流水明細</strong>
+        <strong id="listTitle">本月明細</strong>
         <span id="countLabel" class="section-sub">0 筆</span>
       </div>
       <div id="txList"></div>
-      <div class="tools">
-        <button type="button" id="exportBtn" class="secondary">匯出備份 (JSON)</button>
-        <button type="button" id="importBtn" class="secondary">匯入備份</button>
-        <input type="file" id="importFile" accept=".json,application/json" style="display:none;" />
+    </section>
+
+    <!-- 本週 / 本月 / 本年 結餘排列在下方 -->
+    <section class="bottom-summary">
+      <div class="bottom-title">期間結餘總覽</div>
+      <div class="bottom-list">
+        <div class="bottom-row">
+          <span class="bottom-row-label">本週 結餘</span>
+          <span class="bottom-row-val" id="weekBalance">$0</span>
+        </div>
+        <div class="bottom-row">
+          <span class="bottom-row-label">本月 結餘</span>
+          <span class="bottom-row-val" id="monthBalance">$0</span>
+        </div>
+        <div class="bottom-row">
+          <span class="bottom-row-label">本年 結餘</span>
+          <span class="bottom-row-val" id="yearBalance">$0</span>
+        </div>
       </div>
     </section>
+
+    <div class="tools">
+      <button type="button" id="exportBtn" class="secondary">匯出備份 (JSON)</button>
+      <button type="button" id="importBtn" class="secondary">匯入備份</button>
+      <input type="file" id="importFile" accept=".json,application/json" style="display:none;" />
+    </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_records_cmoney_v1';
+    const STORAGE_KEY = 'pwa_expense_cw_expense_only_v1';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
-    const WEEKDAYS = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+    const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
-    let currentType = 'expense';
     let currentPeriod = 'month'; // 'week' | 'month' | 'year'
     let editingId = null;
     let records = loadRecords();
@@ -317,16 +308,12 @@
       periodPickerWrap: document.getElementById('periodPickerWrap'),
       periodRangeText: document.getElementById('periodRangeText'),
       expLabel: document.getElementById('expLabel'),
-      incLabel: document.getElementById('incLabel'),
-      balLabel: document.getElementById('balLabel'),
-      ratioFill: document.getElementById('ratioFill'),
-      ratioText: document.getElementById('ratioText'),
+      expSub: document.getElementById('expSub'),
+      totalExpense: document.getElementById('totalExpense'),
       catGrid: document.getElementById('catGrid'),
       formHeading: document.getElementById('formHeading'),
       editHint: document.getElementById('editHint'),
       listTitle: document.getElementById('listTitle'),
-      btnExpense: document.getElementById('btnExpense'),
-      btnIncome: document.getElementById('btnIncome'),
       form: document.getElementById('txForm'),
       amount: document.getElementById('amount'),
       date: document.getElementById('date'),
@@ -337,9 +324,9 @@
       cancelEditBtn: document.getElementById('cancelEditBtn'),
       txList: document.getElementById('txList'),
       countLabel: document.getElementById('countLabel'),
-      totalExpense: document.getElementById('totalExpense'),
-      totalIncome: document.getElementById('totalIncome'),
-      totalBalance: document.getElementById('totalBalance'),
+      weekBalance: document.getElementById('weekBalance'),
+      monthBalance: document.getElementById('monthBalance'),
+      yearBalance: document.getElementById('yearBalance'),
       exportBtn: document.getElementById('exportBtn'),
       importBtn: document.getElementById('importBtn'),
       importFile: document.getElementById('importFile')
@@ -360,6 +347,11 @@
       const m = String(dt.getMonth() + 1).padStart(2, '0');
       const d = String(dt.getDate()).padStart(2, '0');
       return `${y}-${m}-${d}`;
+    }
+
+    function formatMonthDay(ymd) {
+      const [, m, d] = (ymd || todayStr()).split('-');
+      return `${Number(m)}/${Number(d)}`;
     }
 
     function getIsoWeekValue(ymd) {
@@ -410,7 +402,7 @@
     }
 
     function formatMoney(n) {
-      return '$' + Number(n || 0).toLocaleString('zh-Hant-TW', { maximumFractionDigits: 2 });
+      return '$' + Math.abs(Number(n || 0)).toLocaleString('zh-Hant-TW', { maximumFractionDigits: 2 });
     }
 
     function renderCategories() {
@@ -419,17 +411,11 @@
         .join('');
     }
 
-    function setType(type) {
-      currentType = type;
-      el.btnExpense.className = 'type-btn' + (type === 'expense' ? ' active-expense' : '');
-      el.btnIncome.className = 'type-btn' + (type === 'income' ? ' active-income' : '');
-    }
-
     function exitEditMode(resetToday = true) {
       editingId = null;
-      el.formHeading.textContent = '新增帳目';
+      el.formHeading.textContent = '新增支出';
       el.editHint.textContent = '每天預設今日日期';
-      el.submitBtn.textContent = '儲存帳目';
+      el.submitBtn.textContent = '儲存支出';
       el.cancelEditBtn.style.display = 'none';
       el.amount.value = '';
       el.note.value = '';
@@ -440,15 +426,14 @@
       const target = records.find(r => r.id === id);
       if (!target) return;
       editingId = target.id;
-      setType(target.type === 'income' ? 'income' : 'expense');
       el.amount.value = target.amount;
       el.date.value = target.date || todayStr();
       el.category.value = CATEGORIES.includes(target.category) ? target.category : '其他';
       el.account.value = target.account || '現金';
       el.note.value = target.note || '';
-      el.formHeading.textContent = '編輯帳目';
-      el.editHint.textContent = '修改後按「更新帳目」';
-      el.submitBtn.textContent = '更新帳目';
+      el.formHeading.textContent = '編輯支出';
+      el.editHint.textContent = '修改後按「更新支出」';
+      el.submitBtn.textContent = '更新支出';
       el.cancelEditBtn.style.display = 'inline-block';
       el.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -484,9 +469,7 @@
       }
       const prefix = period === 'week' ? '本週' : period === 'month' ? '本月' : '本年';
       el.expLabel.textContent = `${prefix}支出`;
-      el.incLabel.textContent = `${prefix}收入`;
-      el.balLabel.textContent = `${prefix}結餘`;
-      el.listTitle.textContent = `${prefix}流水明細`;
+      el.listTitle.textContent = `${prefix}明細`;
       renderPeriodPicker();
       render();
     }
@@ -497,7 +480,7 @@
 
       if (currentPeriod === 'week') {
         const { start, end } = getWeekRange(val);
-        el.periodRangeText.textContent = start && end ? `${start} ～ ${end}` : '';
+        el.periodRangeText.textContent = start && end ? `${formatMonthDay(start)} ～ ${formatMonthDay(end)}` : '';
         return records.filter(r => r.date && r.date >= start && r.date <= end);
       }
 
@@ -510,20 +493,37 @@
       return records.filter(r => r.date && r.date.startsWith(val));
     }
 
+    function sumExpenses(list) {
+      let total = 0;
+      for (const r of list) total += Number(r.amount) || 0;
+      return total;
+    }
+
+    function renderBottomBalances() {
+      const nowYmd = todayStr();
+      const { start, end } = getWeekRange(getIsoWeekValue(nowYmd));
+      const weekList = records.filter(r => r.date && r.date >= start && r.date <= end);
+      const monthList = records.filter(r => r.date && r.date.startsWith(nowYmd.slice(0, 7)));
+      const yearList = records.filter(r => r.date && r.date.startsWith(nowYmd.slice(0, 4)));
+
+      // 不顯示減號，以正值金額呈現各期間支出結餘
+      el.weekBalance.textContent = formatMoney(sumExpenses(weekList));
+      el.monthBalance.textContent = formatMoney(sumExpenses(monthList));
+      el.yearBalance.textContent = formatMoney(sumExpenses(yearList));
+    }
+
     function renderCategoryTiles(filtered, totalExp) {
       const catTotals = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
       for (const r of filtered) {
-        if (r.type !== 'income') {
-          const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
-          catTotals[cat] += Number(r.amount) || 0;
-        }
+        const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
+        catTotals[cat] += Number(r.amount) || 0;
       }
 
       const activeCat = el.category.value;
       el.catGrid.innerHTML = CATEGORIES.map(cat => {
         const amt = catTotals[cat] || 0;
         const pct = totalExp > 0 ? Math.round((amt / totalExp) * 100) : 0;
-        const isSel = currentType === 'expense' && activeCat === cat;
+        const isSel = activeCat === cat;
         return `
           <button type="button" class="cat-tile ${isSel ? 'selected' : ''}" data-cat="${escapeHtml(cat)}">
             <div class="cat-top">
@@ -537,7 +537,6 @@
 
       for (const tile of el.catGrid.querySelectorAll('.cat-tile')) {
         tile.addEventListener('click', () => {
-          setType('expense');
           el.category.value = tile.dataset.cat;
           el.amount.focus();
           renderCategoryTiles(filtered, totalExp);
@@ -547,7 +546,7 @@
 
     function renderGroupedTransactions(filtered) {
       if (!filtered.length) {
-        el.txList.innerHTML = '<div class="empty">這個區間還沒有帳目紀錄</div>';
+        el.txList.innerHTML = '<div class="empty">這個區間還沒有支出紀錄</div>';
         return;
       }
 
@@ -565,27 +564,21 @@
       let html = '';
       for (const [ymd, items] of groups.entries()) {
         const dt = parseLocalDate(ymd);
-        const wName = WEEKDAYS[dt.getDay()] || '';
-        let dayExp = 0;
-        let dayInc = 0;
-        for (const it of items) {
-          const a = Number(it.amount) || 0;
-          if (it.type === 'income') dayInc += a;
-          else dayExp += a;
-        }
-        const daySummaryParts = [];
-        if (dayExp > 0) daySummaryParts.push(`支 ${formatMoney(dayExp)}`);
-        if (dayInc > 0) daySummaryParts.push(`收 ${formatMoney(dayInc)}`);
+        const md = formatMonthDay(ymd);
+        const wk = WEEKDAYS_SHORT[dt.getDay()] || '';
+        const dayExp = sumExpenses(items);
 
         html += `
           <div class="day-group">
             <div class="day-header">
-              <span class="day-date">${escapeHtml(ymd)}（${wName}）</span>
-              <span>${daySummaryParts.join(' · ') || '$0'}</span>
+              <span class="day-date-badge">
+                <span class="day-md">${escapeHtml(md)}</span>
+                <span class="day-wk">${escapeHtml(wk)}</span>
+              </span>
+              <span class="day-sum">${formatMoney(dayExp)}</span>
             </div>
             <div class="tx-list">
               ${items.map(r => {
-                const isInc = r.type === 'income';
                 const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
                 return `
                   <div class="tx-item" data-edit-id="${escapeHtml(r.id)}" title="點擊編輯">
@@ -594,9 +587,7 @@
                       <div class="tx-meta">${escapeHtml(r.account || '現金')}</div>
                     </div>
                     <div class="tx-right">
-                      <div class="tx-amt ${isInc ? 'income-text' : 'expense-text'}">
-                        ${isInc ? '+' : '-'}${formatMoney(r.amount)}
-                      </div>
+                      <div class="tx-amt">${formatMoney(r.amount)}</div>
                       <button type="button" class="del-btn" data-del-id="${escapeHtml(r.id)}" title="刪除">✕</button>
                     </div>
                   </div>
@@ -612,37 +603,16 @@
 
     function render() {
       const filtered = filterByCurrentPeriod();
+      const totalExp = sumExpenses(filtered);
 
-      let exp = 0;
-      let inc = 0;
-      for (const r of filtered) {
-        const amt = Number(r.amount) || 0;
-        if (r.type === 'income') inc += amt;
-        else exp += amt;
-      }
-      const bal = inc - exp;
-      const ratio = inc > 0 ? Math.min(999, Math.round((exp / inc) * 100)) : (exp > 0 ? 100 : 0);
-
-      el.totalExpense.textContent = formatMoney(exp);
-      el.totalIncome.textContent = formatMoney(inc);
-      el.totalBalance.textContent = (bal < 0 ? '-' : '') + formatMoney(Math.abs(bal));
-      el.totalBalance.className = 'stat-val ' + (bal < 0 ? 'expense-text' : bal > 0 ? 'income-text' : '');
-      el.ratioFill.style.width = `${Math.min(100, ratio)}%`;
-      el.ratioText.textContent = `${ratio}%`;
+      el.totalExpense.textContent = formatMoney(totalExp);
       el.countLabel.textContent = `${filtered.length} 筆`;
 
-      renderCategoryTiles(filtered, exp);
+      renderCategoryTiles(filtered, totalExp);
       renderGroupedTransactions(filtered);
+      renderBottomBalances();
     }
 
-    el.btnExpense.addEventListener('click', () => {
-      setType('expense');
-      render();
-    });
-    el.btnIncome.addEventListener('click', () => {
-      setType('income');
-      render();
-    });
     el.category.addEventListener('change', render);
     el.cancelEditBtn.addEventListener('click', () => exitEditMode(true));
 
@@ -652,11 +622,11 @@
 
     el.form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const amount = parseFloat(el.amount.value);
+      const amount = Math.abs(parseFloat(el.amount.value));
       if (!amount || amount <= 0) return;
 
       const payload = {
-        type: currentType,
+        type: 'expense',
         amount,
         date: el.date.value || todayStr(),
         category: CATEGORIES.includes(el.category.value) ? el.category.value : '其他',
@@ -703,7 +673,7 @@
       const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' }));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `expense-cmoney-backup-${todayStr()}.json`;
+      a.download = `expense-backup-${todayStr()}.json`;
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -731,10 +701,9 @@
 
     const nowDate = todayStr();
     const nowDt = parseLocalDate(nowDate);
-    el.todayBadge.textContent = `今天 ${nowDate}（${WEEKDAYS[nowDt.getDay()]}）`;
+    el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
     el.date.value = nowDate;
     renderCategories();
-    setType('expense');
     setPeriod('month');
   </script>
 </body>
