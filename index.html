@@ -359,7 +359,7 @@
 
     <!-- 首頁內容 -->
     <div id="homeView">
-      <!-- 月支出：只要一行 -->
+      <!-- 月支出：只要一行（選取日期時顯示「MM/DD 支出」與當月支出累積） -->
       <section class="hero-expense">
         <span class="hero-label" id="expTitleLabel">月支出</span>
         <span class="hero-val" id="totalExpense">$0</span>
@@ -478,7 +478,7 @@
   </nav>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_v10';
+    const STORAGE_KEY = 'pwa_expense_cw_v11';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const PALETTE = ['#f59e0b', '#38bdf8', '#4ade80', '#f87171', '#a78bfa', '#fb7185', '#2dd4bf', '#facc15', '#60a5fa', '#e879f9'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -737,9 +737,9 @@
       el.yearBalance.textContent = formatMoney(sumExpenses(yearList));
     }
 
-    function renderCategoryRow(filtered) {
+    function renderCategoryRow(monthRecords) {
       const catTotals = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
-      for (const r of filtered) {
+      for (const r of monthRecords) {
         const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
         catTotals[cat] += Number(r.amount) || 0;
       }
@@ -764,7 +764,7 @@
         btn.addEventListener('click', () => {
           el.category.value = btn.dataset.cat;
           el.amount.focus();
-          renderCategoryRow(filtered);
+          renderCategoryRow(monthRecords);
         });
       }
     }
@@ -984,6 +984,7 @@
         ? monthRecords.filter(r => r.date === selectedYmd)
         : monthRecords;
 
+      // 選取日期時顯示「MM/DD 支出」，但金額與分類支出維持當月累積
       if (selectedYmd) {
         el.expTitleLabel.textContent = `${formatMonthDay(selectedYmd)} 支出`;
         el.listHeading.textContent = `${formatMonthDay(selectedYmd)} 明細`;
@@ -992,11 +993,11 @@
         el.listHeading.textContent = '本月明細';
       }
 
-      const totalExp = sumExpenses(filtered);
-      el.totalExpense.textContent = formatMoney(totalExp);
+      const monthTotalExp = sumExpenses(monthRecords);
+      el.totalExpense.textContent = formatMoney(monthTotalExp);
       el.countLabel.textContent = `${filtered.length} 筆`;
 
-      renderCategoryRow(filtered);
+      renderCategoryRow(monthRecords);
       renderGroupedTransactions(filtered);
       renderBottomBalances();
       if (currentTab === 'report') renderReport();
