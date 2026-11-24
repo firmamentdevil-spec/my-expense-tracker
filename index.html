@@ -117,7 +117,7 @@
     .hero-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
     .hero-val { font-size: 1.55rem; font-weight: 800; color: var(--expense); }
 
-    /* 卡片與分類（全部歸類在同一行） */
+    /* 卡片與分類（單行不溢出、縮小字體） */
     .card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 14px; margin-bottom: 12px;
@@ -128,29 +128,36 @@
     }
     .section-title { font-weight: 700; font-size: 0.96rem; }
     .section-sub { font-size: 0.78rem; color: var(--muted); }
-    .cat-strip-1row {
-      display: flex; flex-direction: row; gap: 6px;
-      overflow-x: auto; padding-bottom: 4px;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: thin;
+    .cat-row-fit {
+      display: flex; flex-direction: row; gap: 3px;
+      width: 100%; overflow: hidden;
     }
-    .cat-chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 10px; padding: 7px 10px; cursor: pointer; color: var(--text);
-      width: auto; flex-shrink: 0; white-space: nowrap;
+    .cat-mini {
+      flex: 1 1 0; min-width: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 7px; padding: 5px 2px; cursor: pointer; color: var(--text);
     }
-    .cat-chip.selected {
+    .cat-mini.selected {
       border-color: var(--accent); background: var(--accent-soft);
     }
-    .cat-dot {
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    .cat-mini-top {
+      display: inline-flex; align-items: center; gap: 2px;
+      max-width: 100%;
     }
-    .cat-name { font-weight: 700; font-size: 0.84rem; }
-    .cat-pct { font-size: 0.72rem; color: var(--muted); }
-    .cat-amt { font-size: 0.84rem; font-weight: 800; color: var(--expense); }
+    .cat-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .cat-mini-name {
+      font-weight: 700; font-size: 0.66rem; line-height: 1.1;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .cat-mini-amt {
+      font-size: 0.64rem; font-weight: 800; color: var(--expense); line-height: 1.1;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+    }
 
-    /* 記帳表單（金額可加減，無快捷加減按鈕列） */
+    /* 記帳表單 */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .full { grid-column: 1 / -1; }
     label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
@@ -224,7 +231,18 @@
     .bottom-row-label { font-size: 0.9rem; font-weight: 700; }
     .bottom-row-val { font-size: 1rem; font-weight: 800; color: var(--text); }
 
-    /* 報表圓餅圖樣式 */
+    /* 報表區：日支出 + 月支出統計 + 圓餅圖顯示字體 */
+    .stat-pair {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin-bottom: 12px;
+    }
+    .stat-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    .stat-box-label { font-size: 0.75rem; color: var(--muted); font-weight: 700; }
+    .stat-box-val { font-size: 1.12rem; font-weight: 800; color: var(--expense); margin-top: 3px; }
+
     .report-select-box {
       position: relative; margin-bottom: 14px;
     }
@@ -238,16 +256,20 @@
     .report-select:focus { outline: none; border-color: var(--accent); }
     .pie-wrap {
       display: flex; flex-direction: column; align-items: center;
-      padding: 8px 0 14px;
+      padding: 6px 0 12px;
     }
     .pie-svg {
-      width: 210px; height: 210px; overflow: visible;
+      width: 230px; height: 230px; overflow: visible;
     }
-    .pie-total-caption {
-      margin-top: 8px; font-size: 0.85rem; color: var(--muted); font-weight: 700;
+    .pie-slice-text {
+      font-size: 8.5px; font-weight: 800; fill: #0f172a;
+      pointer-events: none;
     }
-    .pie-total-caption strong {
-      color: var(--expense); font-size: 1rem; margin-left: 4px;
+    .pie-center-title {
+      font-size: 8.5px; font-weight: 700; fill: var(--muted);
+    }
+    .pie-center-val {
+      font-size: 11px; font-weight: 800; fill: var(--text);
     }
     .legend-list {
       display: flex; flex-direction: column; gap: 6px; margin-top: 6px;
@@ -260,6 +282,9 @@
     .legend-left {
       display: inline-flex; align-items: center; gap: 8px;
       font-weight: 700; font-size: 0.9rem;
+    }
+    .legend-dot {
+      width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
     }
     .legend-pct {
       font-size: 0.76rem; color: var(--muted); font-weight: 600;
@@ -343,16 +368,16 @@
         <div class="hero-val" id="totalExpense">$0</div>
       </section>
 
-      <!-- 分類支出：全部歸類在同一行 -->
+      <!-- 分類支出：單行不溢出、縮小字體 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title">分類支出</span>
-          <span class="section-sub">點選可帶入分類</span>
+          <span class="section-sub">點選帶入</span>
         </div>
-        <div id="catStrip" class="cat-strip-1row"></div>
+        <div id="catRow" class="cat-row-fit"></div>
       </section>
 
-      <!-- 新增支出：金額支援加減運算，已移除快捷加減按鈕列 -->
+      <!-- 新增支出：金額支援加減運算 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title" id="formHeading">新增支出</span>
@@ -415,13 +440,25 @@
       </div>
     </div>
 
-    <!-- 報表內容：先拉報表選單（月分類、月支出、日支出）+ 圓餅圖 -->
+    <!-- 報表內容：日支出與月支出統計 + 報表選單 + 圓餅圖顯示字體 -->
     <div id="reportView" style="display:none;">
       <section class="card">
         <div class="section-head">
-          <span class="section-title">報表查詢</span>
+          <span class="section-title">報表統計</span>
           <span id="reportMonthLabel" class="section-sub"></span>
         </div>
+
+        <div class="stat-pair">
+          <div class="stat-box">
+            <div class="stat-box-label" id="reportDayStatLabel">日支出統計</div>
+            <div class="stat-box-val" id="reportDayStatVal">$0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label" id="reportMonthStatLabel">月支出統計</div>
+            <div class="stat-box-val" id="reportMonthStatVal">$0</div>
+          </div>
+        </div>
+
         <div class="report-select-box">
           <select id="reportTypeSelect" class="report-select" aria-label="選擇報表類型">
             <option value="monthCategory">月分類</option>
@@ -444,7 +481,7 @@
   </nav>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_v7';
+    const STORAGE_KEY = 'pwa_expense_cw_v8';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const PALETTE = ['#f59e0b', '#38bdf8', '#4ade80', '#f87171', '#a78bfa', '#fb7185', '#2dd4bf', '#facc15', '#60a5fa', '#e879f9'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -465,6 +502,10 @@
       reportView: document.getElementById('reportView'),
       tabHome: document.getElementById('tabHome'),
       tabReport: document.getElementById('tabReport'),
+      reportDayStatLabel: document.getElementById('reportDayStatLabel'),
+      reportDayStatVal: document.getElementById('reportDayStatVal'),
+      reportMonthStatLabel: document.getElementById('reportMonthStatLabel'),
+      reportMonthStatVal: document.getElementById('reportMonthStatVal'),
       reportTypeSelect: document.getElementById('reportTypeSelect'),
       reportMonthLabel: document.getElementById('reportMonthLabel'),
       reportBody: document.getElementById('reportBody'),
@@ -472,7 +513,7 @@
       expSubLabel: document.getElementById('expSubLabel'),
       listHeading: document.getElementById('listHeading'),
       totalExpense: document.getElementById('totalExpense'),
-      catStrip: document.getElementById('catStrip'),
+      catRow: document.getElementById('catRow'),
       formHeading: document.getElementById('formHeading'),
       editHint: document.getElementById('editHint'),
       form: document.getElementById('txForm'),
@@ -521,7 +562,6 @@
       return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
     }
 
-    // 安全解析金額加減算式（僅允許數字、+、-、小數點與空白）
     function evalAddSubAmount(rawInput) {
       const cleaned = String(rawInput ?? '').replace(/\s+/g, '');
       if (!cleaned) return null;
@@ -704,8 +744,8 @@
       el.yearBalance.textContent = formatMoney(sumExpenses(yearList));
     }
 
-    // 分類支出：全部歸類在同一行
-    function renderCategoryStrip(filtered, totalExp) {
+    // 分類支出：單行不溢出、縮小字體
+    function renderCategoryRow(filtered) {
       const catTotals = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
       for (const r of filtered) {
         const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
@@ -713,26 +753,26 @@
       }
 
       const activeCat = el.category.value;
-      el.catStrip.innerHTML = CATEGORIES.map((cat, idx) => {
+      el.catRow.innerHTML = CATEGORIES.map((cat, idx) => {
         const amt = catTotals[cat] || 0;
-        const pct = totalExp > 0 ? Math.round((amt / totalExp) * 100) : 0;
         const isSel = activeCat === cat;
         const color = PALETTE[idx % PALETTE.length];
         return `
-          <button type="button" class="cat-chip ${isSel ? 'selected' : ''}" data-cat="${escapeHtml(cat)}">
-            <span class="cat-dot" style="background:${color};"></span>
-            <span class="cat-name">${escapeHtml(cat)}</span>
-            <span class="cat-pct">${pct}%</span>
-            <span class="cat-amt">${formatMoney(amt)}</span>
+          <button type="button" class="cat-mini ${isSel ? 'selected' : ''}" data-cat="${escapeHtml(cat)}">
+            <span class="cat-mini-top">
+              <span class="cat-dot" style="background:${color};"></span>
+              <span class="cat-mini-name">${escapeHtml(cat)}</span>
+            </span>
+            <span class="cat-mini-amt">${formatMoney(amt)}</span>
           </button>
         `;
       }).join('');
 
-      for (const chip of el.catStrip.querySelectorAll('.cat-chip')) {
-        chip.addEventListener('click', () => {
-          el.category.value = chip.dataset.cat;
+      for (const btn of el.catRow.querySelectorAll('.cat-mini')) {
+        btn.addEventListener('click', () => {
+          el.category.value = btn.dataset.cat;
           el.amount.focus();
-          renderCategoryStrip(filtered, totalExp);
+          renderCategoryRow(filtered);
         });
       }
     }
@@ -793,7 +833,8 @@
       el.txList.innerHTML = html;
     }
 
-    function buildPieChartHtml(slices, emptyMsg) {
+    // 圓餅圖顯示字體（扇形內顯示標籤與占比 + 中心顯示總計）
+    function buildPieChartHtml(slices, centerTitle, emptyMsg) {
       const positiveSlices = slices.filter(s => s.value > 0);
       const total = positiveSlices.reduce((acc, s) => acc + s.value, 0);
 
@@ -801,18 +842,22 @@
         return `<div class="empty">${escapeHtml(emptyMsg)}</div>`;
       }
 
-      const cx = 100;
-      const cy = 100;
-      const r = 88;
+      const cx = 115;
+      const cy = 115;
+      const r = 92;
+      const innerR = 34;
       let startAngle = -Math.PI / 2;
       let pathsHtml = '';
+      let labelsHtml = '';
 
       if (positiveSlices.length === 1) {
         const only = positiveSlices[0];
         pathsHtml = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${only.color}" />`;
+        labelsHtml = `<text x="${cx}" y="${cy - 44}" text-anchor="middle" class="pie-slice-text">${escapeHtml(only.label)} 100%</text>`;
       } else {
         for (const s of positiveSlices) {
-          const angle = (s.value / total) * Math.PI * 2;
+          const frac = s.value / total;
+          const angle = frac * Math.PI * 2;
           const endAngle = startAngle + angle;
           const x1 = cx + r * Math.cos(startAngle);
           const y1 = cy + r * Math.sin(startAngle);
@@ -821,16 +866,35 @@
           const largeArc = angle > Math.PI ? 1 : 0;
 
           pathsHtml += `<path d="M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z" fill="${s.color}" stroke="#1e293b" stroke-width="2" />`;
+
+          const pct = Math.round(frac * 100);
+          if (pct >= 7) {
+            const midAngle = startAngle + angle / 2;
+            const labelR = (r + innerR) / 2 + 4;
+            const lx = cx + labelR * Math.cos(midAngle);
+            const ly = cy + labelR * Math.sin(midAngle);
+            labelsHtml += `
+              <text x="${lx.toFixed(1)}" y="${(ly - 3).toFixed(1)}" text-anchor="middle" class="pie-slice-text">${escapeHtml(s.label)}</text>
+              <text x="${lx.toFixed(1)}" y="${(ly + 7).toFixed(1)}" text-anchor="middle" class="pie-slice-text">${pct}%</text>
+            `;
+          }
+
           startAngle = endAngle;
         }
       }
+
+      const holeHtml = `
+        <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="#1e293b" />
+        <text x="${cx}" y="${cy - 3}" text-anchor="middle" class="pie-center-title">${escapeHtml(centerTitle)}</text>
+        <text x="${cx}" y="${cy + 9}" text-anchor="middle" class="pie-center-val">${escapeHtml(formatMoney(total))}</text>
+      `;
 
       const legendHtml = positiveSlices.map(s => {
         const pct = Math.round((s.value / total) * 100);
         return `
           <div class="legend-row">
             <span class="legend-left">
-              <span class="cat-dot" style="background:${s.color};"></span>
+              <span class="legend-dot" style="background:${s.color};"></span>
               <span>${escapeHtml(s.label)}</span>
               <span class="legend-pct">${pct}%</span>
             </span>
@@ -841,10 +905,11 @@
 
       return `
         <div class="pie-wrap">
-          <svg class="pie-svg" viewBox="0 0 200 200" role="img" aria-label="支出圓餅圖">
+          <svg class="pie-svg" viewBox="0 0 230 230" role="img" aria-label="支出圓餅圖">
             ${pathsHtml}
+            ${labelsHtml}
+            ${holeHtml}
           </svg>
-          <div class="pie-total-caption">總計支出 <strong>${formatMoney(total)}</strong></div>
         </div>
         <div class="legend-list">${legendHtml}</div>
       `;
@@ -852,11 +917,19 @@
 
     function renderReport() {
       const ym = el.monthSelect.value || todayStr().slice(0, 7);
+      const targetDay = selectedYmd || (todayStr().startsWith(ym) ? todayStr() : `${ym}-01`);
+      const dayRecords = records.filter(r => r.date === targetDay);
+      const monthRecords = records.filter(r => r.date && r.date.startsWith(ym));
+
       el.reportMonthLabel.textContent = ym.replace('-', '/');
+      el.reportDayStatLabel.textContent = `日支出統計（${formatMonthDay(targetDay)}）`;
+      el.reportDayStatVal.textContent = formatMoney(sumExpenses(dayRecords));
+      el.reportMonthStatLabel.textContent = `月支出統計（${ym.replace('-', '/')}）`;
+      el.reportMonthStatVal.textContent = formatMoney(sumExpenses(monthRecords));
+
       const type = el.reportTypeSelect.value;
 
       if (type === 'monthCategory') {
-        const monthRecords = records.filter(r => r.date && r.date.startsWith(ym));
         const map = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
         for (const r of monthRecords) {
           const c = CATEGORIES.includes(r.category) ? r.category : '其他';
@@ -867,7 +940,7 @@
           value: map[c] || 0,
           color: PALETTE[idx % PALETTE.length]
         }));
-        el.reportBody.innerHTML = buildPieChartHtml(slices, '這個月份還沒有分類支出資料');
+        el.reportBody.innerHTML = buildPieChartHtml(slices, '月分類總計', '這個月份還沒有分類支出資料');
         return;
       }
 
@@ -884,26 +957,22 @@
           value: amt,
           color: PALETTE[idx % PALETTE.length]
         }));
-        el.reportBody.innerHTML = buildPieChartHtml(slices, '目前還沒有月支出紀錄');
+        el.reportBody.innerHTML = buildPieChartHtml(slices, '月支出總計', '目前還沒有月支出紀錄');
         return;
       }
 
-      const monthRecords = records.filter(r => r.date && r.date.startsWith(ym));
       const dayMap = new Map();
       for (const r of monthRecords) {
         const dKey = r.date;
         dayMap.set(dKey, (dayMap.get(dKey) || 0) + (Number(r.amount) || 0));
       }
       const rows = Array.from(dayMap.entries()).sort((a, b) => b[0].localeCompare(a[0]));
-      const slices = rows.map(([dKey, amt], idx) => {
-        const wk = WEEKDAYS_SHORT[parseLocalDate(dKey).getDay()] || '';
-        return {
-          label: `${formatMonthDay(dKey)}（${wk}）`,
-          value: amt,
-          color: PALETTE[idx % PALETTE.length]
-        };
-      });
-      el.reportBody.innerHTML = buildPieChartHtml(slices, '這個月份還沒有日支出紀錄');
+      const slices = rows.map(([dKey, amt], idx) => ({
+        label: formatMonthDay(dKey),
+        value: amt,
+        color: PALETTE[idx % PALETTE.length]
+      }));
+      el.reportBody.innerHTML = buildPieChartHtml(slices, '當月日支出', '這個月份還沒有日支出紀錄');
     }
 
     function switchTab(tab) {
@@ -938,7 +1007,7 @@
       el.totalExpense.textContent = formatMoney(totalExp);
       el.countLabel.textContent = `${filtered.length} 筆`;
 
-      renderCategoryStrip(filtered, totalExp);
+      renderCategoryRow(filtered);
       renderGroupedTransactions(filtered);
       renderBottomBalances();
       if (currentTab === 'report') renderReport();
