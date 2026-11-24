@@ -1058,3 +1058,65 @@
       }
 
       saveRecords();
+      exitEditMode();
+      el.amount.focus();
+      render();
+    });
+
+    el.txList.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('[data-del-id]');
+      if (delBtn) {
+        e.stopPropagation();
+        const id = delBtn.getAttribute('data-del-id');
+        records = records.filter(r => r.id !== id);
+        if (editingId === id) exitEditMode();
+        saveRecords();
+        render();
+        return;
+      }
+
+      const item = e.target.closest('[data-edit-id]');
+      if (item) {
+        startEditRecord(item.getAttribute('data-edit-id'));
+      }
+    });
+
+    el.exportBtn.addEventListener('click', () => {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `expense-backup-${todayStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    el.importBtn.addEventListener('click', () => el.importFile.click());
+    el.importFile.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (!Array.isArray(data)) throw new Error();
+        const map = new Map(records.map(i => [i.id, i]));
+        for (const item of data) if (item && item.id) map.set(item.id, item);
+        records = Array.from(map.values());
+        saveRecords();
+        render();
+        alert('備份匯入完成！');
+      } catch {
+        alert('匯入失敗，請確認選擇的是正確的 JSON 備份檔。');
+      } finally {
+        e.target.value = '';
+      }
+    });
+
+    const nowDate = todayStr();
+    const nowDt = parseLocalDate(nowDate);
+    el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
+    buildMonthOptions(nowDate.slice(0, 7));
+    renderCategories();
+    updateCalcPreview();
+    render();
+  </script>
+</body>
+</html>
