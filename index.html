@@ -23,7 +23,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding-bottom: 56px;
+      padding-bottom: 78px;
     }
     .container { max-width: 640px; margin: 0 auto; padding: 14px; }
 
@@ -43,47 +43,40 @@
       border: 1px solid var(--border); padding: 4px 10px; border-radius: 999px;
     }
 
-    /* 第二行：美化後的月份選取 + 周日~周六 + 每日按鈕 */
+    /* 第二行：左邊小一點顯示當月 + 右邊美化下拉選單 */
     .cal-strip-card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 10px 12px; margin-bottom: 12px;
     }
     .month-select-row {
       display: flex; justify-content: space-between; align-items: center;
-      gap: 8px; margin-bottom: 10px;
+      gap: 10px; margin-bottom: 10px;
     }
-    .month-stepper {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 999px; padding: 3px;
-    }
-    .step-btn {
-      width: 28px; height: 28px; border-radius: 999px;
-      border: none; background: var(--card-2); color: var(--text);
+    .current-month-btn {
+      width: auto; padding: 5px 10px; border-radius: 999px;
+      background: var(--card-2); color: var(--accent);
+      border: 1px solid rgba(245, 158, 11, 0.45);
       font-size: 0.78rem; font-weight: 800; cursor: pointer;
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 0;
+      white-space: nowrap;
     }
-    .step-btn:active { background: var(--accent); color: #1c1917; }
-    .month-display-label {
-      font-size: 1rem; font-weight: 800; color: var(--accent);
-      padding: 0 6px; letter-spacing: 0.03em;
+    .current-month-btn:active { background: var(--accent); color: #1c1917; }
+
+    .month-dropdown-wrap {
+      position: relative; flex: 1; max-width: 190px;
     }
-    .month-picker-wrap {
-      position: relative; display: inline-flex; align-items: center;
-      background: var(--accent-soft); border: 1px solid rgba(245, 158, 11, 0.45);
-      border-radius: 999px; padding: 5px 12px; gap: 6px;
+    .month-dropdown {
+      width: 100%; appearance: none; -webkit-appearance: none;
+      background: var(--bg); color: var(--text);
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      border-radius: 10px; padding: 7px 32px 7px 12px;
+      font-size: 0.88rem; font-weight: 700; cursor: pointer;
     }
-    .month-picker-text {
-      font-size: 0.8rem; font-weight: 700; color: var(--accent);
-      pointer-events: none; white-space: nowrap;
+    .month-dropdown:focus { outline: none; border-color: var(--accent); }
+    .dropdown-arrow {
+      position: pointer-events; pointer-events: none;
+      position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+      color: var(--accent); font-size: 0.72rem; font-weight: 800;
     }
-    .month-picker-inline {
-      background: transparent; color: var(--accent); border: none;
-      font-size: 0.84rem; font-weight: 700; width: auto; padding: 0;
-      cursor: pointer;
-    }
-    .month-picker-inline:focus { outline: none; }
 
     .week-row-top {
       display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
@@ -124,7 +117,7 @@
     .hero-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
     .hero-val { font-size: 1.55rem; font-weight: 800; color: var(--expense); }
 
-    /* 六大分類 */
+    /* 卡片與分類 */
     .card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 14px; margin-bottom: 12px;
@@ -221,12 +214,55 @@
     .bottom-row-label { font-size: 0.9rem; font-weight: 700; }
     .bottom-row-val { font-size: 1rem; font-weight: 800; color: var(--text); }
 
-    .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    /* 報表頁樣式 */
+    .report-select-box {
+      position: relative; margin-bottom: 12px;
+    }
+    .report-select {
+      appearance: none; -webkit-appearance: none;
+      background: var(--bg); color: var(--text);
+      border: 1px solid rgba(245, 158, 11, 0.55);
+      border-radius: 12px; padding: 11px 36px 11px 14px;
+      font-size: 0.95rem; font-weight: 700; cursor: pointer;
+    }
+    .report-select:focus { outline: none; border-color: var(--accent); }
+    .report-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px 12px; margin-bottom: 8px;
+    }
+    .report-row:last-child { margin-bottom: 0; }
+    .report-row-left { font-weight: 700; font-size: 0.92rem; }
+    .report-row-sub { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+    .report-row-amt { font-weight: 800; font-size: 0.98rem; color: var(--expense); }
+
+    .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
     button.secondary {
       background: var(--card-2); color: var(--text); border: 1px solid var(--border);
       cursor: pointer; padding: 8px 10px; font-size: 0.85rem;
     }
     .empty { text-align: center; color: var(--muted); padding: 20px 0; font-size: 0.9rem; }
+
+    /* 最下方兩個工具欄：首頁 / 報表 */
+    .bottom-nav {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      padding: 8px 14px;
+    }
+    .bottom-nav-inner {
+      max-width: 640px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .nav-tab-btn {
+      padding: 9px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--muted); font-size: 0.92rem; font-weight: 800;
+      cursor: pointer;
+    }
+    .nav-tab-btn.active {
+      background: var(--accent); color: #1c1917; border-color: var(--accent);
+    }
   </style>
 </head>
 <body>
@@ -240,18 +276,14 @@
       <span id="todayBadge" class="today-pill"></span>
     </header>
 
-    <!-- 第二行：美化後的月份選取 + 周日~周六 + 每日按鈕 -->
+    <!-- 第二行：左邊小一點顯示當月 + 右邊美化下拉選單 -->
     <section class="cal-strip-card">
       <div class="month-select-row">
-        <div class="month-stepper">
-          <button type="button" id="prevMonthBtn" class="step-btn" title="上一個月">◀</button>
-          <span id="monthSlashLabel" class="month-display-label">2026/11</span>
-          <button type="button" id="nextMonthBtn" class="step-btn" title="下一個月">▶</button>
+        <button type="button" id="currentMonthBtn" class="current-month-btn">當月</button>
+        <div class="month-dropdown-wrap">
+          <select id="monthSelect" class="month-dropdown" aria-label="選擇月份"></select>
+          <span class="dropdown-arrow">▼</span>
         </div>
-        <label class="month-picker-wrap" for="monthPicker">
-          <span class="month-picker-text">選月份</span>
-          <input type="month" id="monthPicker" class="month-picker-inline" />
-        </label>
       </div>
       <div class="week-row-top">
         <div class="wk-head">周日</div>
@@ -269,115 +301,150 @@
       </div>
     </section>
 
-    <!-- 月支出 -->
-    <section class="hero-expense">
-      <div>
-        <div class="hero-label" id="expTitleLabel">月支出</div>
-        <div class="hero-sub" id="expSubLabel">僅計算支出金額</div>
-      </div>
-      <div class="hero-val" id="totalExpense">$0</div>
-    </section>
+    <!-- 首頁內容 -->
+    <div id="homeView">
+      <section class="hero-expense">
+        <div>
+          <div class="hero-label" id="expTitleLabel">月支出</div>
+          <div class="hero-sub" id="expSubLabel">僅計算支出金額</div>
+        </div>
+        <div class="hero-val" id="totalExpense">$0</div>
+      </section>
 
-    <section class="card">
-      <div class="section-head">
-        <span class="section-title">分類支出</span>
-        <span class="section-sub">點選分類可快速帶入</span>
-      </div>
-      <div id="catGrid" class="cat-grid"></div>
-    </section>
+      <section class="card">
+        <div class="section-head">
+          <span class="section-title">分類支出</span>
+          <span class="section-sub">點選分類可快速帶入</span>
+        </div>
+        <div id="catGrid" class="cat-grid"></div>
+      </section>
 
-    <section class="card">
-      <div class="section-head">
-        <span class="section-title" id="formHeading">新增支出</span>
-        <span class="section-sub" id="editHint">每天預設今日日期</span>
-      </div>
-      <form id="txForm">
-        <div class="form-grid">
-          <div>
-            <label for="amount">金額</label>
-            <input type="number" id="amount" inputmode="decimal" step="any" min="0.01" placeholder="0" required />
+      <section class="card">
+        <div class="section-head">
+          <span class="section-title" id="formHeading">新增支出</span>
+          <span class="section-sub" id="editHint">每天預設今日日期</span>
+        </div>
+        <form id="txForm">
+          <div class="form-grid">
+            <div>
+              <label for="amount">金額</label>
+              <input type="number" id="amount" inputmode="decimal" step="any" min="0.01" placeholder="0" required />
+            </div>
+            <div>
+              <label for="date">日期</label>
+              <input type="date" id="date" required />
+            </div>
+            <div>
+              <label for="category">分類</label>
+              <select id="category"></select>
+            </div>
+            <div>
+              <label for="account">帳戶</label>
+              <select id="account">
+                <option value="現金">現金</option>
+                <option value="信用卡">信用卡</option>
+                <option value="銀行帳戶">銀行帳戶</option>
+                <option value="電子支付">電子支付</option>
+              </select>
+            </div>
+            <div class="full">
+              <label for="note">備註（選填）</label>
+              <input type="text" id="note" placeholder="例如：午餐、捷運、卡費、冷氣維修" />
+            </div>
           </div>
-          <div>
-            <label for="date">日期</label>
-            <input type="date" id="date" required />
+          <div class="form-actions">
+            <button type="submit" class="primary" id="submitBtn">儲存支出</button>
+            <button type="button" class="ghost" id="cancelEditBtn" style="display:none;">取消編輯</button>
           </div>
-          <div>
-            <label for="category">分類</label>
-            <select id="category"></select>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <strong id="listHeading">本月明細</strong>
+          <span id="countLabel" class="section-sub">0 筆</span>
+        </div>
+        <div id="txList"></div>
+      </section>
+
+      <!-- 下方：本週 / 本月 / 本年 結餘排列 -->
+      <section class="bottom-summary">
+        <div class="bottom-title">期間結餘總覽</div>
+        <div class="bottom-list">
+          <div class="bottom-row">
+            <span class="bottom-row-label">本週 結餘</span>
+            <span class="bottom-row-val" id="weekBalance">$0</span>
           </div>
-          <div>
-            <label for="account">帳戶</label>
-            <select id="account">
-              <option value="現金">現金</option>
-              <option value="信用卡">信用卡</option>
-              <option value="銀行帳戶">銀行帳戶</option>
-              <option value="電子支付">電子支付</option>
-            </select>
+          <div class="bottom-row">
+            <span class="bottom-row-label">本月 結餘</span>
+            <span class="bottom-row-val" id="monthBalance">$0</span>
           </div>
-          <div class="full">
-            <label for="note">備註（選填）</label>
-            <input type="text" id="note" placeholder="例如：午餐、捷運、卡費、冷氣維修" />
+          <div class="bottom-row">
+            <span class="bottom-row-label">本年 結餘</span>
+            <span class="bottom-row-val" id="yearBalance">$0</span>
           </div>
         </div>
-        <div class="form-actions">
-          <button type="submit" class="primary" id="submitBtn">儲存支出</button>
-          <button type="button" class="ghost" id="cancelEditBtn" style="display:none;">取消編輯</button>
-        </div>
-      </form>
-    </section>
+      </section>
 
-    <section class="card">
-      <div class="section-head">
-        <strong id="listHeading">本月明細</strong>
-        <span id="countLabel" class="section-sub">0 筆</span>
+      <div class="tools">
+        <button type="button" id="exportBtn" class="secondary">匯出備份 (JSON)</button>
+        <button type="button" id="importBtn" class="secondary">匯入備份</button>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none;" />
       </div>
-      <div id="txList"></div>
-    </section>
+    </div>
 
-    <!-- 下方：本週 / 本月 / 本年 結餘排列 -->
-    <section class="bottom-summary">
-      <div class="bottom-title">期間結餘總覽</div>
-      <div class="bottom-list">
-        <div class="bottom-row">
-          <span class="bottom-row-label">本週 結餘</span>
-          <span class="bottom-row-val" id="weekBalance">$0</span>
+    <!-- 報表內容：先拉報表選單（月分類、月支出、日支出） -->
+    <div id="reportView" style="display:none;">
+      <section class="card">
+        <div class="section-head">
+          <span class="section-title">報表查詢</span>
+          <span id="reportMonthLabel" class="section-sub"></span>
         </div>
-        <div class="bottom-row">
-          <span class="bottom-row-label">本月 結餘</span>
-          <span class="bottom-row-val" id="monthBalance">$0</span>
+        <div class="report-select-box">
+          <select id="reportTypeSelect" class="report-select" aria-label="選擇報表類型">
+            <option value="monthCategory">月分類</option>
+            <option value="monthExpense">月支出</option>
+            <option value="dayExpense">日支出</option>
+          </select>
+          <span class="dropdown-arrow">▼</span>
         </div>
-        <div class="bottom-row">
-          <span class="bottom-row-label">本年 結餘</span>
-          <span class="bottom-row-val" id="yearBalance">$0</span>
-        </div>
-      </div>
-    </section>
-
-    <div class="tools">
-      <button type="button" id="exportBtn" class="secondary">匯出備份 (JSON)</button>
-      <button type="button" id="importBtn" class="secondary">匯入備份</button>
-      <input type="file" id="importFile" accept=".json,application/json" style="display:none;" />
+        <div id="reportBody"></div>
+      </section>
     </div>
   </div>
 
+  <!-- 最下方兩個工具欄：首頁 跟 報表 -->
+  <nav class="bottom-nav" aria-label="主工具欄">
+    <div class="bottom-nav-inner">
+      <button type="button" id="tabHome" class="nav-tab-btn active">首頁</button>
+      <button type="button" id="tabReport" class="nav-tab-btn">報表</button>
+    </div>
+  </nav>
+
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_v3';
+    const STORAGE_KEY = 'pwa_expense_cw_v4';
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
+    let currentTab = 'home'; // 'home' | 'report'
     let selectedYmd = null;
     let editingId = null;
     let records = loadRecords();
 
     const el = {
       todayBadge: document.getElementById('todayBadge'),
-      prevMonthBtn: document.getElementById('prevMonthBtn'),
-      nextMonthBtn: document.getElementById('nextMonthBtn'),
-      monthSlashLabel: document.getElementById('monthSlashLabel'),
-      monthPicker: document.getElementById('monthPicker'),
+      currentMonthBtn: document.getElementById('currentMonthBtn'),
+      monthSelect: document.getElementById('monthSelect'),
       weekDaysRow: document.getElementById('weekDaysRow'),
       dayFilterStatus: document.getElementById('dayFilterStatus'),
       clearDayBtn: document.getElementById('clearDayBtn'),
+      homeView: document.getElementById('homeView'),
+      reportView: document.getElementById('reportView'),
+      tabHome: document.getElementById('tabHome'),
+      tabReport: document.getElementById('tabReport'),
+      reportTypeSelect: document.getElementById('reportTypeSelect'),
+      reportMonthLabel: document.getElementById('reportMonthLabel'),
+      reportBody: document.getElementById('reportBody'),
       expTitleLabel: document.getElementById('expTitleLabel'),
       expSubLabel: document.getElementById('expSubLabel'),
       listHeading: document.getElementById('listHeading'),
@@ -432,6 +499,24 @@
       return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
     }
 
+    function buildMonthOptions(activeYm) {
+      const nowYm = todayStr().slice(0, 7);
+      const set = new Set([nowYm]);
+      for (let i = -12; i <= 3; i++) {
+        set.add(shiftYearMonth(nowYm, i));
+      }
+      for (const r of records) {
+        if (r.date && /^\d{4}-\d{2}/.test(r.date)) set.add(r.date.slice(0, 7));
+      }
+      if (activeYm) set.add(activeYm);
+
+      const sorted = Array.from(set).sort((a, b) => b.localeCompare(a));
+      el.monthSelect.innerHTML = sorted.map(ym => {
+        const display = ym.replace('-', '/');
+        return `<option value="${escapeHtml(ym)}" ${ym === activeYm ? 'selected' : ''}>${escapeHtml(display)}</option>`;
+      }).join('');
+    }
+
     function getCurrentWeekRange(baseYmd) {
       const dt = parseLocalDate(baseYmd);
       const sunday = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dt.getDay());
@@ -440,7 +525,7 @@
     }
 
     function getWeekStripDays() {
-      const ym = el.monthPicker.value || todayStr().slice(0, 7);
+      const ym = el.monthSelect.value || todayStr().slice(0, 7);
       const nowYmd = todayStr();
       const anchorYmd = selectedYmd || (nowYmd.startsWith(ym) ? nowYmd : `${ym}-23`);
       const dt = parseLocalDate(anchorYmd);
@@ -488,8 +573,8 @@
     }
 
     function renderMonthAndDays() {
-      const ym = el.monthPicker.value || todayStr().slice(0, 7);
-      el.monthSlashLabel.textContent = ym.replace('-', '/');
+      const currentVal = el.monthSelect.value || todayStr().slice(0, 7);
+      buildMonthOptions(currentVal);
 
       const days = getWeekStripDays();
       el.weekDaysRow.innerHTML = days.map(d => {
@@ -654,9 +739,98 @@
       el.txList.innerHTML = html;
     }
 
+    function renderReport() {
+      const ym = el.monthSelect.value || todayStr().slice(0, 7);
+      el.reportMonthLabel.textContent = ym.replace('-', '/');
+      const type = el.reportTypeSelect.value;
+
+      if (type === 'monthCategory') {
+        const monthRecords = records.filter(r => r.date && r.date.startsWith(ym));
+        const total = sumExpenses(monthRecords);
+        const map = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
+        for (const r of monthRecords) {
+          const c = CATEGORIES.includes(r.category) ? r.category : '其他';
+          map[c] += Number(r.amount) || 0;
+        }
+        el.reportBody.innerHTML = CATEGORIES.map(c => {
+          const amt = map[c] || 0;
+          const pct = total > 0 ? Math.round((amt / total) * 100) : 0;
+          return `
+            <div class="report-row">
+              <div>
+                <div class="report-row-left">${escapeHtml(c)}</div>
+                <div class="report-row-sub">占當月支出 ${pct}%</div>
+              </div>
+              <div class="report-row-amt">${formatMoney(amt)}</div>
+            </div>
+          `;
+        }).join('');
+        return;
+      }
+
+      if (type === 'monthExpense') {
+        const monthMap = new Map();
+        for (const r of records) {
+          if (!r.date || !/^\d{4}-\d{2}/.test(r.date)) continue;
+          const k = r.date.slice(0, 7);
+          monthMap.set(k, (monthMap.get(k) || 0) + (Number(r.amount) || 0));
+        }
+        if (!monthMap.has(ym)) monthMap.set(ym, 0);
+        const rows = Array.from(monthMap.entries()).sort((a, b) => b[0].localeCompare(a[0]));
+        el.reportBody.innerHTML = rows.map(([mKey, amt]) => `
+          <div class="report-row">
+            <div>
+              <div class="report-row-left">${escapeHtml(mKey.replace('-', '/'))}</div>
+              <div class="report-row-sub">月支出總額</div>
+            </div>
+            <div class="report-row-amt">${formatMoney(amt)}</div>
+          </div>
+        `).join('');
+        return;
+      }
+
+      // dayExpense：當月每日支出
+      const monthRecords = records.filter(r => r.date && r.date.startsWith(ym));
+      if (!monthRecords.length) {
+        el.reportBody.innerHTML = '<div class="empty">這個月份還沒有日支出紀錄</div>';
+        return;
+      }
+      const dayMap = new Map();
+      for (const r of monthRecords) {
+        const dKey = r.date;
+        if (!dayMap.has(dKey)) dayMap.set(dKey, { sum: 0, count: 0 });
+        const cur = dayMap.get(dKey);
+        cur.sum += Number(r.amount) || 0;
+        cur.count += 1;
+      }
+      const rows = Array.from(dayMap.entries()).sort((a, b) => b[0].localeCompare(a[0]));
+      el.reportBody.innerHTML = rows.map(([dKey, info]) => {
+        const wk = WEEKDAYS_SHORT[parseLocalDate(dKey).getDay()] || '';
+        return `
+          <div class="report-row">
+            <div>
+              <div class="report-row-left">${escapeHtml(formatMonthDay(dKey))}（${escapeHtml(wk)}）</div>
+              <div class="report-row-sub">${info.count} 筆支出</div>
+            </div>
+            <div class="report-row-amt">${formatMoney(info.sum)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      const isHome = tab === 'home';
+      el.homeView.style.display = isHome ? 'block' : 'none';
+      el.reportView.style.display = isHome ? 'none' : 'block';
+      el.tabHome.className = 'nav-tab-btn' + (isHome ? ' active' : '');
+      el.tabReport.className = 'nav-tab-btn' + (!isHome ? ' active' : '');
+      if (!isHome) renderReport();
+    }
+
     function render() {
       renderMonthAndDays();
-      const m = el.monthPicker.value;
+      const m = el.monthSelect.value;
       const monthRecords = records.filter(r => !m || (r.date && r.date.startsWith(m)));
       const filtered = selectedYmd
         ? monthRecords.filter(r => r.date === selectedYmd)
@@ -679,21 +853,16 @@
       renderCategoryTiles(filtered, totalExp);
       renderGroupedTransactions(filtered);
       renderBottomBalances();
+      if (currentTab === 'report') renderReport();
     }
 
-    el.prevMonthBtn.addEventListener('click', () => {
-      el.monthPicker.value = shiftYearMonth(el.monthPicker.value, -1);
+    el.currentMonthBtn.addEventListener('click', () => {
+      el.monthSelect.value = todayStr().slice(0, 7);
       selectedYmd = null;
       render();
     });
 
-    el.nextMonthBtn.addEventListener('click', () => {
-      el.monthPicker.value = shiftYearMonth(el.monthPicker.value, 1);
-      selectedYmd = null;
-      render();
-    });
-
-    el.monthPicker.addEventListener('change', () => {
+    el.monthSelect.addEventListener('change', () => {
       selectedYmd = null;
       render();
     });
@@ -702,6 +871,10 @@
       selectedYmd = null;
       render();
     });
+
+    el.tabHome.addEventListener('click', () => switchTab('home'));
+    el.tabReport.addEventListener('click', () => switchTab('report'));
+    el.reportTypeSelect.addEventListener('change', renderReport);
 
     el.category.addEventListener('change', render);
     el.cancelEditBtn.addEventListener('click', () => exitEditMode(true));
@@ -787,7 +960,7 @@
     const nowDt = parseLocalDate(nowDate);
     el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
     el.date.value = nowDate;
-    el.monthPicker.value = nowDate.slice(0, 7);
+    buildMonthOptions(nowDate.slice(0, 7));
     renderCategories();
     render();
   </script>
