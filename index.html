@@ -488,7 +488,22 @@
   </nav>
 
   <script>
-    const STORAGE_KEY = 'pwa_expense_cw_v12';
+    // 固定儲存 Key，後續每次改版不再更換，並自動遷移舊版 Key 資料
+    const STORAGE_KEY = 'pwa_expense_cw_records';
+    const LEGACY_KEYS = [
+      'pwa_expense_cw_v12',
+      'pwa_expense_cw_v11',
+      'pwa_expense_cw_v10',
+      'pwa_expense_cw_v9',
+      'pwa_expense_cw_v8',
+      'pwa_expense_cw_v7',
+      'pwa_expense_cw_v6',
+      'pwa_expense_cw_v5',
+      'pwa_expense_cw_v4',
+      'pwa_expense_cw_v3',
+      'pwa_expense_cw_v2',
+      'pwa_expense_cw_v1'
+    ];
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const PALETTE = ['#f59e0b', '#38bdf8', '#4ade80', '#f87171', '#a78bfa', '#fb7185', '#2dd4bf', '#facc15', '#60a5fa', '#e879f9'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -638,13 +653,38 @@
       return now.startsWith(ym) ? now : `${ym}-01`;
     }
 
-    function loadRecords() {
+    function parseJsonArray(raw) {
       try {
-        const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const p = JSON.parse(raw || '[]');
         return Array.isArray(p) ? p : [];
       } catch {
         return [];
       }
+    }
+
+    function loadRecords() {
+      const map = new Map();
+      const currentList = parseJsonArray(localStorage.getItem(STORAGE_KEY));
+      for (const item of currentList) {
+        if (item && item.id) map.set(item.id, item);
+      }
+
+      let migrated = false;
+      for (const legacyKey of LEGACY_KEYS) {
+        const legacyList = parseJsonArray(localStorage.getItem(legacyKey));
+        for (const item of legacyList) {
+          if (item && item.id && !map.has(item.id)) {
+            map.set(item.id, item);
+            migrated = true;
+          }
+        }
+      }
+
+      const merged = Array.from(map.values());
+      if (migrated && merged.length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      }
+      return merged;
     }
 
     function saveRecords() {
