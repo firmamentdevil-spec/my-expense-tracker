@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#ffffff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="隨手記帳" />
   <title>隨手記帳</title>
   <link id="faviconLink" rel="icon" type="image/svg+xml" />
@@ -13,16 +13,16 @@
   <link id="manifestLink" rel="manifest" />
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --card-2: #273549;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #f59e0b;
-      --accent-soft: rgba(245, 158, 11, 0.18);
-      --today-bg: rgba(245, 158, 11, 0.26);
-      --expense: #f87171;
-      --border: rgba(148, 163, 184, 0.16);
+      --bg: #ffffff;
+      --card: #f8fafc;
+      --card-2: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #d97706;
+      --accent-soft: rgba(217, 119, 6, 0.14);
+      --today-bg: rgba(245, 158, 11, 0.22);
+      --expense: #dc2626;
+      --border: #e2e8f0;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -43,16 +43,16 @@
     .app-icon-badge {
       width: 28px; height: 28px; border-radius: 8px;
       background: linear-gradient(135deg, #fbbf24, #d97706);
-      color: #0f172a; font-weight: 900; font-size: 1rem;
+      color: #ffffff; font-weight: 900; font-size: 1rem;
       display: inline-flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.28);
       flex-shrink: 0;
     }
-    h1 { font-size: 1.08rem; margin: 0; }
+    h1 { font-size: 1.08rem; margin: 0; color: var(--text); }
     .today-pill {
       font-size: 0.75rem; color: var(--text); background: var(--card);
       border: 1px solid var(--border); padding: 3px 9px; border-radius: 999px;
-      white-space: nowrap;
+      white-space: nowrap; font-weight: 600;
     }
 
     /* 第二行：左邊當月 + 提示文字並排 + 右邊美化下拉選單 */
@@ -70,13 +70,13 @@
     }
     .current-month-btn {
       width: auto; padding: 4px 9px; border-radius: 999px;
-      background: var(--card-2); color: var(--accent);
-      border: 1px solid rgba(245, 158, 11, 0.45);
+      background: #ffffff; color: var(--accent);
+      border: 1px solid rgba(217, 119, 6, 0.55);
       font-size: 0.74rem; font-weight: 800; cursor: pointer;
       white-space: nowrap; flex-shrink: 0;
     }
     .current-month-btn.active-month {
-      background: var(--accent); color: #1c1917; border-color: var(--accent);
+      background: var(--accent); color: #ffffff; border-color: var(--accent);
     }
     .day-filter-inline {
       font-size: 0.68rem; color: var(--muted);
@@ -88,8 +88,8 @@
     }
     .month-dropdown {
       width: 100%; appearance: none; -webkit-appearance: none;
-      background: var(--bg); color: var(--text);
-      border: 1px solid rgba(245, 158, 11, 0.5);
+      background: #ffffff; color: var(--text);
+      border: 1px solid #cbd5e1;
       border-radius: 8px; padding: 5px 22px 5px 8px;
       font-size: 0.8rem; font-weight: 700; cursor: pointer;
     }
@@ -113,7 +113,7 @@
       text-align: center;
     }
     .day-btn {
-      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      background: #ffffff; border: 1px solid var(--border); border-radius: 8px;
       color: var(--text); font-size: 0.82rem; font-weight: 700;
       padding: 6px 2px; cursor: pointer; width: 100%; min-height: 32px;
       transition: background 0.15s ease, border-color 0.15s ease;
@@ -121,13 +121,13 @@
     .day-btn.is-today {
       background: var(--today-bg);
       border-color: var(--accent);
-      color: #fde68a;
-      box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.35);
+      color: #92400e;
+      box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.35);
     }
     .day-btn.active {
       border-color: var(--accent);
       background: var(--accent);
-      color: #1c1917;
+      color: #ffffff;
     }
 
     /* 支出橫幅：預設當日支出為主，點選當月後顯示月支出 */
@@ -158,7 +158,7 @@
     .cat-mini {
       flex: 1 1 0; min-width: 0;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 2px; background: var(--bg); border: 1px solid var(--border);
+      gap: 2px; background: #ffffff; border: 1px solid var(--border);
       border-radius: 7px; padding: 5px 2px; cursor: pointer; color: var(--text);
     }
     .cat-mini.selected {
@@ -189,8 +189,8 @@
     .note-col { margin-top: 8px; }
     label { display: block; font-size: 0.74rem; color: var(--muted); margin-bottom: 3px; }
     input, select, button {
-      width: 100%; border-radius: 9px; border: 1px solid var(--border);
-      padding: 9px 10px; font-size: 0.9rem; background: var(--bg); color: var(--text);
+      width: 100%; border-radius: 9px; border: 1px solid #cbd5e1;
+      padding: 9px 10px; font-size: 0.9rem; background: #ffffff; color: var(--text);
     }
     input:focus, select:focus { outline: none; border-color: var(--accent); }
     .calc-preview {
@@ -202,8 +202,8 @@
     .numpad-box {
       display: none;
       margin-top: 8px;
-      background: var(--bg);
-      border: 1px solid rgba(245, 158, 11, 0.35);
+      background: #ffffff;
+      border: 1px solid rgba(217, 119, 6, 0.45);
       border-radius: 10px;
       padding: 7px;
     }
@@ -228,23 +228,23 @@
     }
     .pad-key:active {
       background: var(--accent);
-      color: #1c1917;
+      color: #ffffff;
       border-color: var(--accent);
     }
     .pad-key.op-key {
-      background: var(--card-2);
-      color: var(--accent);
-      border-color: rgba(245, 158, 11, 0.35);
+      background: var(--accent-soft);
+      color: #b45309;
+      border-color: rgba(217, 119, 6, 0.35);
     }
     .pad-key.clr-key {
-      background: rgba(248, 113, 113, 0.14);
+      background: rgba(220, 38, 38, 0.1);
       color: var(--expense);
-      border-color: rgba(248, 113, 113, 0.35);
+      border-color: rgba(220, 38, 38, 0.3);
     }
 
     .form-actions { display: flex; gap: 8px; margin-top: 10px; }
     button.primary {
-      background: var(--accent); color: #1c1917; font-weight: 800;
+      background: var(--accent); color: #ffffff; font-weight: 800;
       border: none; cursor: pointer; flex: 1; padding: 10px;
     }
     button.ghost {
@@ -271,7 +271,7 @@
     .tx-list { display: flex; flex-direction: column; gap: 5px; }
     .tx-item {
       display: flex; justify-content: space-between; align-items: center;
-      background: var(--bg); border: 1px solid var(--border);
+      background: #ffffff; border: 1px solid var(--border);
       border-radius: 9px; padding: 8px 10px; gap: 6px; cursor: pointer;
     }
     .tx-item:active { border-color: var(--accent); }
@@ -301,7 +301,7 @@
     }
     .bottom-row {
       display: flex; justify-content: space-between; align-items: center;
-      background: var(--bg); border: 1px solid var(--border);
+      background: #ffffff; border: 1px solid var(--border);
       border-radius: 9px; padding: 8px 10px;
     }
     .bottom-row-label { font-size: 0.84rem; font-weight: 700; }
@@ -313,7 +313,7 @@
       margin-bottom: 10px;
     }
     .stat-box {
-      background: var(--bg); border: 1px solid var(--border);
+      background: #ffffff; border: 1px solid var(--border);
       border-radius: 9px; padding: 9px 10px;
     }
     .stat-box-label { font-size: 0.72rem; color: var(--muted); font-weight: 700; }
@@ -324,8 +324,8 @@
     }
     .report-select {
       appearance: none; -webkit-appearance: none;
-      background: var(--bg); color: var(--text);
-      border: 1px solid rgba(245, 158, 11, 0.55);
+      background: #ffffff; color: var(--text);
+      border: 1px solid #cbd5e1;
       border-radius: 10px; padding: 9px 32px 9px 12px;
       font-size: 0.88rem; font-weight: 700; cursor: pointer;
     }
@@ -352,7 +352,7 @@
     }
     .legend-row {
       display: flex; justify-content: space-between; align-items: center;
-      background: var(--bg); border: 1px solid var(--border);
+      background: #ffffff; border: 1px solid var(--border);
       border-radius: 9px; padding: 8px 10px;
     }
     .legend-left {
@@ -372,14 +372,14 @@
     .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
     button.secondary {
       background: var(--card-2); color: var(--text); border: 1px solid var(--border);
-      cursor: pointer; padding: 8px 10px; font-size: 0.8rem;
+      cursor: pointer; padding: 8px 10px; font-size: 0.8rem; font-weight: 700;
     }
     .empty { text-align: center; color: var(--muted); padding: 16px 0; font-size: 0.84rem; }
 
     /* 最下方兩個工具欄：首頁 跟 報表 */
     .bottom-nav {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-      background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px);
       border-top: 1px solid var(--border);
       padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
     }
@@ -394,7 +394,7 @@
       cursor: pointer;
     }
     .nav-tab-btn.active {
-      background: var(--accent); color: #1c1917; border-color: var(--accent);
+      background: var(--accent); color: #ffffff; border-color: var(--accent);
     }
   </style>
 </head>
@@ -590,7 +590,7 @@
       'pwa_expense_cw_v7'
     ];
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
-    const PALETTE = ['#f59e0b', '#38bdf8', '#4ade80', '#f87171', '#a78bfa', '#fb7185', '#2dd4bf', '#facc15', '#60a5fa', '#e879f9'];
+    const PALETTE = ['#d97706', '#0284c7', '#16a34a', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#ca8a04', '#2563eb', '#c026d3'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
     let currentTab = 'home'; // 'home' | 'report'
@@ -648,7 +648,7 @@
     }
 
     function setupMoneyAppIcon() {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#0f172a"/><rect x="14" y="14" width="164" height="164" rx="34" fill="url(#g)"/><text x="96" y="128" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="104" font-weight="900" fill="#0f172a">$</text></svg>`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#ffffff" stroke="#e2e8f0" stroke-width="6"/><rect x="14" y="14" width="164" height="164" rx="34" fill="url(#g)"/><text x="96" y="128" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="104" font-weight="900" fill="#ffffff">$</text></svg>`;
       const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
       el.faviconLink.href = iconUrl;
       el.appleIconLink.href = iconUrl;
@@ -658,8 +658,8 @@
         short_name: '隨手記帳',
         start_url: '.',
         display: 'standalone',
-        background_color: '#0f172a',
-        theme_color: '#0f172a',
+        background_color: '#ffffff',
+        theme_color: '#ffffff',
         icons: [
           { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
           { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
@@ -1049,7 +1049,7 @@
           const y2 = cy + r * Math.sin(endAngle);
           const largeArc = angle > Math.PI ? 1 : 0;
 
-          pathsHtml += `<path d="M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z" fill="${s.color}" stroke="#1e293b" stroke-width="2" />`;
+          pathsHtml += `<path d="M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z" fill="${s.color}" stroke="#ffffff" stroke-width="2" />`;
 
           const pct = Math.round(frac * 100);
           if (pct >= 7) {
@@ -1068,7 +1068,7 @@
       }
 
       const holeHtml = `
-        <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="#1e293b" />
+        <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="#ffffff" />
         <text x="${cx}" y="${cy - 3}" text-anchor="middle" class="pie-center-title">${escapeHtml(centerTitle)}</text>
         <text x="${cx}" y="${cy + 9}" text-anchor="middle" class="pie-center-val">${escapeHtml(formatMoney(total))}</text>
       `;
@@ -1199,12 +1199,10 @@
       if (currentTab === 'report') renderReport();
     }
 
-    // 點選金額輸入框時才顯示加減乘除數字鍵盤
     el.amount.addEventListener('focus', () => setNumpadOpen(true));
     el.amount.addEventListener('click', () => setNumpadOpen(true));
     el.amount.addEventListener('input', updateCalcPreview);
 
-    // 點選表單外區域（非金額框與非數字鍵盤）時收合數字鍵盤
     document.addEventListener('click', (e) => {
       if (e.target === el.amount || el.numpadBox.contains(e.target)) return;
       setNumpadOpen(false);
