@@ -34,20 +34,19 @@
     }
     .container { max-width: 480px; margin: 0 auto; padding: 10px 12px; }
 
-    /* 第一行：金錢符號 APP 圖示 + 品牌 + 今日日期 */
+    /* 第一行：圓形肥貓拿 $ 圖示 + 品牌 + 今日日期 */
     header {
       display: flex; justify-content: space-between; align-items: center;
       gap: 8px; margin-bottom: 8px;
     }
     .brand { display: flex; align-items: center; gap: 8px; }
     .app-icon-badge {
-      width: 28px; height: 28px; border-radius: 8px;
-      background: linear-gradient(135deg, #fbbf24, #d97706);
-      color: #ffffff; font-weight: 900; font-size: 1rem;
+      width: 30px; height: 30px; border-radius: 50%;
       display: inline-flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.28);
-      flex-shrink: 0;
+      overflow: hidden; flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
     }
+    .app-icon-badge svg { width: 100%; height: 100%; display: block; }
     h1 { font-size: 1.08rem; margin: 0; color: var(--text); }
     .today-pill {
       font-size: 0.75rem; color: var(--text); background: var(--card);
@@ -197,6 +196,7 @@
       position: relative;
       display: flex;
       align-items: center;
+      justify-content: flex-start;
       min-height: 39px;
       width: 100%;
       border-radius: 9px;
@@ -212,9 +212,10 @@
       box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
     }
     .amount-inline-group {
-      display: inline-flex;
+      display: flex;
+      flex-direction: row;
       align-items: center;
-      max-width: 100%;
+      width: 100%;
       overflow: hidden;
       white-space: nowrap;
       font-size: 0.9rem;
@@ -227,7 +228,7 @@
       background: var(--accent);
       border-radius: 1px;
       flex-shrink: 0;
-      margin-right: 2px;
+      margin-right: 3px;
       animation: caretBlink 1s steps(1, end) infinite;
     }
     .amount-field-box.amount-active .custom-caret {
@@ -465,10 +466,10 @@
 </head>
 <body>
   <div class="container">
-    <!-- 第一行：金錢符號圖示 + 品牌 + 今日日期 -->
+    <!-- 第一行：圓形肥貓拿 $ 圖示 + 品牌 + 今日日期 -->
     <header>
       <div class="brand">
-        <span class="app-icon-badge" aria-hidden="true">$</span>
+        <span id="headerCatIcon" class="app-icon-badge" aria-hidden="true"></span>
         <h1>隨手記帳</h1>
       </div>
       <span id="todayBadge" class="today-pill"></span>
@@ -530,10 +531,10 @@
             <div class="field-col">
               <label for="amountBox">金額（點選顯示鍵盤）</label>
               <div id="amountBox" class="amount-field-box" tabindex="0" role="textbox" aria-label="金額">
-                <span class="amount-inline-group">
+                <div class="amount-inline-group">
                   <span id="customCaret" class="custom-caret" aria-hidden="true"></span>
                   <span id="amountDisplayText" class="amount-display-text is-placeholder">0</span>
-                </span>
+                </div>
               </div>
               <div id="calcPreview" class="calc-preview">計算結果：$0</div>
             </div>
@@ -674,6 +675,7 @@
       faviconLink: document.getElementById('faviconLink'),
       appleIconLink: document.getElementById('appleIconLink'),
       manifestLink: document.getElementById('manifestLink'),
+      headerCatIcon: document.getElementById('headerCatIcon'),
       todayBadge: document.getElementById('todayBadge'),
       currentMonthBtn: document.getElementById('currentMonthBtn'),
       monthSelect: document.getElementById('monthSelect'),
@@ -742,8 +744,51 @@
       setNumpadOpen(true);
     }
 
-    function setupMoneyAppIcon() {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#ffffff" stroke="#e2e8f0" stroke-width="6"/><rect x="14" y="14" width="164" height="164" rx="34" fill="url(#g)"/><text x="96" y="128" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="104" font-weight="900" fill="#ffffff">$</text></svg>`;
+    function setupChubbyCatAppIcon() {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+        <defs>
+          <radialGradient id="bgGrad" cx="35%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#fde68a"/>
+            <stop offset="100%" stop-color="#f59e0b"/>
+          </radialGradient>
+        </defs>
+        <circle cx="96" cy="96" r="96" fill="url(#bgGrad)"/>
+        <!-- 圓尖貓耳 -->
+        <path d="M44 74 L36 34 L74 52 Z" fill="#f97316" stroke="#451a03" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M148 74 L156 34 L118 52 Z" fill="#f97316" stroke="#451a03" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M49 65 L44 43 L66 54 Z" fill="#fed7aa"/>
+        <path d="M143 65 L148 43 L126 54 Z" fill="#fed7aa"/>
+        <!-- 肥嘟嘟貓身與圓臉 -->
+        <ellipse cx="96" cy="128" rx="56" ry="44" fill="#fb923c" stroke="#451a03" stroke-width="5"/>
+        <ellipse cx="96" cy="136" rx="36" ry="28" fill="#fff7ed"/>
+        <ellipse cx="96" cy="84" rx="50" ry="40" fill="#fb923c" stroke="#451a03" stroke-width="5"/>
+        <!-- 額頭虎斑 -->
+        <path d="M84 48 L88 62 M96 46 L96 63 M108 48 L104 62" stroke="#c2410c" stroke-width="4.5" stroke-linecap="round"/>
+        <!-- 眼睛與腮紅 -->
+        <circle cx="76" cy="82" r="6" fill="#1e293b"/>
+        <circle cx="74" cy="80" r="2.2" fill="#ffffff"/>
+        <circle cx="116" cy="82" r="6" fill="#1e293b"/>
+        <circle cx="114" cy="80" r="2.2" fill="#ffffff"/>
+        <ellipse cx="62" cy="92" rx="8" ry="4.5" fill="#fb7185" opacity="0.65"/>
+        <ellipse cx="130" cy="92" rx="8" ry="4.5" fill="#fb7185" opacity="0.65"/>
+        <!-- 貓鼻與微笑嘴 -->
+        <polygon points="96,87 91,92 101,92" fill="#f43f5e"/>
+        <path d="M88 96 Q92 101 96 96 Q100 101 104 96" fill="none" stroke="#451a03" stroke-width="3.5" stroke-linecap="round"/>
+        <!-- 鬍鬚 -->
+        <line x1="36" y1="84" x2="54" y2="87" stroke="#451a03" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="36" y1="95" x2="54" y2="95" stroke="#451a03" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="156" y1="84" x2="138" y2="87" stroke="#451a03" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="156" y1="95" x2="138" y2="95" stroke="#451a03" stroke-width="3.5" stroke-linecap="round"/>
+        <!-- 雙手捧著大 $ 金幣/牌 -->
+        <circle cx="114" cy="134" r="25" fill="#facc15" stroke="#451a03" stroke-width="4.5"/>
+        <circle cx="114" cy="134" r="19" fill="none" stroke="#ca8a04" stroke-width="2.5" stroke-dasharray="4 3"/>
+        <text x="114" y="143" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="900" fill="#92400e">$</text>
+        <!-- 肥貓前爪 -->
+        <ellipse cx="78" cy="136" rx="13" ry="9.5" fill="#fb923c" stroke="#451a03" stroke-width="4.5"/>
+        <ellipse cx="134" cy="138" rx="13" ry="9.5" fill="#fb923c" stroke="#451a03" stroke-width="4.5"/>
+      </svg>`;
+
+      el.headerCatIcon.innerHTML = svg;
       const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
       el.faviconLink.href = iconUrl;
       el.appleIconLink.href = iconUrl;
@@ -1420,7 +1465,7 @@
       }
     });
 
-    setupMoneyAppIcon();
+    setupChubbyCatAppIcon();
     const nowDate = todayStr();
     const nowDt = parseLocalDate(nowDate);
     el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
