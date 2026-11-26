@@ -668,7 +668,42 @@
     }
 
     function setupMoneyAppIcon() {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#ffffff" stroke="#e2e8f0" stroke-width="6"/><rect x="14" y="14" width="164" height="164" rx="34" fill="url(#g)"/><text x="96" y="128" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="104" font-weight="900" fill="#ffffff">$</text></svg>`; const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); el.faviconLink.href = iconUrl; el.appleIconLink.href = iconUrl;  const manifest = { name: '隨手記帳', short_name: '隨手記帳', start_url: '.', display: 'standalone', background_color: '#ffffff', theme_color: '#ffffff', icons: [ { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' }, { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' } ] }; const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' }); el.manifestLink.href = URL.createObjectURL(manifestBlob); }  function todayStr() { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }  function parseLocalDate(ymd) { const [y, m, d] = ymd.split('-').map(Number); return new Date(y, (m \vert{}\vert{} 1) - 1, d \vert{}\vert{} 1); }  function formatYmd(dt) { const y = dt.getFullYear(); const m = String(dt.getMonth() + 1).padStart(2, '0'); const d = String(dt.getDate()).padStart(2, '0'); return `${y}-${m}-${d}`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#ffffff" stroke="#e2e8f0" stroke-width="6"/><rect x="14" y="14" width="164" height="164" rx="34" fill="url(#g)"/><text x="96" y="128" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="104" font-weight="900" fill="#ffffff">$</text></svg>`;
+      const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      el.faviconLink.href = iconUrl;
+      el.appleIconLink.href = iconUrl;
+
+      const manifest = {
+        name: '隨手記帳',
+        short_name: '隨手記帳',
+        start_url: '.',
+        display: 'standalone',
+        background_color: '#ffffff',
+        theme_color: '#ffffff',
+        icons: [
+          { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+        ]
+      };
+      const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+      el.manifestLink.href = URL.createObjectURL(manifestBlob);
+    }
+
+    function todayStr() {
+      const d = new Date();
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
+
+    function parseLocalDate(ymd) {
+      const [y, m, d] = ymd.split('-').map(Number);
+      return new Date(y, (m || 1) - 1, d || 1);
+    }
+
+    function formatYmd(dt) {
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const d = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
     }
 
     function formatMonthDay(ymd) {
@@ -700,7 +735,21 @@
       if (parenDepth !== 0) return null;
 
       try {
-        const result = Function(`"use strict"; return (${cleaned});`)(); if (typeof result !== 'number' \vert{}\vert{} !Number.isFinite(result)) return null; return Math.round(result * 100) / 100; } catch { return null; } }  function updateCalcPreview() { const val = evalMathAmount(el.amount.value); if (val === null) { el.calcPreview.textContent = el.amount.value.trim() ? '算式有誤（如 100+50*2/4-10）' : '計算結果：$0'; return; } el.calcPreview.textContent = `計算結果：${formatMoney(val)}`;
+        const result = Function(`"use strict"; return (${cleaned});`)();
+        if (typeof result !== 'number' || !Number.isFinite(result)) return null;
+        return Math.round(result * 100) / 100;
+      } catch {
+        return null;
+      }
+    }
+
+    function updateCalcPreview() {
+      const val = evalMathAmount(el.amount.value);
+      if (val === null) {
+        el.calcPreview.textContent = el.amount.value.trim() ? '算式有誤（如 100+50*2/4-10）' : '計算結果：$0';
+        return;
+      }
+      el.calcPreview.textContent = `計算結果：${formatMoney(val)}`;
     }
 
     function buildMonthOptions(activeYm) {
@@ -731,7 +780,25 @@
     function getWeekStripDays() {
       const ym = el.monthSelect.value || todayStr().slice(0, 7);
       const nowYmd = todayStr();
-      const anchorYmd = selectedYmd || (nowYmd.startsWith(ym) ? nowYmd : `${ym}-23`); const dt = parseLocalDate(anchorYmd); const sunday = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dt.getDay()); const arr = []; for (let i = 0; i < 7; i++) { const dObj = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i); arr.push({ ymd: formatYmd(dObj), dayNum: dObj.getDate() }); } return arr; }  function getTargetRecordDate() { if (selectedYmd) return selectedYmd; const now = todayStr(); const ym = el.monthSelect.value \vert{}\vert{} now.slice(0, 7); return now.startsWith(ym) ? now : `${ym}-01`;
+      const anchorYmd = selectedYmd || (nowYmd.startsWith(ym) ? nowYmd : `${ym}-23`);
+      const dt = parseLocalDate(anchorYmd);
+      const sunday = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dt.getDay());
+      const arr = [];
+      for (let i = 0; i < 7; i++) {
+        const dObj = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i);
+        arr.push({
+          ymd: formatYmd(dObj),
+          dayNum: dObj.getDate()
+        });
+      }
+      return arr;
+    }
+
+    function getTargetRecordDate() {
+      if (selectedYmd) return selectedYmd;
+      const now = todayStr();
+      const ym = el.monthSelect.value || now.slice(0, 7);
+      return now.startsWith(ym) ? now : `${ym}-01`;
     }
 
     function parseJsonArray(raw) {
@@ -818,7 +885,13 @@
         el.dayFilterStatus.textContent = '目前顯示：月支出（點日期切回當日）';
       } else if (selectedYmd) {
         const dt = parseLocalDate(selectedYmd);
-        el.dayFilterStatus.textContent = `當日：${formatMonthDay(selectedYmd)}（${WEEKDAYS_SHORT[dt.getDay()]}）`; } else { el.dayFilterStatus.textContent = '以當日支出為主，點選「當月」顯示月支出'; }  if (!editingId) { el.editHint.textContent = `記帳日期：${formatMonthDay(getTargetRecordDate())}`;
+        el.dayFilterStatus.textContent = `當日：${formatMonthDay(selectedYmd)}（${WEEKDAYS_SHORT[dt.getDay()]}）`;
+      } else {
+        el.dayFilterStatus.textContent = '以當日支出為主，點選「當月」顯示月支出';
+      }
+
+      if (!editingId) {
+        el.editHint.textContent = `記帳日期：${formatMonthDay(getTargetRecordDate())}`;
       }
 
       for (const btn of el.weekDaysRow.querySelectorAll('.day-btn')) {
@@ -833,7 +906,24 @@
     function exitEditMode() {
       editingId = null;
       el.formHeading.textContent = '新增支出';
-      el.editHint.textContent = `記帳日期：${formatMonthDay(getTargetRecordDate())}`; el.submitBtn.textContent = '儲存支出'; el.cancelEditBtn.style.display = 'none'; el.amount.value = ''; el.note.value = ''; setNumpadOpen(false); updateCalcPreview(); }  function startEditRecord(id) { const target = records.find(r => r.id === id); if (!target) return; editingId = target.id; el.amount.value = String(target.amount); el.category.value = CATEGORIES.includes(target.category) ? target.category : '其他'; el.note.value = target.note \vert{}\vert{} ''; el.formHeading.textContent = '編輯支出'; el.editHint.textContent = `原日期 ${formatMonthDay(target.date || todayStr())} · 修改後按更新`;
+      el.editHint.textContent = `記帳日期：${formatMonthDay(getTargetRecordDate())}`;
+      el.submitBtn.textContent = '儲存支出';
+      el.cancelEditBtn.style.display = 'none';
+      el.amount.value = '';
+      el.note.value = '';
+      setNumpadOpen(false);
+      updateCalcPreview();
+    }
+
+    function startEditRecord(id) {
+      const target = records.find(r => r.id === id);
+      if (!target) return;
+      editingId = target.id;
+      el.amount.value = String(target.amount);
+      el.category.value = CATEGORIES.includes(target.category) ? target.category : '其他';
+      el.note.value = target.note || '';
+      el.formHeading.textContent = '編輯支出';
+      el.editHint.textContent = `原日期 ${formatMonthDay(target.date || todayStr())} · 修改後按更新`;
       el.submitBtn.textContent = '更新支出';
       el.cancelEditBtn.style.display = 'inline-block';
       updateCalcPreview();
@@ -978,7 +1068,7 @@
           const y2 = cy + r * Math.sin(endAngle);
           const largeArc = angle > Math.PI ? 1 : 0;
 
-          pathsHtml += `<path d="M ${cx}${cy} L ${x1.toFixed(2)}${y1.toFixed(2)} A ${r}${r} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z" fill="${s.color}" stroke="#ffffff" stroke-width="2" />`;
+          pathsHtml += `<path d="M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z" fill="${s.color}" stroke="#ffffff" stroke-width="2" />`;
 
           const pct = Math.round(frac * 100);
           if (pct >= 7) {
@@ -1020,7 +1110,8 @@
         <div class="pie-wrap">
           <svg class="pie-svg" viewBox="0 0 230 230" role="img" aria-label="支出圓餅圖">
             ${pathsHtml}
-            ${labelsHtml}${holeHtml}
+            ${labelsHtml}
+            ${holeHtml}
           </svg>
         </div>
         <div class="legend-list">${legendHtml}</div>
@@ -1034,7 +1125,9 @@
       const monthRecords = records.filter(r => r.date && r.date.startsWith(ym));
 
       el.reportMonthLabel.textContent = ym.replace('-', '/');
-      el.reportDayStatLabel.textContent = `日支出統計（${formatMonthDay(targetDay)}）`; el.reportDayStatVal.textContent = formatMoney(sumExpenses(dayRecords)); el.reportMonthStatLabel.textContent = `月支出統計（${ym.replace('-', '/')}）`;
+      el.reportDayStatLabel.textContent = `日支出統計（${formatMonthDay(targetDay)}）`;
+      el.reportDayStatVal.textContent = formatMoney(sumExpenses(dayRecords));
+      el.reportMonthStatLabel.textContent = `月支出統計（${ym.replace('-', '/')}）`;
       el.reportMonthStatVal.textContent = formatMoney(sumExpenses(monthRecords));
 
       const type = el.reportTypeSelect.value;
@@ -1102,8 +1195,165 @@
       renderMonthAndDays();
       const m = el.monthSelect.value;
       const monthRecords = records.filter(r => !m || (r.date && r.date.startsWith(m)));
-      const activeDay = selectedYmd || (todayStr().startsWith(m) ? todayStr() : `${m}-01`); const dayRecords = monthRecords.filter(r => r.date === activeDay);  if (showMonthMode) { el.expTitleLabel.textContent = '月支出'; el.listHeading.textContent = '本月明細'; el.totalExpense.textContent = formatMoney(sumExpenses(monthRecords)); el.countLabel.textContent = `${monthRecords.length} 筆`;
+      const activeDay = selectedYmd || (todayStr().startsWith(m) ? todayStr() : `${m}-01`);
+      const dayRecords = monthRecords.filter(r => r.date === activeDay);
+
+      if (showMonthMode) {
+        el.expTitleLabel.textContent = '月支出';
+        el.listHeading.textContent = '本月明細';
+        el.totalExpense.textContent = formatMoney(sumExpenses(monthRecords));
+        el.countLabel.textContent = `${monthRecords.length} 筆`;
         renderCategoryRow(monthRecords);
         renderGroupedTransactions(monthRecords);
       } else {
-        el.expTitleLabel.textContent = `${formatMonthDay(activeDay)} 支出`; el.listHeading.textContent = `${formatMonthDay(activeDay)} 明
+        el.expTitleLabel.textContent = `${formatMonthDay(activeDay)} 支出`;
+        el.listHeading.textContent = `${formatMonthDay(activeDay)} 明細`;
+        el.totalExpense.textContent = formatMoney(sumExpenses(dayRecords));
+        el.countLabel.textContent = `${dayRecords.length} 筆`;
+        renderCategoryRow(dayRecords);
+        renderGroupedTransactions(dayRecords);
+      }
+
+      renderBottomBalances();
+      if (currentTab === 'report') renderReport();
+    }
+
+    // 點選金額輸入框時顯示外框線與自訂加減乘除鍵盤，不彈出手機原生鍵盤
+    el.amount.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      openCustomNumpad();
+    });
+    el.amount.addEventListener('click', (e) => {
+      e.preventDefault();
+      openCustomNumpad();
+    });
+
+    // 點選備註欄時收合自訂鍵盤，讓手機鍵盤正常輸入文字
+    el.note.addEventListener('focus', () => setNumpadOpen(false));
+
+    // 點選表單外區域（非金額框與非數字鍵盤）時收合數字鍵盤與外框線
+    document.addEventListener('click', (e) => {
+      if (e.target === el.amount || el.numpadBox.contains(e.target)) return;
+      setNumpadOpen(false);
+    });
+
+    el.numpadBox.addEventListener('click', (e) => {
+      const keyBtn = e.target.closest('[data-key]');
+      if (!keyBtn) return;
+      const k = keyBtn.getAttribute('data-key');
+      if (k === 'C') {
+        el.amount.value = '';
+      } else {
+        el.amount.value = (el.amount.value || '') + k;
+      }
+      updateCalcPreview();
+    });
+
+    el.currentMonthBtn.addEventListener('click', () => {
+      el.monthSelect.value = todayStr().slice(0, 7);
+      showMonthMode = true;
+      render();
+    });
+
+    el.monthSelect.addEventListener('change', () => {
+      showMonthMode = false;
+      const ym = el.monthSelect.value;
+      selectedYmd = todayStr().startsWith(ym) ? todayStr() : `${ym}-01`;
+      render();
+    });
+
+    el.tabHome.addEventListener('click', () => switchTab('home'));
+    el.tabReport.addEventListener('click', () => switchTab('report'));
+    el.reportTypeSelect.addEventListener('change', renderReport);
+
+    el.category.addEventListener('change', render);
+    el.cancelEditBtn.addEventListener('click', exitEditMode);
+
+    el.form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const amount = evalMathAmount(el.amount.value);
+      if (amount === null || amount <= 0) {
+        alert('請輸入大於 0 的金額或加減乘除算式');
+        return;
+      }
+
+      const cat = CATEGORIES.includes(el.category.value) ? el.category.value : '其他';
+      const note = el.note.value.trim();
+
+      if (editingId) {
+        records = records.map(r => (r.id === editingId ? { ...r, category: cat, amount, note } : r));
+      } else {
+        records.push({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+          type: 'expense',
+          amount,
+          date: getTargetRecordDate(),
+          category: cat,
+          note,
+          createdAt: Date.now()
+        });
+      }
+
+      saveRecords();
+      exitEditMode();
+      render();
+    });
+
+    el.txList.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('[data-del-id]');
+      if (delBtn) {
+        e.stopPropagation();
+        const id = delBtn.getAttribute('data-del-id');
+        records = records.filter(r => r.id !== id);
+        if (editingId === id) exitEditMode();
+        saveRecords();
+        render();
+        return;
+      }
+
+      const item = e.target.closest('[data-edit-id]');
+      if (item) {
+        startEditRecord(item.getAttribute('data-edit-id'));
+      }
+    });
+
+    el.exportBtn.addEventListener('click', () => {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `expense-backup-${todayStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    el.importBtn.addEventListener('click', () => el.importFile.click());
+    el.importFile.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (!Array.isArray(data)) throw new Error();
+        const map = new Map(records.map(i => [i.id, i]));
+        for (const item of data) if (item && item.id) map.set(item.id, item);
+        records = Array.from(map.values());
+        saveRecords();
+        render();
+        alert('備份匯入完成！');
+      } catch {
+        alert('匯入失敗，請確認選擇的是正確的 JSON 備份檔。');
+      } finally {
+        e.target.value = '';
+      }
+    });
+
+    setupMoneyAppIcon();
+    const nowDate = todayStr();
+    const nowDt = parseLocalDate(nowDate);
+    el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
+    buildMonthOptions(nowDate.slice(0, 7));
+    renderCategories();
+    updateCalcPreview();
+    render();
+  </script>
+</body>
+</html>
