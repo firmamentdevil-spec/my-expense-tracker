@@ -4,7 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="隨手記帳" />
   <title>隨手記帳</title>
+  <link id="faviconLink" rel="icon" type="image/svg+xml" />
+  <link id="appleIconLink" rel="apple-touch-icon" />
+  <link id="manifestLink" rel="manifest" />
   <style>
     :root {
       --bg: #0f172a;
@@ -13,7 +19,8 @@
       --text: #f8fafc;
       --muted: #94a3b8;
       --accent: #f59e0b;
-      --accent-soft: rgba(245, 158, 11, 0.16);
+      --accent-soft: rgba(245, 158, 11, 0.18);
+      --today-bg: rgba(245, 158, 11, 0.26);
       --expense: #f87171;
       --border: rgba(148, 163, 184, 0.16);
     }
@@ -27,19 +34,23 @@
     }
     .container { max-width: 480px; margin: 0 auto; padding: 10px 12px; }
 
-    /* 第一行：品牌與今日日期 */
+    /* 第一行：金錢符號 APP 圖示 + 品牌 + 今日日期 */
     header {
       display: flex; justify-content: space-between; align-items: center;
       gap: 8px; margin-bottom: 8px;
     }
-    .brand { display: flex; align-items: center; gap: 6px; }
-    .brand-badge {
-      background: var(--accent); color: #1c1917; font-weight: 800;
-      font-size: 0.72rem; padding: 2px 7px; border-radius: 999px;
+    .brand { display: flex; align-items: center; gap: 8px; }
+    .app-icon-badge {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      color: #0f172a; font-weight: 900; font-size: 1rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+      flex-shrink: 0;
     }
     h1 { font-size: 1.08rem; margin: 0; }
     .today-pill {
-      font-size: 0.75rem; color: var(--muted); background: var(--card);
+      font-size: 0.75rem; color: var(--text); background: var(--card);
       border: 1px solid var(--border); padding: 3px 9px; border-radius: 999px;
       white-space: nowrap;
     }
@@ -64,7 +75,9 @@
       font-size: 0.74rem; font-weight: 800; cursor: pointer;
       white-space: nowrap; flex-shrink: 0;
     }
-    .current-month-btn:active { background: var(--accent); color: #1c1917; }
+    .current-month-btn.active-month {
+      background: var(--accent); color: #1c1917; border-color: var(--accent);
+    }
     .day-filter-inline {
       font-size: 0.68rem; color: var(--muted);
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -103,12 +116,21 @@
       background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
       color: var(--text); font-size: 0.82rem; font-weight: 700;
       padding: 6px 2px; cursor: pointer; width: 100%; min-height: 32px;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .day-btn.is-today {
+      background: var(--today-bg);
+      border-color: var(--accent);
+      color: #fde68a;
+      box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.35);
     }
     .day-btn.active {
-      border-color: var(--accent); background: var(--accent-soft); color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #1c1917;
     }
 
-    /* 月支出：只要一行 */
+    /* 支出橫幅：預設當日支出為主，點選當月後顯示月支出 */
     .hero-expense {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 12px; padding: 10px 14px; margin-bottom: 10px;
@@ -118,7 +140,7 @@
     .hero-label { font-size: 0.9rem; font-weight: 700; color: var(--text); white-space: nowrap; }
     .hero-val { font-size: 1.32rem; font-weight: 800; color: var(--expense); white-space: nowrap; }
 
-    /* 卡片與分類（單行不溢出、縮小字體） */
+    /* 卡片與分類 */
     .card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 12px; padding: 11px 12px; margin-bottom: 10px;
@@ -164,6 +186,17 @@
       align-items: start;
     }
     .field-col { min-width: 0; }
+    .amount-top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 4px; margin-bottom: 3px;
+    }
+    .amount-top-bar label { margin-bottom: 0; }
+    .toggle-pad-btn {
+      width: auto; padding: 2px 7px; font-size: 0.68rem; font-weight: 700;
+      border-radius: 6px; background: var(--card-2); color: var(--accent);
+      border: 1px solid rgba(245, 158, 11, 0.35); cursor: pointer;
+      white-space: nowrap;
+    }
     .note-col { margin-top: 8px; }
     label { display: block; font-size: 0.74rem; color: var(--muted); margin-bottom: 3px; }
     input, select, button {
@@ -174,6 +207,46 @@
     .calc-preview {
       font-size: 0.7rem; color: var(--muted); margin-top: 3px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* 數字鍵盤（含加減乘除） */
+    .numpad-box {
+      margin-top: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px;
+    }
+    .numpad-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
+    .pad-key {
+      padding: 8px 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor: pointer;
+      min-height: 36px;
+    }
+    .pad-key:active {
+      background: var(--accent);
+      color: #1c1917;
+      border-color: var(--accent);
+    }
+    .pad-key.op-key {
+      background: var(--card-2);
+      color: var(--accent);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+    .pad-key.clr-key {
+      background: rgba(248, 113, 113, 0.14);
+      color: var(--expense);
+      border-color: rgba(248, 113, 113, 0.35);
     }
 
     .form-actions { display: flex; gap: 8px; margin-top: 10px; }
@@ -241,7 +314,7 @@
     .bottom-row-label { font-size: 0.84rem; font-weight: 700; }
     .bottom-row-val { font-size: 0.92rem; font-weight: 800; color: var(--text); }
 
-    /* 報表區：日支出 + 月支出統計 + 圓餅圖顯示字體 */
+    /* 報表區 */
     .stat-pair {
       display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
       margin-bottom: 10px;
@@ -334,10 +407,10 @@
 </head>
 <body>
   <div class="container">
-    <!-- 第一行 -->
+    <!-- 第一行：金錢符號圖示 + 品牌 + 今日日期 -->
     <header>
       <div class="brand">
-        <span class="brand-badge">帳本</span>
+        <span class="app-icon-badge" aria-hidden="true">$</span>
         <h1>隨手記帳</h1>
       </div>
       <span id="todayBadge" class="today-pill"></span>
@@ -348,7 +421,7 @@
       <div class="month-select-row">
         <div class="month-left-group">
           <button type="button" id="currentMonthBtn" class="current-month-btn">當月</button>
-          <span id="dayFilterStatus" class="day-filter-inline">顯示整月明細（點上方日期可看當日）</span>
+          <span id="dayFilterStatus" class="day-filter-inline">以當日支出為主，點選「當月」顯示月支出</span>
         </div>
         <div class="month-dropdown-wrap">
           <select id="monthSelect" class="month-dropdown" aria-label="選擇月份"></select>
@@ -369,9 +442,9 @@
 
     <!-- 首頁內容 -->
     <div id="homeView">
-      <!-- 月支出：只要一行 -->
+      <!-- 支出橫幅：預設當日支出為主，點選當月後顯示月支出 -->
       <section class="hero-expense">
-        <span class="hero-label" id="expTitleLabel">月支出</span>
+        <span class="hero-label" id="expTitleLabel">當日支出</span>
         <span class="hero-val" id="totalExpense">$0</span>
       </section>
 
@@ -384,7 +457,7 @@
         <div id="catRow" class="cat-row-fit"></div>
       </section>
 
-      <!-- 新增支出：分類與金額輸入框在同一行，支援加減乘除 -->
+      <!-- 新增支出：分類與金額輸入框在同一行，附加減乘除數字鍵盤 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title" id="formHeading">新增支出</span>
@@ -397,11 +470,39 @@
               <select id="category"></select>
             </div>
             <div class="field-col">
-              <label for="amount">金額（可 + - * /）</label>
-              <input type="text" id="amount" inputmode="text" placeholder="0" required />
+              <div class="amount-top-bar">
+                <label for="amount">金額（可 + - * /）</label>
+                <button type="button" id="togglePadBtn" class="toggle-pad-btn">鍵盤</button>
+              </div>
+              <input type="text" id="amount" inputmode="decimal" placeholder="0" required />
               <div id="calcPreview" class="calc-preview">計算結果：$0</div>
             </div>
           </div>
+
+          <div id="numpadBox" class="numpad-box">
+            <div class="numpad-grid">
+              <button type="button" class="pad-key" data-key="7">7</button>
+              <button type="button" class="pad-key" data-key="8">8</button>
+              <button type="button" class="pad-key" data-key="9">9</button>
+              <button type="button" class="pad-key op-key" data-key="+">+</button>
+
+              <button type="button" class="pad-key" data-key="4">4</button>
+              <button type="button" class="pad-key" data-key="5">5</button>
+              <button type="button" class="pad-key" data-key="6">6</button>
+              <button type="button" class="pad-key op-key" data-key="-">-</button>
+
+              <button type="button" class="pad-key" data-key="1">1</button>
+              <button type="button" class="pad-key" data-key="2">2</button>
+              <button type="button" class="pad-key" data-key="3">3</button>
+              <button type="button" class="pad-key op-key" data-key="*">×</button>
+
+              <button type="button" class="pad-key" data-key="0">0</button>
+              <button type="button" class="pad-key" data-key=".">.</button>
+              <button type="button" class="pad-key clr-key" data-key="C">C</button>
+              <button type="button" class="pad-key op-key" data-key="/">÷</button>
+            </div>
+          </div>
+
           <div class="note-col">
             <label for="note">備註（選填）</label>
             <input type="text" id="note" placeholder="例如：午餐、捷運、卡費、冷氣維修" />
@@ -415,7 +516,7 @@
 
       <section class="card">
         <div class="section-head">
-          <strong id="listHeading">本月明細</strong>
+          <strong id="listHeading">當日明細</strong>
           <span id="countLabel" class="section-sub">0 筆</span>
         </div>
         <div id="txList"></div>
@@ -447,7 +548,7 @@
       </div>
     </div>
 
-    <!-- 報表內容：日支出與月支出統計 + 報表選單 + 圓餅圖顯示字體 -->
+    <!-- 報表內容 -->
     <div id="reportView" style="display:none;">
       <section class="card">
         <div class="section-head">
@@ -503,11 +604,15 @@
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
     let currentTab = 'home'; // 'home' | 'report'
-    let selectedYmd = null;
+    let showMonthMode = false; // 預設以當日支出為主；點選「當月」後才顯示月支出
+    let selectedYmd = todayStr(); // 預設選取今日，日期列表當日反白
     let editingId = null;
     let records = loadRecords();
 
     const el = {
+      faviconLink: document.getElementById('faviconLink'),
+      appleIconLink: document.getElementById('appleIconLink'),
+      manifestLink: document.getElementById('manifestLink'),
       todayBadge: document.getElementById('todayBadge'),
       currentMonthBtn: document.getElementById('currentMonthBtn'),
       monthSelect: document.getElementById('monthSelect'),
@@ -533,6 +638,8 @@
       form: document.getElementById('txForm'),
       amount: document.getElementById('amount'),
       calcPreview: document.getElementById('calcPreview'),
+      togglePadBtn: document.getElementById('togglePadBtn'),
+      numpadBox: document.getElementById('numpadBox'),
       category: document.getElementById('category'),
       note: document.getElementById('note'),
       submitBtn: document.getElementById('submitBtn'),
@@ -546,6 +653,29 @@
       importBtn: document.getElementById('importBtn'),
       importFile: document.getElementById('importFile')
     };
+
+    // 建立金錢符號 ($) APP 圖示與 PWA Manifest
+    function setupMoneyAppIcon() {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#0f172a"/><rect x="14" y="14" width="164" height="164" rx="34" fill="url(#g)"/><text x="96" y="128" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="104" font-weight="900" fill="#0f172a">$</text></svg>`;
+      const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      el.faviconLink.href = iconUrl;
+      el.appleIconLink.href = iconUrl;
+
+      const manifest = {
+        name: '隨手記帳',
+        short_name: '隨手記帳',
+        start_url: '.',
+        display: 'standalone',
+        background_color: '#0f172a',
+        theme_color: '#0f172a',
+        icons: [
+          { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+        ]
+      };
+      const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+      el.manifestLink.href = URL.createObjectURL(manifestBlob);
+    }
 
     function todayStr() {
       const d = new Date();
@@ -576,7 +706,6 @@
       return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
     }
 
-    // 支援 +、-、*、/ 與括號的四則運算解析
     function evalMathAmount(rawInput) {
       const cleaned = String(rawInput ?? '')
         .replace(/×/g, '*')
@@ -669,7 +798,6 @@
       }
     }
 
-    // 以手機主 Key 紀錄為主；刪除後重開不會復原已刪資料
     function loadRecords() {
       const rawMain = localStorage.getItem(STORAGE_KEY);
       if (rawMain !== null) {
@@ -722,21 +850,32 @@
       const currentVal = el.monthSelect.value || todayStr().slice(0, 7);
       buildMonthOptions(currentVal);
 
+      const nowYmd = todayStr();
       const days = getWeekStripDays();
       el.weekDaysRow.innerHTML = days.map(d => {
-        const active = selectedYmd === d.ymd;
+        const isToday = d.ymd === nowYmd;
+        const isSelected = !showMonthMode && selectedYmd === d.ymd;
+        const cls = [
+          'day-btn',
+          isToday ? 'is-today' : '',
+          isSelected ? 'active' : ''
+        ].filter(Boolean).join(' ');
         return `
-          <button type="button" class="day-btn ${active ? 'active' : ''}" data-ymd="${escapeHtml(d.ymd)}">
+          <button type="button" class="${cls}" data-ymd="${escapeHtml(d.ymd)}">
             ${d.dayNum}
           </button>
         `;
       }).join('');
 
-      if (selectedYmd) {
+      el.currentMonthBtn.classList.toggle('active-month', showMonthMode);
+
+      if (showMonthMode) {
+        el.dayFilterStatus.textContent = '目前顯示：月支出（點日期切回當日）';
+      } else if (selectedYmd) {
         const dt = parseLocalDate(selectedYmd);
         el.dayFilterStatus.textContent = `當日：${formatMonthDay(selectedYmd)}（${WEEKDAYS_SHORT[dt.getDay()]}）`;
       } else {
-        el.dayFilterStatus.textContent = '顯示整月明細（點上方日期可看當日）';
+        el.dayFilterStatus.textContent = '以當日支出為主，點選「當月」顯示月支出';
       }
 
       if (!editingId) {
@@ -745,8 +884,8 @@
 
       for (const btn of el.weekDaysRow.querySelectorAll('.day-btn')) {
         btn.addEventListener('click', () => {
-          const clickedYmd = btn.dataset.ymd;
-          selectedYmd = selectedYmd === clickedYmd ? null : clickedYmd;
+          showMonthMode = false;
+          selectedYmd = btn.dataset.ymd;
           render();
         });
       }
@@ -796,9 +935,9 @@
       el.yearBalance.textContent = formatMoney(sumExpenses(yearList));
     }
 
-    function renderCategoryRow(monthRecords) {
+    function renderCategoryRow(targetRecords) {
       const catTotals = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
-      for (const r of monthRecords) {
+      for (const r of targetRecords) {
         const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
         catTotals[cat] += Number(r.amount) || 0;
       }
@@ -823,14 +962,14 @@
         btn.addEventListener('click', () => {
           el.category.value = btn.dataset.cat;
           el.amount.focus();
-          renderCategoryRow(monthRecords);
+          renderCategoryRow(targetRecords);
         });
       }
     }
 
     function renderGroupedTransactions(filtered) {
       if (!filtered.length) {
-        el.txList.innerHTML = `<div class="empty">${selectedYmd ? '這一天還沒有支出紀錄' : '這個月份還沒有支出紀錄'}</div>`;
+        el.txList.innerHTML = `<div class="empty">${showMonthMode ? '這個月份還沒有支出紀錄' : '這一天還沒有支出紀錄'}</div>`;
         return;
       }
 
@@ -1039,38 +1178,60 @@
       renderMonthAndDays();
       const m = el.monthSelect.value;
       const monthRecords = records.filter(r => !m || (r.date && r.date.startsWith(m)));
-      const filtered = selectedYmd
-        ? monthRecords.filter(r => r.date === selectedYmd)
-        : monthRecords;
+      const activeDay = selectedYmd || (todayStr().startsWith(m) ? todayStr() : `${m}-01`);
+      const dayRecords = monthRecords.filter(r => r.date === activeDay);
 
-      if (selectedYmd) {
-        el.expTitleLabel.textContent = `${formatMonthDay(selectedYmd)} 支出`;
-        el.listHeading.textContent = `${formatMonthDay(selectedYmd)} 明細`;
-      } else {
+      if (showMonthMode) {
         el.expTitleLabel.textContent = '月支出';
         el.listHeading.textContent = '本月明細';
+        el.totalExpense.textContent = formatMoney(sumExpenses(monthRecords));
+        el.countLabel.textContent = `${monthRecords.length} 筆`;
+        renderCategoryRow(monthRecords);
+        renderGroupedTransactions(monthRecords);
+      } else {
+        el.expTitleLabel.textContent = `${formatMonthDay(activeDay)} 支出`;
+        el.listHeading.textContent = `${formatMonthDay(activeDay)} 明細`;
+        el.totalExpense.textContent = formatMoney(sumExpenses(dayRecords));
+        el.countLabel.textContent = `${dayRecords.length} 筆`;
+        renderCategoryRow(dayRecords);
+        renderGroupedTransactions(dayRecords);
       }
 
-      const monthTotalExp = sumExpenses(monthRecords);
-      el.totalExpense.textContent = formatMoney(monthTotalExp);
-      el.countLabel.textContent = `${filtered.length} 筆`;
-
-      renderCategoryRow(monthRecords);
-      renderGroupedTransactions(filtered);
       renderBottomBalances();
       if (currentTab === 'report') renderReport();
     }
+
+    // 數字鍵盤（含加減乘除）操作
+    el.numpadBox.addEventListener('click', (e) => {
+      const keyBtn = e.target.closest('[data-key]');
+      if (!keyBtn) return;
+      const k = keyBtn.getAttribute('data-key');
+      if (k === 'C') {
+        el.amount.value = '';
+      } else {
+        el.amount.value = (el.amount.value || '') + k;
+      }
+      updateCalcPreview();
+    });
+
+    el.togglePadBtn.addEventListener('click', () => {
+      const hidden = el.numpadBox.style.display === 'none';
+      el.numpadBox.style.display = hidden ? 'block' : 'none';
+      el.togglePadBtn.textContent = hidden ? '鍵盤' : '展開';
+    });
 
     el.amount.addEventListener('input', updateCalcPreview);
 
     el.currentMonthBtn.addEventListener('click', () => {
       el.monthSelect.value = todayStr().slice(0, 7);
-      selectedYmd = null;
+      showMonthMode = true;
       render();
     });
 
     el.monthSelect.addEventListener('change', () => {
-      selectedYmd = null;
+      showMonthMode = false;
+      const ym = el.monthSelect.value;
+      selectedYmd = todayStr().startsWith(ym) ? todayStr() : `${ym}-01`;
       render();
     });
 
@@ -1108,7 +1269,6 @@
 
       saveRecords();
       exitEditMode();
-      el.amount.focus();
       render();
     });
 
@@ -1159,6 +1319,7 @@
       }
     });
 
+    setupMoneyAppIcon();
     const nowDate = todayStr();
     const nowDt = parseLocalDate(nowDate);
     el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
