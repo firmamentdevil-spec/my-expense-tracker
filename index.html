@@ -387,13 +387,13 @@
     .stat-box-val { font-size: 1.02rem; font-weight: 800; color: var(--expense); margin-top: 2px; }
 
     .report-select-box {
-      position: relative; margin-bottom: 12px;
+      position: relative; display: inline-block; width: 150px; margin-bottom: 12px;
     }
     .report-select {
-      appearance: none; -webkit-appearance: none;
+      width: 100%; appearance: none; -webkit-appearance: none;
       background: #ffffff; color: var(--text);
       border: 1px solid #cbd5e1;
-      border-radius: 10px; padding: 9px 32px 9px 12px;
+      border-radius: 10px; padding: 9px 30px 9px 12px;
       font-size: 0.88rem; font-weight: 700; cursor: pointer;
     }
     .report-select:focus { outline: none; border-color: var(--accent); }
@@ -665,9 +665,9 @@
     const PALETTE = ['#d97706', '#0284c7', '#16a34a', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#ca8a04', '#2563eb', '#c026d3'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
-    let currentTab = 'home'; // 'home' | 'report'
-    let showMonthMode = false; // 預設以當日支出為主；點選「當月」後才顯示月支出
-    let selectedYmd = todayStr(); // 預設選取今日，日期列表當日反白
+    let currentTab = 'home';
+    let showMonthMode = false;
+    let selectedYmd = todayStr();
     let editingId = null;
     let amountExpr = '';
     let records = loadRecords();
@@ -731,6 +731,32 @@
       updateCalcPreview();
     }
 
+    function appendAmountKey(key) {
+      const ops = ['+', '-', '*'];
+      if (ops.includes(key)) {
+        if (!amountExpr) {
+          if (key === '-') setAmountExpr('-');
+          return;
+        }
+        const lastChar = amountExpr.slice(-1);
+        if (ops.includes(lastChar)) {
+          setAmountExpr(amountExpr.slice(0, -1) + key);
+          return;
+        }
+        if (lastChar === '.') return;
+      }
+      if (key === '.') {
+        const parts = amountExpr.split(/[+\-*/]/);
+        const lastPart = parts[parts.length - 1] || '';
+        if (lastPart.includes('.')) return;
+        if (!lastPart) {
+          setAmountExpr(amountExpr + '0.');
+          return;
+        }
+      }
+      setAmountExpr(amountExpr + key);
+    }
+
     function setNumpadOpen(open) {
       const isOpen = Boolean(open);
       el.numpadBox.classList.toggle('open', isOpen);
@@ -754,7 +780,6 @@
       ctx.save();
       ctx.scale(s, s);
 
-      // 圓形底色
       const bg = ctx.createRadialGradient(68, 58, 12, 96, 96, 96);
       bg.addColorStop(0, '#fde68a');
       bg.addColorStop(1, '#f59e0b');
@@ -768,7 +793,6 @@
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
 
-      // 左右貓耳
       ctx.beginPath();
       ctx.moveTo(44, 74); ctx.lineTo(36, 34); ctx.lineTo(74, 52); ctx.closePath();
       ctx.fillStyle = '#f97316'; ctx.fill(); ctx.stroke();
@@ -777,7 +801,6 @@
       ctx.moveTo(148, 74); ctx.lineTo(156, 34); ctx.lineTo(118, 52); ctx.closePath();
       ctx.fillStyle = '#f97316'; ctx.fill(); ctx.stroke();
 
-      // 耳內粉橘色
       ctx.beginPath();
       ctx.moveTo(49, 65); ctx.lineTo(44, 43); ctx.lineTo(66, 54); ctx.closePath();
       ctx.fillStyle = '#fed7aa'; ctx.fill();
@@ -786,7 +809,6 @@
       ctx.moveTo(143, 65); ctx.lineTo(148, 43); ctx.lineTo(126, 54); ctx.closePath();
       ctx.fillStyle = '#fed7aa'; ctx.fill();
 
-      // 肥貓身體與肚肚
       ctx.beginPath();
       ctx.ellipse(96, 130, 56, 42, 0, 0, Math.PI * 2);
       ctx.fillStyle = '#fb923c'; ctx.fill(); ctx.stroke();
@@ -795,12 +817,10 @@
       ctx.ellipse(96, 138, 35, 26, 0, 0, Math.PI * 2);
       ctx.fillStyle = '#fff7ed'; ctx.fill();
 
-      // 圓胖貓臉
       ctx.beginPath();
       ctx.ellipse(96, 84, 50, 40, 0, 0, Math.PI * 2);
       ctx.fillStyle = '#fb923c'; ctx.fill(); ctx.stroke();
 
-      // 額頭虎斑紋
       ctx.strokeStyle = '#c2410c';
       ctx.lineWidth = 4.5;
       ctx.beginPath();
@@ -809,7 +829,6 @@
       ctx.moveTo(108, 49); ctx.lineTo(104, 62);
       ctx.stroke();
 
-      // 眼睛與腮紅
       ctx.fillStyle = '#1e293b';
       ctx.beginPath(); ctx.arc(76, 82, 6, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(116, 82, 6, 0, Math.PI * 2); ctx.fill();
@@ -822,7 +841,6 @@
       ctx.beginPath(); ctx.ellipse(62, 92, 8, 4.5, 0, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.ellipse(130, 92, 8, 4.5, 0, 0, Math.PI * 2); ctx.fill();
 
-      // 鼻子與貓嘴
       ctx.fillStyle = '#f43f5e';
       ctx.beginPath(); ctx.moveTo(96, 87); ctx.lineTo(91, 92); ctx.lineTo(101, 92); ctx.closePath(); ctx.fill();
 
@@ -834,7 +852,6 @@
       ctx.quadraticCurveTo(100, 101, 104, 96);
       ctx.stroke();
 
-      // 鬍鬚
       ctx.beginPath();
       ctx.moveTo(36, 84); ctx.lineTo(54, 87);
       ctx.moveTo(36, 95); ctx.lineTo(54, 95);
@@ -842,7 +859,6 @@
       ctx.moveTo(156, 95); ctx.lineTo(138, 95);
       ctx.stroke();
 
-      // 肥貓拿著的大 $ 金幣
       ctx.strokeStyle = '#451a03';
       ctx.lineWidth = 4.5;
       ctx.fillStyle = '#facc15';
@@ -854,7 +870,6 @@
       ctx.textBaseline = 'middle';
       ctx.fillText('$', 108, 138);
 
-      // 左右前爪捧住 $
       ctx.fillStyle = '#fb923c';
       ctx.beginPath(); ctx.ellipse(76, 138, 13, 9.5, -0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       ctx.beginPath(); ctx.ellipse(134, 138, 13, 9.5, 0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -872,10 +887,10 @@
       el.appleIconLink.href = icon192;
 
       const manifestObj = {
-        id: './?v=cat-dollar-1',
+        id: './?v=cat-dollar-2',
         name: '隨手記帳',
         short_name: '隨手記帳',
-        start_url: './?v=cat-dollar-1',
+        start_url: './?v=cat-dollar-2',
         scope: './',
         display: 'standalone',
         background_color: '#ffffff',
@@ -925,6 +940,7 @@
         .replace(/\s+/g, '');
       if (!cleaned) return null;
       if (!/^[0-9+\-*/().]+$/.test(cleaned)) return null;
+      if (/[+\-*/.]$/.test(cleaned)) return null;
 
       let parenDepth = 0;
       for (const ch of cleaned) {
@@ -980,7 +996,7 @@
     function getWeekStripDays() {
       const ym = el.monthSelect.value || todayStr().slice(0, 7);
       const nowYmd = todayStr();
-      const anchorYmd = selectedYmd || (nowYmd.startsWith(ym) ? nowYmd : `${ym}-23`);
+      const anchorYmd = selectedYmd || (nowYmd.startsWith(ym) ? nowYmd : `${ym}-01`);
       const dt = parseLocalDate(anchorYmd);
       const sunday = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - dt.getDay());
       const arr = [];
@@ -1098,6 +1114,7 @@
         btn.addEventListener('click', () => {
           showMonthMode = false;
           selectedYmd = btn.dataset.ymd;
+          el.monthSelect.value = selectedYmd.slice(0, 7);
           render();
         });
       }
@@ -1416,7 +1433,6 @@
       if (currentTab === 'report') renderReport();
     }
 
-    // 點選金額框時顯示外框線、隨文字移動的閃爍游標與數字鍵盤，不彈出手機原生鍵盤
     el.amountBox.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       openCustomNumpad();
@@ -1426,10 +1442,8 @@
       openCustomNumpad();
     });
 
-    // 點選備註欄時收合數字鍵盤與游標
     el.note.addEventListener('focus', () => setNumpadOpen(false));
 
-    // 點選表單外區域（非金額框與非數字鍵盤）時收合數字鍵盤與游標
     document.addEventListener('click', (e) => {
       if (el.amountBox.contains(e.target) || el.numpadBox.contains(e.target)) return;
       setNumpadOpen(false);
@@ -1444,7 +1458,7 @@
       } else if (k === 'DEL') {
         setAmountExpr(amountExpr.slice(0, -1));
       } else {
-        setAmountExpr(amountExpr + k);
+        appendAmountKey(k);
       }
     });
 
@@ -1494,3 +1508,66 @@
       }
 
       saveRecords();
+      exitEditMode();
+      render();
+    });
+
+    el.txList.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('[data-del-id]');
+      if (delBtn) {
+        e.stopPropagation();
+        const id = delBtn.getAttribute('data-del-id');
+        records = records.filter(r => r.id !== id);
+        if (editingId === id) exitEditMode();
+        saveRecords();
+        render();
+        return;
+      }
+
+      const item = e.target.closest('[data-edit-id]');
+      if (item) {
+        startEditRecord(item.getAttribute('data-edit-id'));
+      }
+    });
+
+    el.exportBtn.addEventListener('click', () => {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `expense-backup-${todayStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    el.importBtn.addEventListener('click', () => el.importFile.click());
+    el.importFile.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (!Array.isArray(data)) throw new Error();
+        const map = new Map(records.map(i => [i.id, i]));
+        for (const item of data) if (item && item.id) map.set(item.id, item);
+        records = Array.from(map.values());
+        saveRecords();
+        render();
+        alert('備份匯入完成！');
+      } catch {
+        alert('匯入失敗，請確認選擇的是正確的 JSON 備份檔。');
+      } finally {
+        e.target.value = '';
+      }
+    });
+
+    setupChubbyCatAppIcon();
+    const nowDate = todayStr();
+    const nowDt = parseLocalDate(nowDate);
+    el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
+    buildMonthOptions(nowDate.slice(0, 7));
+    renderCategories();
+    syncAmountDisplay();
+    updateCalcPreview();
+    render();
+  </script>
+</body>
+</html>
