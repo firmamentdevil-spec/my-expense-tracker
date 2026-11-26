@@ -186,17 +186,6 @@
       align-items: start;
     }
     .field-col { min-width: 0; }
-    .amount-top-bar {
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 4px; margin-bottom: 3px;
-    }
-    .amount-top-bar label { margin-bottom: 0; }
-    .toggle-pad-btn {
-      width: auto; padding: 2px 7px; font-size: 0.68rem; font-weight: 700;
-      border-radius: 6px; background: var(--card-2); color: var(--accent);
-      border: 1px solid rgba(245, 158, 11, 0.35); cursor: pointer;
-      white-space: nowrap;
-    }
     .note-col { margin-top: 8px; }
     label { display: block; font-size: 0.74rem; color: var(--muted); margin-bottom: 3px; }
     input, select, button {
@@ -209,13 +198,17 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
-    /* 數字鍵盤（含加減乘除） */
+    /* 數字鍵盤（含加減乘除）：預設隱藏，點選金額輸入框時才出現 */
     .numpad-box {
+      display: none;
       margin-top: 8px;
       background: var(--bg);
-      border: 1px solid var(--border);
+      border: 1px solid rgba(245, 158, 11, 0.35);
       border-radius: 10px;
       padding: 7px;
+    }
+    .numpad-box.open {
+      display: block;
     }
     .numpad-grid {
       display: grid;
@@ -457,7 +450,7 @@
         <div id="catRow" class="cat-row-fit"></div>
       </section>
 
-      <!-- 新增支出：分類與金額輸入框在同一行，附加減乘除數字鍵盤 -->
+      <!-- 新增支出：分類與金額輸入框在同一行，點選金額才出現加減乘除數字鍵盤 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title" id="formHeading">新增支出</span>
@@ -470,16 +463,13 @@
               <select id="category"></select>
             </div>
             <div class="field-col">
-              <div class="amount-top-bar">
-                <label for="amount">金額（可 + - * /）</label>
-                <button type="button" id="togglePadBtn" class="toggle-pad-btn">鍵盤</button>
-              </div>
+              <label for="amount">金額（點選顯示鍵盤）</label>
               <input type="text" id="amount" inputmode="decimal" placeholder="0" required />
               <div id="calcPreview" class="calc-preview">計算結果：$0</div>
             </div>
           </div>
 
-          <div id="numpadBox" class="numpad-box">
+          <div id="numpadBox" class="numpad-box" aria-label="加減乘除數字鍵盤">
             <div class="numpad-grid">
               <button type="button" class="pad-key" data-key="7">7</button>
               <button type="button" class="pad-key" data-key="8">8</button>
@@ -638,7 +628,6 @@
       form: document.getElementById('txForm'),
       amount: document.getElementById('amount'),
       calcPreview: document.getElementById('calcPreview'),
-      togglePadBtn: document.getElementById('togglePadBtn'),
       numpadBox: document.getElementById('numpadBox'),
       category: document.getElementById('category'),
       note: document.getElementById('note'),
@@ -654,7 +643,10 @@
       importFile: document.getElementById('importFile')
     };
 
-    // 建立金錢符號 ($) APP 圖示與 PWA Manifest
+    function setNumpadOpen(open) {
+      el.numpadBox.classList.toggle('open', Boolean(open));
+    }
+
     function setupMoneyAppIcon() {
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient></defs><rect width="192" height="192" rx="42" fill="#0f172a"/><rect x="14" y="14" width="164" height="164" rx="34" fill="url(#g)"/><text x="96" y="128" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="104" font-weight="900" fill="#0f172a">$</text></svg>`;
       const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
@@ -899,6 +891,7 @@
       el.cancelEditBtn.style.display = 'none';
       el.amount.value = '';
       el.note.value = '';
+      setNumpadOpen(false);
       updateCalcPreview();
     }
 
@@ -914,6 +907,7 @@
       el.submitBtn.textContent = '更新支出';
       el.cancelEditBtn.style.display = 'inline-block';
       updateCalcPreview();
+      setNumpadOpen(true);
       el.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
@@ -962,6 +956,7 @@
         btn.addEventListener('click', () => {
           el.category.value = btn.dataset.cat;
           el.amount.focus();
+          setNumpadOpen(true);
           renderCategoryRow(targetRecords);
         });
       }
@@ -1171,7 +1166,10 @@
       el.reportView.style.display = isHome ? 'none' : 'block';
       el.tabHome.className = 'nav-tab-btn' + (isHome ? ' active' : '');
       el.tabReport.className = 'nav-tab-btn' + (!isHome ? ' active' : '');
-      if (!isHome) renderReport();
+      if (!isHome) {
+        setNumpadOpen(false);
+        renderReport();
+      }
     }
 
     function render() {
@@ -1201,7 +1199,17 @@
       if (currentTab === 'report') renderReport();
     }
 
-    // 數字鍵盤（含加減乘除）操作
+    // 點選金額輸入框時才顯示加減乘除數字鍵盤
+    el.amount.addEventListener('focus', () => setNumpadOpen(true));
+    el.amount.addEventListener('click', () => setNumpadOpen(true));
+    el.amount.addEventListener('input', updateCalcPreview);
+
+    // 點選表單外區域（非金額框與非數字鍵盤）時收合數字鍵盤
+    document.addEventListener('click', (e) => {
+      if (e.target === el.amount || el.numpadBox.contains(e.target)) return;
+      setNumpadOpen(false);
+    });
+
     el.numpadBox.addEventListener('click', (e) => {
       const keyBtn = e.target.closest('[data-key]');
       if (!keyBtn) return;
@@ -1213,14 +1221,6 @@
       }
       updateCalcPreview();
     });
-
-    el.togglePadBtn.addEventListener('click', () => {
-      const hidden = el.numpadBox.style.display === 'none';
-      el.numpadBox.style.display = hidden ? 'block' : 'none';
-      el.togglePadBtn.textContent = hidden ? '鍵盤' : '展開';
-    });
-
-    el.amount.addEventListener('input', updateCalcPreview);
 
     el.currentMonthBtn.addEventListener('click', () => {
       el.monthSelect.value = todayStr().slice(0, 7);
