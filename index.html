@@ -160,7 +160,7 @@
 
     /* 記帳表單：分類與金額輸入框在同一行 */
     .inline-input-row {
-      display: grid; grid-template-columns: 108px 1fr; gap: 8px;
+      display: grid; grid-template-columns: 102px 1fr; gap: 8px;
       align-items: start;
     }
     .field-col { min-width: 0; }
@@ -384,7 +384,7 @@
         <div id="catRow" class="cat-row-fit"></div>
       </section>
 
-      <!-- 新增支出：分類與金額輸入框在同一行 -->
+      <!-- 新增支出：分類與金額輸入框在同一行，支援加減乘除 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title" id="formHeading">新增支出</span>
@@ -397,8 +397,8 @@
               <select id="category"></select>
             </div>
             <div class="field-col">
-              <label for="amount">金額（可加減，如 100+50-20）</label>
-              <input type="text" id="amount" inputmode="decimal" placeholder="0" required />
+              <label for="amount">金額（可 + - * /）</label>
+              <input type="text" id="amount" inputmode="text" placeholder="0" required />
               <div id="calcPreview" class="calc-preview">計算結果：$0</div>
             </div>
           </div>
@@ -488,21 +488,15 @@
   </nav>
 
   <script>
-    // 固定儲存 Key，後續每次改版不再更換，並自動遷移舊版 Key 資料
     const STORAGE_KEY = 'pwa_expense_cw_records';
+    const MIGRATED_FLAG_KEY = 'pwa_expense_cw_migrated_v1';
     const LEGACY_KEYS = [
       'pwa_expense_cw_v12',
       'pwa_expense_cw_v11',
       'pwa_expense_cw_v10',
       'pwa_expense_cw_v9',
       'pwa_expense_cw_v8',
-      'pwa_expense_cw_v7',
-      'pwa_expense_cw_v6',
-      'pwa_expense_cw_v5',
-      'pwa_expense_cw_v4',
-      'pwa_expense_cw_v3',
-      'pwa_expense_cw_v2',
-      'pwa_expense_cw_v1'
+      'pwa_expense_cw_v7'
     ];
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const PALETTE = ['#f59e0b', '#38bdf8', '#4ade80', '#f87171', '#a78bfa', '#fb7185', '#2dd4bf', '#facc15', '#60a5fa', '#e879f9'];
@@ -582,23 +576,36 @@
       return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
     }
 
-    function evalAddSubAmount(rawInput) {
-      const cleaned = String(rawInput ?? '').replace(/\s+/g, '');
+    // 支援 +、-、*、/ 與括號的四則運算解析
+    function evalMathAmount(rawInput) {
+      const cleaned = String(rawInput ?? '')
+        .replace(/×/g, '*')
+        .replace(/÷/g, '/')
+        .replace(/\s+/g, '');
       if (!cleaned) return null;
-      if (!/^[+-]?\d+(\.\d+)?([+-]\d+(\.\d+)?)*$/.test(cleaned)) return null;
-      const tokens = cleaned.match(/[+-]?\d+(\.\d+)?/g);
-      if (!tokens) return null;
-      let sum = 0;
-      for (const t of tokens) {
-        sum += Number(t);
+      if (!/^[0-9+\-*/().]+$/.test(cleaned)) return null;
+
+      let parenDepth = 0;
+      for (const ch of cleaned) {
+        if (ch === '(') parenDepth++;
+        if (ch === ')') parenDepth--;
+        if (parenDepth < 0) return null;
       }
-      return Math.round(sum * 100) / 100;
+      if (parenDepth !== 0) return null;
+
+      try {
+        const result = Function(`"use strict"; return (${cleaned});`)();
+        if (typeof result !== 'number' || !Number.isFinite(result)) return null;
+        return Math.round(result * 100) / 100;
+      } catch {
+        return null;
+      }
     }
 
     function updateCalcPreview() {
-      const val = evalAddSubAmount(el.amount.value);
+      const val = evalMathAmount(el.amount.value);
       if (val === null) {
-        el.calcPreview.textContent = el.amount.value.trim() ? '格式有誤（如 50+30-10）' : '計算結果：$0';
+        el.calcPreview.textContent = el.amount.value.trim() ? '算式有誤（如 100+50*2/4-10）' : '計算結果：$0';
         return;
       }
       el.calcPreview.textContent = `計算結果：${formatMoney(val)}`;
@@ -662,33 +669,35 @@
       }
     }
 
+    // 以手機主 Key 紀錄為主；刪除後重開不會復原已刪資料
     function loadRecords() {
-      const map = new Map();
-      const currentList = parseJsonArray(localStorage.getItem(STORAGE_KEY));
-      for (const item of currentList) {
-        if (item && item.id) map.set(item.id, item);
+      const rawMain = localStorage.getItem(STORAGE_KEY);
+      if (rawMain !== null) {
+        return parseJsonArray(rawMain).filter(item => item && item.id);
       }
 
-      let migrated = false;
-      for (const legacyKey of LEGACY_KEYS) {
-        const legacyList = parseJsonArray(localStorage.getItem(legacyKey));
-        for (const item of legacyList) {
-          if (item && item.id && !map.has(item.id)) {
-            map.set(item.id, item);
-            migrated = true;
+      if (!localStorage.getItem(MIGRATED_FLAG_KEY)) {
+        const map = new Map();
+        for (const legacyKey of LEGACY_KEYS) {
+          const legacyList = parseJsonArray(localStorage.getItem(legacyKey));
+          for (const item of legacyList) {
+            if (item && item.id && !map.has(item.id)) {
+              map.set(item.id, item);
+            }
           }
         }
+        const initialList = Array.from(map.values());
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(initialList));
+        localStorage.setItem(MIGRATED_FLAG_KEY, '1');
+        return initialList;
       }
 
-      const merged = Array.from(map.values());
-      if (migrated && merged.length > 0) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-      }
-      return merged;
+      return [];
     }
 
     function saveRecords() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      localStorage.setItem(MIGRATED_FLAG_KEY, '1');
     }
 
     function escapeHtml(str) {
@@ -1074,9 +1083,9 @@
 
     el.form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const amount = evalAddSubAmount(el.amount.value);
+      const amount = evalMathAmount(el.amount.value);
       if (amount === null || amount <= 0) {
-        alert('請輸入大於 0 的金額或加減算式');
+        alert('請輸入大於 0 的金額或加減乘除算式');
         return;
       }
 
