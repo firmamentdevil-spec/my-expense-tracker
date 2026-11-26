@@ -1267,4 +1267,168 @@
     function render() {
       renderMonthAndDays();
       const m = el.monthSelect.value;
-      const monthRecords = records.filter(r => !m || (r
+      const monthRecords = records.filter(r => !m || (r.date && r.date.startsWith(m)));
+      const activeDay = selectedYmd || (todayStr().startsWith(m) ? todayStr() : `${m}-01`);
+      const dayRecords = monthRecords.filter(r => r.date === activeDay);
+
+      if (showMonthMode) {
+        el.expTitleLabel.textContent = '月支出';
+        el.listHeading.textContent = '本月明細';
+        el.totalExpense.textContent = formatMoney(sumExpenses(monthRecords));
+        el.countLabel.textContent = `${monthRecords.length} 筆`;
+        renderCategoryRow(monthRecords);
+        renderGroupedTransactions(monthRecords);
+      } else {
+        el.expTitleLabel.textContent = `${formatMonthDay(activeDay)} 支出`;
+        el.listHeading.textContent = `${formatMonthDay(activeDay)} 明細`;
+        el.totalExpense.textContent = formatMoney(sumExpenses(dayRecords));
+        el.countLabel.textContent = `${dayRecords.length} 筆`;
+        renderCategoryRow(dayRecords);
+        renderGroupedTransactions(dayRecords);
+      }
+
+      renderBottomBalances();
+      if (currentTab === 'report') renderReport();
+    }
+
+    // 點選金額框時顯示外框線、前置閃爍游標與數字鍵盤，不彈出手機原生鍵盤
+    el.amountBox.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      openCustomNumpad();
+    });
+    el.amountBox.addEventListener('click', (e) => {
+      e.preventDefault();
+      openCustomNumpad();
+    });
+
+    // 點選備註欄時收合數字鍵盤與游標
+    el.note.addEventListener('focus', () => setNumpadOpen(false));
+
+    // 點選表單外區域（非金額框與非數字鍵盤）時收合數字鍵盤與游標
+    document.addEventListener('click', (e) => {
+      if (el.amountBox.contains(e.target) || el.numpadBox.contains(e.target)) return;
+      setNumpadOpen(false);
+    });
+
+    el.numpadBox.addEventListener('click', (e) => {
+      const keyBtn = e.target.closest('[data-key]');
+      if (!keyBtn) return;
+      const k = keyBtn.getAttribute('data-key');
+      if (k === 'C') {
+        setAmountExpr('');
+      } else if (k === 'DEL') {
+        setAmountExpr(amountExpr.slice(0, -1));
+      } else {
+        setAmountExpr(amountExpr + k);
+      }
+    });
+
+    el.currentMonthBtn.addEventListener('click', () => {
+      el.monthSelect.value = todayStr().slice(0, 7);
+      showMonthMode = true;
+      render();
+    });
+
+    el.monthSelect.addEventListener('change', () => {
+      showMonthMode = false;
+      const ym = el.monthSelect.value;
+      selectedYmd = todayStr().startsWith(ym) ? todayStr() : `${ym}-01`;
+      render();
+    });
+
+    el.tabHome.addEventListener('click', () => switchTab('home'));
+    el.tabReport.addEventListener('click', () => switchTab('report'));
+    el.reportTypeSelect.addEventListener('change', renderReport);
+
+    el.category.addEventListener('change', render);
+    el.cancelEditBtn.addEventListener('click', exitEditMode);
+
+    el.form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const amount = evalMathAmount(amountExpr);
+      if (amount === null || amount <= 0) {
+        alert('請輸入大於 0 的金額或加減乘算式');
+        return;
+      }
+
+      const cat = CATEGORIES.includes(el.category.value) ? el.category.value : '其他';
+      const note = el.note.value.trim();
+
+      if (editingId) {
+        records = records.map(r => (r.id === editingId ? { ...r, category: cat, amount, note } : r));
+      } else {
+        records.push({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+          type: 'expense',
+          amount,
+          date: getTargetRecordDate(),
+          category: cat,
+          note,
+          createdAt: Date.now()
+        });
+      }
+
+      saveRecords();
+      exitEditMode();
+      render();
+    });
+
+    el.txList.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('[data-del-id]');
+      if (delBtn) {
+        e.stopPropagation();
+        const id = delBtn.getAttribute('data-del-id');
+        records = records.filter(r => r.id !== id);
+        if (editingId === id) exitEditMode();
+        saveRecords();
+        render();
+        return;
+      }
+
+      const item = e.target.closest('[data-edit-id]');
+      if (item) {
+        startEditRecord(item.getAttribute('data-edit-id'));
+      }
+    });
+
+    el.exportBtn.addEventListener('click', () => {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `expense-backup-${todayStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    el.importBtn.addEventListener('click', () => el.importFile.click());
+    el.importFile.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (!Array.isArray(data)) throw new Error();
+        const map = new Map(records.map(i => [i.id, i]));
+        for (const item of data) if (item && item.id) map.set(item.id, item);
+        records = Array.from(map.values());
+        saveRecords();
+        render();
+        alert('備份匯入完成！');
+      } catch {
+        alert('匯入失敗，請確認選擇的是正確的 JSON 備份檔。');
+      } finally {
+        e.target.value = '';
+      }
+    });
+
+    setupMoneyAppIcon();
+    const nowDate = todayStr();
+    const nowDt = parseLocalDate(nowDate);
+    el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
+    buildMonthOptions(nowDate.slice(0, 7));
+    renderCategories();
+    syncAmountDisplay();
+    updateCalcPreview();
+    render();
+  </script>
+</body>
+</html>
