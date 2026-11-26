@@ -30,53 +30,44 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding-bottom: calc(74px + env(safe-area-inset-bottom));
+      padding-bottom: calc(68px + env(safe-area-inset-bottom));
     }
-    .container { max-width: 480px; margin: 0 auto; padding: 10px 12px; }
-
-    /* 第一行：圓形 APP 圖示 + 品牌 + 今日日期 */
+    .container { max-width: 480px; margin: 0 auto; padding: 8px 10px; }
     header {
       display: flex; justify-content: space-between; align-items: center;
-      gap: 8px; margin-bottom: 8px;
+      gap: 8px; margin-bottom: 6px;
     }
     .brand { display: flex; align-items: center; gap: 8px; }
     .app-icon-badge {
-      width: 32px; height: 32px; border-radius: 50%;
+      width: 30px; height: 30px; border-radius: 50%;
       display: inline-flex; align-items: center; justify-content: center;
       overflow: hidden; flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
-      background: #fef3c7;
-      clip-path: circle(50% at 50% 50%);
+      box-shadow: 0 2px 5px rgba(217, 119, 6, 0.25);
     }
-    .app-icon-badge img {
-      width: 100%; height: 100%; object-fit: cover;
-      border-radius: 50%; display: block;
-    }
-    h1 { font-size: 1.08rem; margin: 0; color: var(--text); }
+    .app-icon-badge svg { width: 100%; height: 100%; display: block; }
+    h1 { font-size: 1.05rem; margin: 0; color: var(--text); }
     .today-pill {
-      font-size: 0.75rem; color: var(--text); background: var(--card);
-      border: 1px solid var(--border); padding: 3px 9px; border-radius: 999px;
+      font-size: 0.74rem; color: var(--text); background: var(--card);
+      border: 1px solid var(--border); padding: 3px 8px; border-radius: 999px;
       white-space: nowrap; font-weight: 600;
     }
-
-    /* 第二行：左邊當月 + 提示文字並排 + 右邊美化下拉選單 */
     .cal-strip-card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 9px 10px; margin-bottom: 10px;
+      border-radius: 10px; padding: 8px 9px; margin-bottom: 8px;
     }
     .month-select-row {
       display: flex; justify-content: space-between; align-items: center;
-      gap: 6px; margin-bottom: 8px;
+      gap: 6px; margin-bottom: 6px;
     }
     .month-left-group {
       display: flex; align-items: center; gap: 6px;
       min-width: 0; flex: 1;
     }
     .current-month-btn {
-      width: auto; padding: 4px 9px; border-radius: 999px;
+      width: auto; padding: 4px 8px; border-radius: 999px;
       background: #ffffff; color: var(--accent);
       border: 1px solid rgba(217, 119, 6, 0.55);
-      font-size: 0.74rem; font-weight: 800; cursor: pointer;
+      font-size: 0.72rem; font-weight: 800; cursor: pointer;
       white-space: nowrap; flex-shrink: 0;
     }
     .current-month-btn.active-month {
@@ -86,95 +77,64 @@
       font-size: 0.68rem; color: var(--muted);
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-
-    .month-dropdown-wrap {
-      position: relative; width: 102px; flex-shrink: 0;
-    }
+    .month-dropdown-wrap { position: relative; width: 100px; flex-shrink: 0; }
     .month-dropdown {
       width: 100%; appearance: none; -webkit-appearance: none;
-      background: #ffffff; color: var(--text);
-      border: 1px solid #cbd5e1;
-      border-radius: 8px; padding: 5px 22px 5px 8px;
-      font-size: 0.8rem; font-weight: 700; cursor: pointer;
+      background: #ffffff; color: var(--text); border: 1px solid #cbd5e1;
+      border-radius: 8px; padding: 4px 20px 4px 8px;
+      font-size: 0.78rem; font-weight: 700; cursor: pointer;
     }
     .month-dropdown:focus { outline: none; border-color: var(--accent); }
     .dropdown-arrow {
-      pointer-events: none;
-      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-      color: var(--accent); font-size: 0.66rem; font-weight: 800;
+      pointer-events: none; position: absolute; right: 7px; top: 50%;
+      transform: translateY(-50%); color: var(--accent);
+      font-size: 0.64rem; font-weight: 800;
     }
-
     .week-row-top {
       display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
-      text-align: center; margin-bottom: 4px;
+      text-align: center; margin-bottom: 3px;
     }
-    .wk-head {
-      font-size: 0.72rem; font-weight: 700; color: var(--muted);
-      padding: 2px 0;
-    }
+    .wk-head { font-size: 0.7rem; font-weight: 700; color: var(--muted); padding: 1px 0; }
     .week-row-days {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
-      text-align: center;
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center;
     }
     .day-btn {
-      background: #ffffff; border: 1px solid var(--border); border-radius: 8px;
-      color: var(--text); font-size: 0.82rem; font-weight: 700;
-      padding: 6px 2px; cursor: pointer; width: 100%; min-height: 32px;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      background: #ffffff; border: 1px solid var(--border); border-radius: 7px;
+      color: var(--text); font-size: 0.8rem; font-weight: 700;
+      padding: 5px 2px; cursor: pointer; width: 100%; min-height: 30px;
     }
     .day-btn.is-today {
-      background: var(--today-bg);
-      border-color: var(--accent);
-      color: #92400e;
-      box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.35);
+      background: var(--today-bg); border-color: var(--accent); color: #92400e;
     }
     .day-btn.active {
-      border-color: var(--accent);
-      background: var(--accent);
-      color: #ffffff;
+      border-color: var(--accent); background: var(--accent); color: #ffffff;
     }
-
-    /* 支出橫幅：預設當日支出為主，點選當月後顯示月支出 */
     .hero-expense {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 10px 14px; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 10px;
+      border-radius: 10px; padding: 9px 12px; margin-bottom: 8px;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
     }
-    .hero-label { font-size: 0.9rem; font-weight: 700; color: var(--text); white-space: nowrap; }
-    .hero-val { font-size: 1.32rem; font-weight: 800; color: var(--expense); white-space: nowrap; }
-
-    /* 卡片與分類 */
+    .hero-label { font-size: 0.88rem; font-weight: 700; color: var(--text); white-space: nowrap; }
+    .hero-val { font-size: 1.25rem; font-weight: 800; color: var(--expense); white-space: nowrap; }
     .card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 11px 12px; margin-bottom: 10px;
+      border-radius: 10px; padding: 9px 10px; margin-bottom: 8px;
     }
     .section-head {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 8px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
     }
-    .section-title { font-weight: 700; font-size: 0.9rem; }
-    .section-sub { font-size: 0.72rem; color: var(--muted); }
-    .cat-row-fit {
-      display: flex; flex-direction: row; gap: 3px;
-      width: 100%; overflow: hidden;
-    }
+    .section-title { font-weight: 700; font-size: 0.86rem; }
+    .section-sub { font-size: 0.7rem; color: var(--muted); }
+    .cat-row-fit { display: flex; flex-direction: row; gap: 3px; width: 100%; overflow: hidden; }
     .cat-mini {
-      flex: 1 1 0; min-width: 0;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 2px; background: #ffffff; border: 1px solid var(--border);
-      border-radius: 7px; padding: 5px 2px; cursor: pointer; color: var(--text);
+      flex: 1 1 0; min-width: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      background: #ffffff; border: 1px solid var(--border);
+      border-radius: 7px; padding: 4px 2px; cursor: pointer; color: var(--text);
     }
-    .cat-mini.selected {
-      border-color: var(--accent); background: var(--accent-soft);
-    }
-    .cat-mini-top {
-      display: inline-flex; align-items: center; gap: 2px;
-      max-width: 100%;
-    }
-    .cat-dot {
-      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
-    }
+    .cat-mini.selected { border-color: var(--accent); background: var(--accent-soft); }
+    .cat-mini-top { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; }
+    .cat-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     .cat-mini-name {
       font-weight: 700; font-size: 0.64rem; line-height: 1.1;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -183,295 +143,171 @@
       font-size: 0.62rem; font-weight: 800; color: var(--expense); line-height: 1.1;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
     }
-
-    /* 記帳表單：分類與金額輸入框在同一行 */
     .inline-input-row {
-      display: grid; grid-template-columns: 102px 1fr; gap: 8px;
-      align-items: start;
+      display: grid; grid-template-columns: 98px 1fr; gap: 8px; align-items: start;
     }
     .field-col { min-width: 0; }
-    .note-col { margin-top: 8px; }
-    label { display: block; font-size: 0.74rem; color: var(--muted); margin-bottom: 3px; }
+    .note-col { margin-top: 6px; }
+    label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 2px; }
     input, select, button {
-      width: 100%; border-radius: 9px; border: 1px solid #cbd5e1;
-      padding: 9px 10px; font-size: 0.9rem; background: #ffffff; color: var(--text);
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      width: 100%; border-radius: 8px; border: 1px solid #cbd5e1;
+      padding: 8px 9px; font-size: 0.88rem; background: #ffffff; color: var(--text);
     }
     .amount-field-box {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 39px;
-      width: 100%;
-      border-radius: 9px;
-      border: 1px solid #cbd5e1;
-      background: #ffffff;
-      padding: 8px 10px;
-      cursor: pointer;
-      overflow: hidden;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      position: relative; display: flex; align-items: center; justify-content: flex-start;
+      min-height: 36px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1;
+      background: #ffffff; padding: 7px 9px; cursor: pointer; overflow: hidden;
     }
     .amount-field-box.amount-active {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
+      border-color: var(--accent); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
     }
     .amount-inline-group {
-      display: inline-flex;
-      flex-direction: row;
-      align-items: center;
-      max-width: 100%;
-      overflow: hidden;
-      white-space: nowrap;
-      font-size: 0.9rem;
-      line-height: 1.25;
+      display: inline-flex; flex-direction: row; align-items: center;
+      max-width: 100%; overflow: hidden; white-space: nowrap;
+      font-size: 0.88rem; line-height: 1.2;
     }
     .amount-display-text {
-      color: var(--text);
-      font-weight: 600;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      color: var(--text); font-weight: 600;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    .amount-display-text.is-placeholder {
-      color: #94a3b8;
-      font-weight: 400;
-    }
+    .amount-display-text.is-placeholder { color: #94a3b8; font-weight: 400; }
     .custom-caret {
-      display: none;
-      width: 2px;
-      height: 1.05em;
-      background: var(--accent);
-      border-radius: 1px;
-      flex-shrink: 0;
-      margin-left: 2px;
+      display: none; width: 2px; height: 1.05em; background: var(--accent);
+      border-radius: 1px; flex-shrink: 0; margin-left: 2px;
       animation: caretBlink 1s steps(1, end) infinite;
     }
-    .amount-field-box.amount-active .custom-caret {
-      display: inline-block;
-    }
+    .amount-field-box.amount-active .custom-caret { display: inline-block; }
     @keyframes caretBlink {
       0%, 49% { opacity: 1; }
       50%, 100% { opacity: 0; }
     }
     input:focus, select:focus {
-      outline: none;
-      border-color: var(--accent);
+      outline: none; border-color: var(--accent);
       box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
     }
     .calc-preview {
-      font-size: 0.7rem; color: var(--muted); margin-top: 3px;
+      font-size: 0.68rem; color: var(--muted); margin-top: 2px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-
-    /* 數字鍵盤：預設隱藏，點選金額輸入框時才出現 */
     .numpad-box {
-      display: none;
-      margin-top: 8px;
-      background: #ffffff;
-      border: 1px solid rgba(217, 119, 6, 0.45);
-      border-radius: 10px;
-      padding: 7px;
+      display: none; margin-top: 6px; background: #ffffff;
+      border: 1px solid rgba(217, 119, 6, 0.45); border-radius: 9px; padding: 6px;
     }
-    .numpad-box.open {
-      display: block;
-    }
-    .numpad-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
-    }
+    .numpad-box.open { display: block; }
+    .numpad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
     .pad-key {
-      padding: 8px 4px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      font-size: 0.92rem;
-      font-weight: 800;
-      cursor: pointer;
-      min-height: 36px;
+      padding: 7px 4px; border-radius: 7px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-size: 0.9rem;
+      font-weight: 800; cursor: pointer; min-height: 34px;
     }
-    .pad-key:active {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: var(--accent);
-    }
+    .pad-key:active { background: var(--accent); color: #ffffff; border-color: var(--accent); }
     .pad-key.op-key {
-      background: var(--accent-soft);
-      color: #b45309;
-      border-color: rgba(217, 119, 6, 0.35);
+      background: var(--accent-soft); color: #b45309; border-color: rgba(217, 119, 6, 0.35);
     }
     .pad-key.clr-key {
-      background: rgba(220, 38, 38, 0.1);
-      color: var(--expense);
-      border-color: rgba(220, 38, 38, 0.3);
+      background: rgba(220, 38, 38, 0.1); color: var(--expense); border-color: rgba(220, 38, 38, 0.3);
     }
-    .pad-key.del-key {
-      background: var(--card-2);
-      color: var(--text);
-      border-color: #cbd5e1;
-    }
-
-    .form-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .pad-key.del-key { background: var(--card-2); color: var(--text); border-color: #cbd5e1; }
+    .form-actions { display: flex; gap: 8px; margin-top: 8px; }
     button.primary {
       background: var(--accent); color: #ffffff; font-weight: 800;
-      border: none; cursor: pointer; flex: 1; padding: 10px;
+      border: none; cursor: pointer; flex: 1; padding: 9px;
     }
     button.ghost {
       background: var(--card-2); color: var(--text); border: 1px solid var(--border);
-      cursor: pointer; width: auto; padding: 10px 12px; font-size: 0.84rem;
+      cursor: pointer; width: auto; padding: 9px 11px; font-size: 0.82rem;
     }
-
-    /* 日期群組流水帳 */
-    .day-group { margin-bottom: 10px; }
+    .day-group { margin-bottom: 8px; }
     .day-group:last-child { margin-bottom: 0; }
     .day-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 5px 9px; background: var(--card-2); border-radius: 8px;
-      font-size: 0.76rem; color: var(--muted); margin-bottom: 5px;
+      padding: 4px 8px; background: var(--card-2); border-radius: 7px;
+      font-size: 0.74rem; color: var(--muted); margin-bottom: 4px;
     }
-    .day-date-badge {
-      display: inline-flex; align-items: baseline; gap: 5px;
-      color: var(--text); font-weight: 700;
-    }
-    .day-md { font-size: 0.86rem; }
-    .day-wk { font-size: 0.74rem; color: var(--accent); }
+    .day-date-badge { display: inline-flex; align-items: baseline; gap: 5px; color: var(--text); font-weight: 700; }
+    .day-md { font-size: 0.84rem; }
+    .day-wk { font-size: 0.72rem; color: var(--accent); }
     .day-sum { font-weight: 700; color: var(--expense); }
-
-    .tx-list { display: flex; flex-direction: column; gap: 5px; }
+    .tx-list { display: flex; flex-direction: column; gap: 4px; }
     .tx-item {
       display: flex; justify-content: space-between; align-items: center;
       background: #ffffff; border: 1px solid var(--border);
-      border-radius: 9px; padding: 8px 10px; gap: 6px; cursor: pointer;
+      border-radius: 8px; padding: 7px 9px; gap: 6px; cursor: pointer;
     }
     .tx-item:active { border-color: var(--accent); }
     .tx-main { min-width: 0; flex: 1; }
     .tx-title {
-      font-weight: 700; font-size: 0.86rem;
+      font-weight: 700; font-size: 0.84rem;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .tx-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-    .tx-amt { font-weight: 800; font-size: 0.9rem; color: var(--expense); }
+    .tx-amt { font-weight: 800; font-size: 0.88rem; color: var(--expense); }
     .del-btn {
-      width: auto; padding: 4px 6px; font-size: 0.76rem;
+      width: auto; padding: 3px 6px; font-size: 0.74rem;
       background: transparent; color: var(--muted); border-color: transparent; cursor: pointer;
     }
     .del-btn:active { color: var(--expense); }
-
-    /* 下方：本週 / 本月 / 本年 結餘排列 */
     .bottom-summary {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 11px 12px; margin-bottom: 10px;
+      border-radius: 10px; padding: 9px 10px; margin-bottom: 8px;
     }
-    .bottom-title {
-      font-size: 0.86rem; font-weight: 700; margin-bottom: 8px; color: var(--text);
-    }
-    .bottom-list {
-      display: flex; flex-direction: column; gap: 6px;
-    }
+    .bottom-title { font-size: 0.84rem; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+    .bottom-list { display: flex; flex-direction: column; gap: 5px; }
     .bottom-row {
       display: flex; justify-content: space-between; align-items: center;
-      background: #ffffff; border: 1px solid var(--border);
-      border-radius: 9px; padding: 8px 10px;
+      background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px;
     }
-    .bottom-row-label { font-size: 0.84rem; font-weight: 700; }
-    .bottom-row-val { font-size: 0.92rem; font-weight: 800; color: var(--text); }
-
-    /* 報表區 */
-    .stat-pair {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-      margin-bottom: 10px;
-    }
-    .stat-box {
-      background: #ffffff; border: 1px solid var(--border);
-      border-radius: 9px; padding: 9px 10px;
-    }
-    .stat-box-label { font-size: 0.72rem; color: var(--muted); font-weight: 700; }
-    .stat-box-val { font-size: 1.02rem; font-weight: 800; color: var(--expense); margin-top: 2px; }
-
-    .report-select-box {
-      position: relative; display: inline-block; width: 150px; margin-bottom: 12px;
-    }
+    .bottom-row-label { font-size: 0.82rem; font-weight: 700; }
+    .bottom-row-val { font-size: 0.88rem; font-weight: 800; color: var(--text); }
+    .stat-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .stat-box { background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 9px; }
+    .stat-box-label { font-size: 0.7rem; color: var(--muted); font-weight: 700; }
+    .stat-box-val { font-size: 0.98rem; font-weight: 800; color: var(--expense); margin-top: 2px; }
+    .report-select-box { position: relative; display: inline-block; width: 140px; margin-bottom: 10px; }
     .report-select {
       width: 100%; appearance: none; -webkit-appearance: none;
-      background: #ffffff; color: var(--text);
-      border: 1px solid #cbd5e1;
-      border-radius: 10px; padding: 9px 30px 9px 12px;
-      font-size: 0.88rem; font-weight: 700; cursor: pointer;
+      background: #ffffff; color: var(--text); border: 1px solid #cbd5e1;
+      border-radius: 9px; padding: 8px 28px 8px 10px;
+      font-size: 0.84rem; font-weight: 700; cursor: pointer;
     }
     .report-select:focus { outline: none; border-color: var(--accent); }
-    .pie-wrap {
-      display: flex; flex-direction: column; align-items: center;
-      padding: 4px 0 10px;
-    }
-    .pie-svg {
-      width: 210px; height: 210px; overflow: visible;
-    }
-    .pie-slice-text {
-      font-size: 8.5px; font-weight: 800; fill: #0f172a;
-      pointer-events: none;
-    }
-    .pie-center-title {
-      font-size: 8.5px; font-weight: 700; fill: var(--muted);
-    }
-    .pie-center-val {
-      font-size: 11px; font-weight: 800; fill: var(--text);
-    }
-    .legend-list {
-      display: flex; flex-direction: column; gap: 6px; margin-top: 4px;
-    }
+    .pie-wrap { display: flex; flex-direction: column; align-items: center; padding: 4px 0 8px; }
+    .pie-svg { width: 200px; height: 200px; overflow: visible; }
+    .pie-slice-text { font-size: 8.5px; font-weight: 800; fill: #0f172a; pointer-events: none; }
+    .pie-center-title { font-size: 8.5px; font-weight: 700; fill: var(--muted); }
+    .pie-center-val { font-size: 11px; font-weight: 800; fill: var(--text); }
+    .legend-list { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
     .legend-row {
       display: flex; justify-content: space-between; align-items: center;
-      background: #ffffff; border: 1px solid var(--border);
-      border-radius: 9px; padding: 8px 10px;
+      background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px;
     }
-    .legend-left {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-weight: 700; font-size: 0.84rem;
-    }
-    .legend-dot {
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-    }
-    .legend-pct {
-      font-size: 0.72rem; color: var(--muted); font-weight: 600;
-    }
-    .legend-amt {
-      font-weight: 800; font-size: 0.88rem; color: var(--expense);
-    }
-
-    .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .legend-left { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.82rem; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .legend-pct { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
+    .legend-amt { font-weight: 800; font-size: 0.86rem; color: var(--expense); }
+    .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
     button.secondary {
       background: var(--card-2); color: var(--text); border: 1px solid var(--border);
-      cursor: pointer; padding: 8px 10px; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; padding: 8px 9px; font-size: 0.78rem; font-weight: 700;
     }
-    .empty { text-align: center; color: var(--muted); padding: 16px 0; font-size: 0.84rem; }
-
-    /* 最下方兩個工具欄：首頁 跟 報表 */
+    .empty { text-align: center; color: var(--muted); padding: 14px 0; font-size: 0.82rem; }
     .bottom-nav {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
       background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px);
       border-top: 1px solid var(--border);
-      padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+      padding: 7px 10px calc(7px + env(safe-area-inset-bottom));
     }
-    .bottom-nav-inner {
-      max-width: 480px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    }
+    .bottom-nav-inner { max-width: 480px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .nav-tab-btn {
-      padding: 8px 10px; border-radius: 9px;
-      border: 1px solid var(--border); background: var(--card);
-      color: var(--muted); font-size: 0.88rem; font-weight: 800;
-      cursor: pointer;
+      padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card); color: var(--muted); font-size: 0.86rem;
+      font-weight: 800; cursor: pointer;
     }
-    .nav-tab-btn.active {
-      background: var(--accent); color: #ffffff; border-color: var(--accent);
-    }
+    .nav-tab-btn.active { background: var(--accent); color: #ffffff; border-color: var(--accent); }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 第一行：圓形 APP 圖示 + 品牌 + 今日日期 -->
     <header>
       <div class="brand">
         <span id="headerCatIcon" class="app-icon-badge" aria-hidden="true"></span>
@@ -479,8 +315,6 @@
       </div>
       <span id="todayBadge" class="today-pill"></span>
     </header>
-
-    <!-- 第二行：左邊當月 + 提示文字並排 + 右邊美化下拉選單 -->
     <section class="cal-strip-card">
       <div class="month-select-row">
         <div class="month-left-group">
@@ -503,16 +337,11 @@
       </div>
       <div id="weekDaysRow" class="week-row-days"></div>
     </section>
-
-    <!-- 首頁內容 -->
     <div id="homeView">
-      <!-- 支出橫幅：預設當日支出為主，點選當月後顯示月支出 -->
       <section class="hero-expense">
         <span class="hero-label" id="expTitleLabel">當日支出</span>
         <span class="hero-val" id="totalExpense">$0</span>
       </section>
-
-      <!-- 分類支出：單行不溢出、縮小字體 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title">分類支出</span>
@@ -520,8 +349,6 @@
         </div>
         <div id="catRow" class="cat-row-fit"></div>
       </section>
-
-      <!-- 新增支出：分類與金額輸入框在同一行，點選金額才出現數字鍵盤，不彈出手機鍵盤 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title" id="formHeading">新增支出</span>
@@ -544,31 +371,26 @@
               <div id="calcPreview" class="calc-preview">計算結果：$0</div>
             </div>
           </div>
-
           <div id="numpadBox" class="numpad-box" aria-label="加減乘數字鍵盤與刪除">
             <div class="numpad-grid">
               <button type="button" class="pad-key" data-key="7">7</button>
               <button type="button" class="pad-key" data-key="8">8</button>
               <button type="button" class="pad-key" data-key="9">9</button>
               <button type="button" class="pad-key op-key" data-key="+">+</button>
-
               <button type="button" class="pad-key" data-key="4">4</button>
               <button type="button" class="pad-key" data-key="5">5</button>
               <button type="button" class="pad-key" data-key="6">6</button>
               <button type="button" class="pad-key op-key" data-key="-">-</button>
-
               <button type="button" class="pad-key" data-key="1">1</button>
               <button type="button" class="pad-key" data-key="2">2</button>
               <button type="button" class="pad-key" data-key="3">3</button>
               <button type="button" class="pad-key op-key" data-key="*">×</button>
-
               <button type="button" class="pad-key" data-key="0">0</button>
               <button type="button" class="pad-key" data-key=".">.</button>
               <button type="button" class="pad-key clr-key" data-key="C">C</button>
               <button type="button" class="pad-key del-key" data-key="DEL" aria-label="刪除最後一字元">⌫</button>
             </div>
           </div>
-
           <div class="note-col">
             <label for="note">備註（選填）</label>
             <input type="text" id="note" placeholder="例如：午餐、捷運、卡費、冷氣維修" />
@@ -579,7 +401,6 @@
           </div>
         </form>
       </section>
-
       <section class="card">
         <div class="section-head">
           <strong id="listHeading">當日明細</strong>
@@ -587,8 +408,6 @@
         </div>
         <div id="txList"></div>
       </section>
-
-      <!-- 下方：本週 / 本月 / 本年 結餘排列 -->
       <section class="bottom-summary">
         <div class="bottom-title">期間結餘總覽</div>
         <div class="bottom-list">
@@ -606,22 +425,18 @@
           </div>
         </div>
       </section>
-
       <div class="tools">
         <button type="button" id="exportBtn" class="secondary">匯出備份 (JSON)</button>
         <button type="button" id="importBtn" class="secondary">匯入備份</button>
         <input type="file" id="importFile" accept=".json,application/json" style="display:none;" />
       </div>
     </div>
-
-    <!-- 報表內容 -->
     <div id="reportView" style="display:none;">
       <section class="card">
         <div class="section-head">
           <span class="section-title">報表統計</span>
           <span id="reportMonthLabel" class="section-sub"></span>
         </div>
-
         <div class="stat-pair">
           <div class="stat-box">
             <div class="stat-box-label" id="reportDayStatLabel">日支出統計</div>
@@ -632,7 +447,6 @@
             <div class="stat-box-val" id="reportMonthStatVal">$0</div>
           </div>
         </div>
-
         <div class="report-select-box">
           <select id="reportTypeSelect" class="report-select" aria-label="選擇報表類型">
             <option value="monthCategory">月分類</option>
@@ -645,26 +459,16 @@
       </section>
     </div>
   </div>
-
-  <!-- 最下方兩個工具欄：首頁 跟 報表 -->
   <nav class="bottom-nav" aria-label="主工具欄">
     <div class="bottom-nav-inner">
       <button type="button" id="tabHome" class="nav-tab-btn active">首頁</button>
       <button type="button" id="tabReport" class="nav-tab-btn">報表</button>
     </div>
   </nav>
-
   <script>
     const STORAGE_KEY = 'pwa_expense_cw_records';
     const MIGRATED_FLAG_KEY = 'pwa_expense_cw_migrated_v1';
-    const LEGACY_KEYS = [
-      'pwa_expense_cw_v12',
-      'pwa_expense_cw_v11',
-      'pwa_expense_cw_v10',
-      'pwa_expense_cw_v9',
-      'pwa_expense_cw_v8',
-      'pwa_expense_cw_v7'
-    ];
+    const LEGACY_KEYS = ['pwa_expense_cw_v12', 'pwa_expense_cw_v11', 'pwa_expense_cw_v10', 'pwa_expense_cw_v9', 'pwa_expense_cw_v8', 'pwa_expense_cw_v7'];
     const CATEGORIES = ['信用卡', '飲食', '日常', '交通', '維修', '其他'];
     const PALETTE = ['#d97706', '#0284c7', '#16a34a', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#ca8a04', '#2563eb', '#c026d3'];
     const WEEKDAYS_SHORT = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -775,7 +579,21 @@
       setNumpadOpen(true);
     }
 
-    function createRoundAppIconPngDataUrl(size) {
+    function getRoundIconSvg() {
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+        <defs>
+          <radialGradient id="roundBg" cx="35%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#fde68a"/>
+            <stop offset="100%" stop-color="#d97706"/>
+          </radialGradient>
+        </defs>
+        <circle cx="96" cy="96" r="96" fill="url(#roundBg)"/>
+        <circle cx="96" cy="96" r="68" fill="#fffbeb" stroke="#92400e" stroke-width="5"/>
+        <text x="96" y="122" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="78" font-weight="900" fill="#b45309">$</text>
+      </svg>`;
+    }
+
+    function createRoundPngDataUrl(size) {
       const canvas = document.createElement('canvas');
       canvas.width = size;
       canvas.height = size;
@@ -785,121 +603,42 @@
       ctx.save();
       ctx.beginPath();
       ctx.arc(r, r, r, 0, Math.PI * 2);
-      ctx.closePath();
       ctx.clip();
 
-      const bg = ctx.createRadialGradient(size * 0.34, size * 0.28, size * 0.06, r, r, r);
-      bg.addColorStop(0, '#fde68a');
-      bg.addColorStop(1, '#d97706');
-      ctx.fillStyle = bg;
+      const grad = ctx.createRadialGradient(size * 0.35, size * 0.3, size * 0.05, r, r, r);
+      grad.addColorStop(0, '#fde68a');
+      grad.addColorStop(1, '#d97706');
+      ctx.fillStyle = grad;
       ctx.fillRect(0, 0, size, size);
 
-      const s = size / 192;
-      ctx.scale(s, s);
-
-      ctx.strokeStyle = '#451a03';
-      ctx.lineWidth = 5;
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
-
       ctx.beginPath();
-      ctx.moveTo(44, 74); ctx.lineTo(36, 34); ctx.lineTo(74, 52); ctx.closePath();
-      ctx.fillStyle = '#f97316'; ctx.fill(); ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(148, 74); ctx.lineTo(156, 34); ctx.lineTo(118, 52); ctx.closePath();
-      ctx.fillStyle = '#f97316'; ctx.fill(); ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(49, 65); ctx.lineTo(44, 43); ctx.lineTo(66, 54); ctx.closePath();
-      ctx.fillStyle = '#fed7aa'; ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(143, 65); ctx.lineTo(148, 43); ctx.lineTo(126, 54); ctx.closePath();
-      ctx.fillStyle = '#fed7aa'; ctx.fill();
-
-      ctx.beginPath();
-      ctx.ellipse(96, 130, 56, 42, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#fb923c'; ctx.fill(); ctx.stroke();
-
-      ctx.beginPath();
-      ctx.ellipse(96, 138, 35, 26, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff7ed'; ctx.fill();
-
-      ctx.beginPath();
-      ctx.ellipse(96, 84, 50, 40, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#fb923c'; ctx.fill(); ctx.stroke();
-
-      ctx.strokeStyle = '#c2410c';
-      ctx.lineWidth = 4.5;
-      ctx.beginPath();
-      ctx.moveTo(84, 49); ctx.lineTo(88, 62);
-      ctx.moveTo(96, 47); ctx.lineTo(96, 63);
-      ctx.moveTo(108, 49); ctx.lineTo(104, 62);
+      ctx.arc(r, r, size * 0.35, 0, Math.PI * 2);
+      ctx.fillStyle = '#fffbeb';
+      ctx.fill();
+      ctx.lineWidth = Math.max(2, size * 0.026);
+      ctx.strokeStyle = '#92400e';
       ctx.stroke();
 
-      ctx.fillStyle = '#1e293b';
-      ctx.beginPath(); ctx.arc(76, 82, 6, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(116, 82, 6, 0, Math.PI * 2); ctx.fill();
-
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath(); ctx.arc(74, 80, 2.2, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(114, 80, 2.2, 0, Math.PI * 2); ctx.fill();
-
-      ctx.fillStyle = 'rgba(251, 113, 133, 0.65)';
-      ctx.beginPath(); ctx.ellipse(62, 92, 8, 4.5, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(130, 92, 8, 4.5, 0, 0, Math.PI * 2); ctx.fill();
-
-      ctx.fillStyle = '#f43f5e';
-      ctx.beginPath(); ctx.moveTo(96, 87); ctx.lineTo(91, 92); ctx.lineTo(101, 92); ctx.closePath(); ctx.fill();
-
-      ctx.strokeStyle = '#451a03';
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.moveTo(88, 96);
-      ctx.quadraticCurveTo(92, 101, 96, 96);
-      ctx.quadraticCurveTo(100, 101, 104, 96);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(36, 84); ctx.lineTo(54, 87);
-      ctx.moveTo(36, 95); ctx.lineTo(54, 95);
-      ctx.moveTo(156, 84); ctx.lineTo(138, 87);
-      ctx.moveTo(156, 95); ctx.lineTo(138, 95);
-      ctx.stroke();
-
-      ctx.strokeStyle = '#451a03';
-      ctx.lineWidth = 4.5;
-      ctx.fillStyle = '#facc15';
-      ctx.beginPath(); ctx.arc(108, 136, 25, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
-      ctx.fillStyle = '#92400e';
-      ctx.font = '900 29px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillStyle = '#b45309';
+      ctx.font = `900 ${Math.round(size * 0.4)}px -apple-system, BlinkMacSystemFont, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('$', 108, 138);
-
-      ctx.fillStyle = '#fb923c';
-      ctx.beginPath(); ctx.ellipse(76, 138, 13, 9.5, -0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.ellipse(134, 138, 13, 9.5, 0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
+      ctx.fillText('$', r, r + size * 0.02);
       ctx.restore();
       return canvas.toDataURL('image/png');
     }
 
     function setupRoundAppIcon() {
-      const icon192 = createRoundAppIconPngDataUrl(192);
-      const icon512 = createRoundAppIconPngDataUrl(512);
-
-      el.headerCatIcon.innerHTML = `<img src="${icon192}" alt="圓形 APP 圖示" />`;
+      el.headerCatIcon.innerHTML = getRoundIconSvg();
+      const icon192 = createRoundPngDataUrl(192);
+      const icon512 = createRoundPngDataUrl(512);
       el.faviconLink.href = icon192;
       el.appleIconLink.href = icon192;
-
       const manifestObj = {
-        id: './?v=round-cat-dollar-3',
+        id: './?v=round-icon-clean',
         name: '隨手記帳',
         short_name: '隨手記帳',
-        start_url: './?v=round-cat-dollar-3',
+        start_url: './?v=round-icon-clean',
         scope: './',
         display: 'standalone',
         background_color: '#ffffff',
@@ -909,8 +648,7 @@
           { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
         ]
       };
-      const manifestDataUrl = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestObj));
-      el.manifestLink.href = manifestDataUrl;
+      el.manifestLink.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestObj));
     }
 
     function todayStr() {
@@ -943,14 +681,8 @@
     }
 
     function evalMathAmount(rawInput) {
-      const cleaned = String(rawInput ?? '')
-        .replace(/×/g, '*')
-        .replace(/÷/g, '/')
-        .replace(/\s+/g, '');
-      if (!cleaned) return null;
-      if (!/^[0-9+\-*/().]+$/.test(cleaned)) return null;
-      if (/[+\-*/.]$/.test(cleaned)) return null;
-
+      const cleaned = String(rawInput ?? '').replace(/×/g, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+      if (!cleaned || !/^[0-9+\-*/().]+$/.test(cleaned) || /[+\-*/.]$/.test(cleaned)) return null;
       let parenDepth = 0;
       for (const ch of cleaned) {
         if (ch === '(') parenDepth++;
@@ -958,7 +690,6 @@
         if (parenDepth < 0) return null;
       }
       if (parenDepth !== 0) return null;
-
       try {
         const result = Function(`"use strict"; return (${cleaned});`)();
         if (typeof result !== 'number' || !Number.isFinite(result)) return null;
@@ -970,29 +701,19 @@
 
     function updateCalcPreview() {
       const val = evalMathAmount(amountExpr);
-      if (val === null) {
-        el.calcPreview.textContent = amountExpr.trim() ? '算式有誤（如 100+50*2-10）' : '計算結果：$0';
-        return;
-      }
-      el.calcPreview.textContent = `計算結果：${formatMoney(val)}`;
+      el.calcPreview.textContent = val === null
+        ? (amountExpr.trim() ? '算式有誤（如 100+50*2-10）' : '計算結果：$0')
+        : `計算結果：${formatMoney(val)}`;
     }
 
     function buildMonthOptions(activeYm) {
       const nowYm = todayStr().slice(0, 7);
       const set = new Set([nowYm]);
-      for (let i = -12; i <= 3; i++) {
-        set.add(shiftYearMonth(nowYm, i));
-      }
-      for (const r of records) {
-        if (r.date && /^\d{4}-\d{2}/.test(r.date)) set.add(r.date.slice(0, 7));
-      }
+      for (let i = -12; i <= 3; i++) set.add(shiftYearMonth(nowYm, i));
+      for (const r of records) if (r.date && /^\d{4}-\d{2}/.test(r.date)) set.add(r.date.slice(0, 7));
       if (activeYm) set.add(activeYm);
-
       const sorted = Array.from(set).sort((a, b) => b.localeCompare(a));
-      el.monthSelect.innerHTML = sorted.map(ym => {
-        const display = ym.replace('-', '/');
-        return `<option value="${escapeHtml(ym)}" ${ym === activeYm ? 'selected' : ''}>${escapeHtml(display)}</option>`;
-      }).join('');
+      el.monthSelect.innerHTML = sorted.map(ym => `<option value="${escapeHtml(ym)}" ${ym === activeYm ? 'selected' : ''}>${escapeHtml(ym.replace('-', '/'))}</option>`).join('');
     }
 
     function getCurrentWeekRange(baseYmd) {
@@ -1011,10 +732,7 @@
       const arr = [];
       for (let i = 0; i < 7; i++) {
         const dObj = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i);
-        arr.push({
-          ymd: formatYmd(dObj),
-          dayNum: dObj.getDate()
-        });
+        arr.push({ ymd: formatYmd(dObj), dayNum: dObj.getDate() });
       }
       return arr;
     }
@@ -1037,18 +755,12 @@
 
     function loadRecords() {
       const rawMain = localStorage.getItem(STORAGE_KEY);
-      if (rawMain !== null) {
-        return parseJsonArray(rawMain).filter(item => item && item.id);
-      }
-
+      if (rawMain !== null) return parseJsonArray(rawMain).filter(item => item && item.id);
       if (!localStorage.getItem(MIGRATED_FLAG_KEY)) {
         const map = new Map();
         for (const legacyKey of LEGACY_KEYS) {
-          const legacyList = parseJsonArray(localStorage.getItem(legacyKey));
-          for (const item of legacyList) {
-            if (item && item.id && !map.has(item.id)) {
-              map.set(item.id, item);
-            }
+          for (const item of parseJsonArray(localStorage.getItem(legacyKey))) {
+            if (item && item.id && !map.has(item.id)) map.set(item.id, item);
           }
         }
         const initialList = Array.from(map.values());
@@ -1056,7 +768,6 @@
         localStorage.setItem(MIGRATED_FLAG_KEY, '1');
         return initialList;
       }
-
       return [];
     }
 
@@ -1066,11 +777,7 @@
     }
 
     function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function formatMoney(n) {
@@ -1078,34 +785,19 @@
     }
 
     function renderCategories() {
-      el.category.innerHTML = CATEGORIES
-        .map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
-        .join('');
+      el.category.innerHTML = CATEGORIES.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
     }
 
     function renderMonthAndDays() {
       const currentVal = el.monthSelect.value || todayStr().slice(0, 7);
       buildMonthOptions(currentVal);
-
       const nowYmd = todayStr();
       const days = getWeekStripDays();
       el.weekDaysRow.innerHTML = days.map(d => {
-        const isToday = d.ymd === nowYmd;
-        const isSelected = !showMonthMode && selectedYmd === d.ymd;
-        const cls = [
-          'day-btn',
-          isToday ? 'is-today' : '',
-          isSelected ? 'active' : ''
-        ].filter(Boolean).join(' ');
-        return `
-          <button type="button" class="${cls}" data-ymd="${escapeHtml(d.ymd)}">
-            ${d.dayNum}
-          </button>
-        `;
+        const cls = ['day-btn', d.ymd === nowYmd ? 'is-today' : '', !showMonthMode && selectedYmd === d.ymd ? 'active' : ''].filter(Boolean).join(' ');
+        return `<button type="button" class="${cls}" data-ymd="${escapeHtml(d.ymd)}">${d.dayNum}</button>`;
       }).join('');
-
       el.currentMonthBtn.classList.toggle('active-month', showMonthMode);
-
       if (showMonthMode) {
         el.dayFilterStatus.textContent = '目前顯示：月支出（點日期切回當日）';
       } else if (selectedYmd) {
@@ -1114,11 +806,7 @@
       } else {
         el.dayFilterStatus.textContent = '以當日支出為主，點選「當月」顯示月支出';
       }
-
-      if (!editingId) {
-        el.editHint.textContent = `記帳日期：${formatMonthDay(getTargetRecordDate())}`;
-      }
-
+      if (!editingId) el.editHint.textContent = `記帳日期：${formatMonthDay(getTargetRecordDate())}`;
       for (const btn of el.weekDaysRow.querySelectorAll('.day-btn')) {
         btn.addEventListener('click', () => {
           showMonthMode = false;
@@ -1164,13 +852,9 @@
     function renderBottomBalances() {
       const nowYmd = todayStr();
       const { start, end } = getCurrentWeekRange(nowYmd);
-      const weekList = records.filter(r => r.date && r.date >= start && r.date <= end);
-      const monthList = records.filter(r => r.date && r.date.startsWith(nowYmd.slice(0, 7)));
-      const yearList = records.filter(r => r.date && r.date.startsWith(nowYmd.slice(0, 4)));
-
-      el.weekBalance.textContent = formatMoney(sumExpenses(weekList));
-      el.monthBalance.textContent = formatMoney(sumExpenses(monthList));
-      el.yearBalance.textContent = formatMoney(sumExpenses(yearList));
+      el.weekBalance.textContent = formatMoney(sumExpenses(records.filter(r => r.date && r.date >= start && r.date <= end)));
+      el.monthBalance.textContent = formatMoney(sumExpenses(records.filter(r => r.date && r.date.startsWith(nowYmd.slice(0, 7)))));
+      el.yearBalance.textContent = formatMoney(sumExpenses(records.filter(r => r.date && r.date.startsWith(nowYmd.slice(0, 4)))));
     }
 
     function renderCategoryRow(targetRecords) {
@@ -1179,23 +863,11 @@
         const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
         catTotals[cat] += Number(r.amount) || 0;
       }
-
       const activeCat = el.category.value;
       el.catRow.innerHTML = CATEGORIES.map((cat, idx) => {
-        const amt = catTotals[cat] || 0;
-        const isSel = activeCat === cat;
         const color = PALETTE[idx % PALETTE.length];
-        return `
-          <button type="button" class="cat-mini ${isSel ? 'selected' : ''}" data-cat="${escapeHtml(cat)}">
-            <span class="cat-mini-top">
-              <span class="cat-dot" style="background:${color};"></span>
-              <span class="cat-mini-name">${escapeHtml(cat)}</span>
-            </span>
-            <span class="cat-mini-amt">${formatMoney(amt)}</span>
-          </button>
-        `;
+        return `<button type="button" class="cat-mini ${activeCat === cat ? 'selected' : ''}" data-cat="${escapeHtml(cat)}"><span class="cat-mini-top"><span class="cat-dot" style="background:${color};"></span><span class="cat-mini-name">${escapeHtml(cat)}</span></span><span class="cat-mini-amt">${formatMoney(catTotals[cat] || 0)}</span></button>`;
       }).join('');
-
       for (const btn of el.catRow.querySelectorAll('.cat-mini')) {
         btn.addEventListener('click', () => {
           el.category.value = btn.dataset.cat;
@@ -1210,73 +882,30 @@
         el.txList.innerHTML = `<div class="empty">${showMonthMode ? '這個月份還沒有支出紀錄' : '這一天還沒有支出紀錄'}</div>`;
         return;
       }
-
-      const sorted = [...filtered].sort(
-        (a, b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0)
-      );
-
+      const sorted = [...filtered].sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0));
       const groups = new Map();
       for (const r of sorted) {
         const d = r.date || todayStr();
         if (!groups.has(d)) groups.set(d, []);
         groups.get(d).push(r);
       }
-
       let html = '';
       for (const [ymd, items] of groups.entries()) {
         const dt = parseLocalDate(ymd);
-        const md = formatMonthDay(ymd);
-        const wk = WEEKDAYS_SHORT[dt.getDay()] || '';
-        const dayExp = sumExpenses(items);
-
-        html += `
-          <div class="day-group">
-            <div class="day-header">
-              <span class="day-date-badge">
-                <span class="day-md">${escapeHtml(md)}</span>
-                <span class="day-wk">${escapeHtml(wk)}</span>
-              </span>
-              <span class="day-sum">${formatMoney(dayExp)}</span>
-            </div>
-            <div class="tx-list">
-              ${items.map(r => {
-                const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
-                return `
-                  <div class="tx-item" data-edit-id="${escapeHtml(r.id)}" title="點擊編輯">
-                    <div class="tx-main">
-                      <div class="tx-title">${escapeHtml(cat)}${r.note ? ' · ' + escapeHtml(r.note) : ''}</div>
-                    </div>
-                    <div class="tx-right">
-                      <div class="tx-amt">${formatMoney(r.amount)}</div>
-                      <button type="button" class="del-btn" data-del-id="${escapeHtml(r.id)}" title="刪除">✕</button>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        `;
+        html += `<div class="day-group"><div class="day-header"><span class="day-date-badge"><span class="day-md">${escapeHtml(formatMonthDay(ymd))}</span><span class="day-wk">${escapeHtml(WEEKDAYS_SHORT[dt.getDay()] || '')}</span></span><span class="day-sum">${formatMoney(sumExpenses(items))}</span></div><div class="tx-list">${items.map(r => {
+          const cat = CATEGORIES.includes(r.category) ? r.category : '其他';
+          return `<div class="tx-item" data-edit-id="${escapeHtml(r.id)}" title="點擊編輯"><div class="tx-main"><div class="tx-title">${escapeHtml(cat)}${r.note ? ' · ' + escapeHtml(r.note) : ''}</div></div><div class="tx-right"><div class="tx-amt">${formatMoney(r.amount)}</div><button type="button" class="del-btn" data-del-id="${escapeHtml(r.id)}" title="刪除">✕</button></div></div>`;
+        }).join('')}</div></div>`;
       }
-
       el.txList.innerHTML = html;
     }
 
     function buildPieChartHtml(slices, centerTitle, emptyMsg) {
       const positiveSlices = slices.filter(s => s.value > 0);
       const total = positiveSlices.reduce((acc, s) => acc + s.value, 0);
-
-      if (!positiveSlices.length || total <= 0) {
-        return `<div class="empty">${escapeHtml(emptyMsg)}</div>`;
-      }
-
-      const cx = 115;
-      const cy = 115;
-      const r = 92;
-      const innerR = 34;
-      let startAngle = -Math.PI / 2;
-      let pathsHtml = '';
-      let labelsHtml = '';
-
+      if (!positiveSlices.length || total <= 0) return `<div class="empty">${escapeHtml(emptyMsg)}</div>`;
+      const cx = 115, cy = 115, r = 92, innerR = 34;
+      let startAngle = -Math.PI / 2, pathsHtml = '', labelsHtml = '';
       if (positiveSlices.length === 1) {
         const only = positiveSlices[0];
         pathsHtml = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${only.color}" />`;
@@ -1286,60 +915,23 @@
           const frac = s.value / total;
           const angle = frac * Math.PI * 2;
           const endAngle = startAngle + angle;
-          const x1 = cx + r * Math.cos(startAngle);
-          const y1 = cy + r * Math.sin(startAngle);
-          const x2 = cx + r * Math.cos(endAngle);
-          const y2 = cy + r * Math.sin(endAngle);
+          const x1 = cx + r * Math.cos(startAngle), y1 = cy + r * Math.sin(startAngle);
+          const x2 = cx + r * Math.cos(endAngle), y2 = cy + r * Math.sin(endAngle);
           const largeArc = angle > Math.PI ? 1 : 0;
-
           pathsHtml += `<path d="M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z" fill="${s.color}" stroke="#ffffff" stroke-width="2" />`;
-
           const pct = Math.round(frac * 100);
           if (pct >= 7) {
             const midAngle = startAngle + angle / 2;
             const labelR = (r + innerR) / 2 + 4;
-            const lx = cx + labelR * Math.cos(midAngle);
-            const ly = cy + labelR * Math.sin(midAngle);
-            labelsHtml += `
-              <text x="${lx.toFixed(1)}" y="${(ly - 3).toFixed(1)}" text-anchor="middle" class="pie-slice-text">${escapeHtml(s.label)}</text>
-              <text x="${lx.toFixed(1)}" y="${(ly + 7).toFixed(1)}" text-anchor="middle" class="pie-slice-text">${pct}%</text>
-            `;
+            const lx = cx + labelR * Math.cos(midAngle), ly = cy + labelR * Math.sin(midAngle);
+            labelsHtml += `<text x="${lx.toFixed(1)}" y="${(ly - 3).toFixed(1)}" text-anchor="middle" class="pie-slice-text">${escapeHtml(s.label)}</text><text x="${lx.toFixed(1)}" y="${(ly + 7).toFixed(1)}" text-anchor="middle" class="pie-slice-text">${pct}%</text>`;
           }
-
           startAngle = endAngle;
         }
       }
-
-      const holeHtml = `
-        <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="#ffffff" />
-        <text x="${cx}" y="${cy - 3}" text-anchor="middle" class="pie-center-title">${escapeHtml(centerTitle)}</text>
-        <text x="${cx}" y="${cy + 9}" text-anchor="middle" class="pie-center-val">${escapeHtml(formatMoney(total))}</text>
-      `;
-
-      const legendHtml = positiveSlices.map(s => {
-        const pct = Math.round((s.value / total) * 100);
-        return `
-          <div class="legend-row">
-            <span class="legend-left">
-              <span class="legend-dot" style="background:${s.color};"></span>
-              <span>${escapeHtml(s.label)}</span>
-              <span class="legend-pct">${pct}%</span>
-            </span>
-            <span class="legend-amt">${formatMoney(s.value)}</span>
-          </div>
-        `;
-      }).join('');
-
-      return `
-        <div class="pie-wrap">
-          <svg class="pie-svg" viewBox="0 0 230 230" role="img" aria-label="支出圓餅圖">
-            ${pathsHtml}
-            ${labelsHtml}
-            ${holeHtml}
-          </svg>
-        </div>
-        <div class="legend-list">${legendHtml}</div>
-      `;
+      const holeHtml = `<circle cx="${cx}" cy="${cy}" r="${innerR}" fill="#ffffff" /><text x="${cx}" y="${cy - 3}" text-anchor="middle" class="pie-center-title">${escapeHtml(centerTitle)}</text><text x="${cx}" y="${cy + 9}" text-anchor="middle" class="pie-center-val">${escapeHtml(formatMoney(total))}</text>`;
+      const legendHtml = positiveSlices.map(s => `<div class="legend-row"><span class="legend-left"><span class="legend-dot" style="background:${s.color};"></span><span>${escapeHtml(s.label)}</span><span class="legend-pct">${Math.round((s.value / total) * 100)}%</span></span><span class="legend-amt">${formatMoney(s.value)}</span></div>`).join('');
+      return `<div class="pie-wrap"><svg class="pie-svg" viewBox="0 0 230 230" role="img" aria-label="支出圓餅圖">${pathsHtml}${labelsHtml}${holeHtml}</svg></div><div class="legend-list">${legendHtml}</div>`;
     }
 
     function renderReport() {
@@ -1347,30 +939,21 @@
       const targetDay = selectedYmd || (todayStr().startsWith(ym) ? todayStr() : `${ym}-01`);
       const dayRecords = records.filter(r => r.date === targetDay);
       const monthRecords = records.filter(r => r.date && r.date.startsWith(ym));
-
       el.reportMonthLabel.textContent = ym.replace('-', '/');
       el.reportDayStatLabel.textContent = `日支出統計（${formatMonthDay(targetDay)}）`;
       el.reportDayStatVal.textContent = formatMoney(sumExpenses(dayRecords));
       el.reportMonthStatLabel.textContent = `月支出統計（${ym.replace('-', '/')}）`;
       el.reportMonthStatVal.textContent = formatMoney(sumExpenses(monthRecords));
-
       const type = el.reportTypeSelect.value;
-
       if (type === 'monthCategory') {
         const map = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
         for (const r of monthRecords) {
           const c = CATEGORIES.includes(r.category) ? r.category : '其他';
           map[c] += Number(r.amount) || 0;
         }
-        const slices = CATEGORIES.map((c, idx) => ({
-          label: c,
-          value: map[c] || 0,
-          color: PALETTE[idx % PALETTE.length]
-        }));
-        el.reportBody.innerHTML = buildPieChartHtml(slices, '月分類總計', '這個月份還沒有分類支出資料');
+        el.reportBody.innerHTML = buildPieChartHtml(CATEGORIES.map((c, idx) => ({ label: c, value: map[c] || 0, color: PALETTE[idx % PALETTE.length] })), '月分類總計', '這個月份還沒有分類支出資料');
         return;
       }
-
       if (type === 'monthExpense') {
         const monthMap = new Map();
         for (const r of records) {
@@ -1379,27 +962,13 @@
           monthMap.set(k, (monthMap.get(k) || 0) + (Number(r.amount) || 0));
         }
         const rows = Array.from(monthMap.entries()).sort((a, b) => b[0].localeCompare(a[0]));
-        const slices = rows.map(([mKey, amt], idx) => ({
-          label: mKey.replace('-', '/'),
-          value: amt,
-          color: PALETTE[idx % PALETTE.length]
-        }));
-        el.reportBody.innerHTML = buildPieChartHtml(slices, '月支出總計', '目前還沒有月支出紀錄');
+        el.reportBody.innerHTML = buildPieChartHtml(rows.map(([mKey, amt], idx) => ({ label: mKey.replace('-', '/'), value: amt, color: PALETTE[idx % PALETTE.length] })), '月支出總計', '目前還沒有月支出紀錄');
         return;
       }
-
       const dayMap = new Map();
-      for (const r of monthRecords) {
-        const dKey = r.date;
-        dayMap.set(dKey, (dayMap.get(dKey) || 0) + (Number(r.amount) || 0));
-      }
+      for (const r of monthRecords) dayMap.set(r.date, (dayMap.get(r.date) || 0) + (Number(r.amount) || 0));
       const rows = Array.from(dayMap.entries()).sort((a, b) => b[0].localeCompare(a[0]));
-      const slices = rows.map(([dKey, amt], idx) => ({
-        label: formatMonthDay(dKey),
-        value: amt,
-        color: PALETTE[idx % PALETTE.length]
-      }));
-      el.reportBody.innerHTML = buildPieChartHtml(slices, '當月日支出', '這個月份還沒有日支出紀錄');
+      el.reportBody.innerHTML = buildPieChartHtml(rows.map(([dKey, amt], idx) => ({ label: formatMonthDay(dKey), value: amt, color: PALETTE[idx % PALETTE.length] })), '當月日支出', '這個月份還沒有日支出紀錄');
     }
 
     function switchTab(tab) {
@@ -1421,7 +990,6 @@
       const monthRecords = records.filter(r => !m || (r.date && r.date.startsWith(m)));
       const activeDay = selectedYmd || (todayStr().startsWith(m) ? todayStr() : `${m}-01`);
       const dayRecords = monthRecords.filter(r => r.date === activeDay);
-
       if (showMonthMode) {
         el.expTitleLabel.textContent = '月支出';
         el.listHeading.textContent = '本月明細';
@@ -1437,60 +1005,41 @@
         renderCategoryRow(dayRecords);
         renderGroupedTransactions(dayRecords);
       }
-
       renderBottomBalances();
       if (currentTab === 'report') renderReport();
     }
 
-    el.amountBox.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      openCustomNumpad();
-    });
-    el.amountBox.addEventListener('click', (e) => {
-      e.preventDefault();
-      openCustomNumpad();
-    });
-
+    el.amountBox.addEventListener('pointerdown', (e) => { e.preventDefault(); openCustomNumpad(); });
+    el.amountBox.addEventListener('click', (e) => { e.preventDefault(); openCustomNumpad(); });
     el.note.addEventListener('focus', () => setNumpadOpen(false));
-
     document.addEventListener('click', (e) => {
       if (el.amountBox.contains(e.target) || el.numpadBox.contains(e.target)) return;
       setNumpadOpen(false);
     });
-
     el.numpadBox.addEventListener('click', (e) => {
       const keyBtn = e.target.closest('[data-key]');
       if (!keyBtn) return;
       const k = keyBtn.getAttribute('data-key');
-      if (k === 'C') {
-        setAmountExpr('');
-      } else if (k === 'DEL') {
-        setAmountExpr(amountExpr.slice(0, -1));
-      } else {
-        appendAmountKey(k);
-      }
+      if (k === 'C') setAmountExpr('');
+      else if (k === 'DEL') setAmountExpr(amountExpr.slice(0, -1));
+      else appendAmountKey(k);
     });
-
     el.currentMonthBtn.addEventListener('click', () => {
       el.monthSelect.value = todayStr().slice(0, 7);
       showMonthMode = true;
       render();
     });
-
     el.monthSelect.addEventListener('change', () => {
       showMonthMode = false;
       const ym = el.monthSelect.value;
       selectedYmd = todayStr().startsWith(ym) ? todayStr() : `${ym}-01`;
       render();
     });
-
     el.tabHome.addEventListener('click', () => switchTab('home'));
     el.tabReport.addEventListener('click', () => switchTab('report'));
     el.reportTypeSelect.addEventListener('change', renderReport);
-
     el.category.addEventListener('change', render);
     el.cancelEditBtn.addEventListener('click', exitEditMode);
-
     el.form.addEventListener('submit', (e) => {
       e.preventDefault();
       const amount = evalMathAmount(amountExpr);
@@ -1498,29 +1047,21 @@
         alert('請輸入大於 0 的金額或加減乘算式');
         return;
       }
-
       const cat = CATEGORIES.includes(el.category.value) ? el.category.value : '其他';
       const note = el.note.value.trim();
-
       if (editingId) {
         records = records.map(r => (r.id === editingId ? { ...r, category: cat, amount, note } : r));
       } else {
         records.push({
           id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-          type: 'expense',
-          amount,
-          date: getTargetRecordDate(),
-          category: cat,
-          note,
-          createdAt: Date.now()
+          type: 'expense', amount, date: getTargetRecordDate(),
+          category: cat, note, createdAt: Date.now()
         });
       }
-
       saveRecords();
       exitEditMode();
       render();
     });
-
     el.txList.addEventListener('click', (e) => {
       const delBtn = e.target.closest('[data-del-id]');
       if (delBtn) {
@@ -1532,13 +1073,9 @@
         render();
         return;
       }
-
       const item = e.target.closest('[data-edit-id]');
-      if (item) {
-        startEditRecord(item.getAttribute('data-edit-id'));
-      }
+      if (item) startEditRecord(item.getAttribute('data-edit-id'));
     });
-
     el.exportBtn.addEventListener('click', () => {
       const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' }));
       const a = document.createElement('a');
@@ -1547,7 +1084,6 @@
       a.click();
       URL.revokeObjectURL(url);
     });
-
     el.importBtn.addEventListener('click', () => el.importFile.click());
     el.importFile.addEventListener('change', async (e) => {
       const file = e.target.files?.[0];
