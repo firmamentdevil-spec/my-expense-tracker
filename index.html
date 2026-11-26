@@ -42,7 +42,7 @@
       width: 30px; height: 30px; border-radius: 50%;
       display: inline-flex; align-items: center; justify-content: center;
       overflow: hidden; flex-shrink: 0;
-      box-shadow: 0 2px 5px rgba(217, 119, 6, 0.25);
+      box-shadow: 0 2px 6px rgba(220, 39, 67, 0.28);
     }
     .app-icon-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
     h1 { font-size: 1.05rem; margin: 0; color: var(--text); }
@@ -546,7 +546,18 @@
       setNumpadOpen(true);
     }
 
-    function createRoundPngIcon(size) {
+    function drawRoundRectPath(ctx, x, y, w, h, radius) {
+      const rr = Math.min(radius, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + rr, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rr);
+      ctx.arcTo(x + w, y + h, x, y + h, rr);
+      ctx.arcTo(x, y + h, x, y, rr);
+      ctx.arcTo(x, y, x + w, y, rr);
+      ctx.closePath();
+    }
+
+    function createIgStyleRoundPng(size) {
       const canvas = document.createElement('canvas');
       canvas.width = size;
       canvas.height = size;
@@ -558,41 +569,54 @@
       ctx.arc(r, r, r, 0, Math.PI * 2);
       ctx.closePath();
       ctx.clip();
-      const grad = ctx.createRadialGradient(size * 0.35, size * 0.28, size * 0.05, r, r, r);
-      grad.addColorStop(0, '#fcd34d');
-      grad.addColorStop(1, '#d97706');
-      ctx.fillStyle = grad;
+
+      const igGrad = ctx.createLinearGradient(size * 0.15, size * 0.9, size * 0.88, size * 0.12);
+      igGrad.addColorStop(0.0, '#feda75');
+      igGrad.addColorStop(0.25, '#fa7e1e');
+      igGrad.addColorStop(0.55, '#d62976');
+      igGrad.addColorStop(0.82, '#962fbf');
+      igGrad.addColorStop(1.0, '#4f5bd5');
+      ctx.fillStyle = igGrad;
       ctx.fillRect(0, 0, size, size);
-      ctx.beginPath();
-      ctx.arc(r, r, r * 0.72, 0, Math.PI * 2);
-      ctx.fillStyle = '#fffbeb';
-      ctx.fill();
-      ctx.lineWidth = Math.max(2, size * 0.03);
-      ctx.strokeStyle = '#92400e';
+
+      const pad = size * 0.2;
+      const boxSize = size - pad * 2;
+      ctx.lineWidth = Math.max(2, size * 0.048);
+      ctx.strokeStyle = '#ffffff';
+      drawRoundRectPath(ctx, pad, pad, boxSize, boxSize, size * 0.16);
       ctx.stroke();
-      ctx.fillStyle = '#b45309';
-      ctx.font = `900 ${Math.round(size * 0.42)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+
+      ctx.beginPath();
+      ctx.arc(r, r, size * 0.19, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(size * 0.67, size * 0.33, size * 0.038, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.font = `900 ${Math.round(size * 0.21)}px -apple-system, BlinkMacSystemFont, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('$', r, r + size * 0.02);
+      ctx.fillText('$', r, r + size * 0.012);
       ctx.restore();
       return canvas.toDataURL('image/png');
     }
 
-    function setupRoundPngAppIcon() {
-      const png192 = createRoundPngIcon(192);
-      const png512 = createRoundPngIcon(512);
+    function setupIgStyleAppIcon() {
+      const png192 = createIgStyleRoundPng(192);
+      const png512 = createIgStyleRoundPng(512);
       const img = document.createElement('img');
       img.src = png192;
-      img.alt = '圓形 PNG 圖示';
+      img.alt = 'IG 風格圓形 PNG 圖示';
       el.headerCatIcon.replaceChildren(img);
       el.faviconLink.href = png192;
       el.appleIconLink.href = png192;
       const manifestData = {
-        id: './?v=round-png-1',
+        id: './?v=ig-round-png-1',
         name: '隨手記帳',
         short_name: '隨手記帳',
-        start_url: './?v=round-png-1',
+        start_url: './?v=ig-round-png-1',
         scope: './',
         display: 'standalone',
         background_color: '#ffffff',
@@ -1058,7 +1082,7 @@
       }
     });
 
-    setupRoundPngAppIcon();
+    setupIgStyleAppIcon();
     const nowDate = todayStr();
     const nowDt = parseLocalDate(nowDate);
     el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
