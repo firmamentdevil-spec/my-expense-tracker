@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="隨手記帳" />
   <title>隨手記帳</title>
-  <link id="faviconLink" rel="icon" type="image/svg+xml" />
+  <link id="faviconLink" rel="icon" type="image/png" />
   <link id="appleIconLink" rel="apple-touch-icon" />
   <link id="manifestLink" rel="manifest" />
   <style>
@@ -41,12 +41,13 @@
     }
     .brand { display: flex; align-items: center; gap: 8px; }
     .app-icon-badge {
-      width: 30px; height: 30px; border-radius: 50%;
+      width: 32px; height: 32px; border-radius: 50%;
       display: inline-flex; align-items: center; justify-content: center;
       overflow: hidden; flex-shrink: 0;
       box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+      background: #fef3c7;
     }
-    .app-icon-badge svg { width: 100%; height: 100%; display: block; }
+    .app-icon-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
     h1 { font-size: 1.08rem; margin: 0; color: var(--text); }
     .today-pill {
       font-size: 0.75rem; color: var(--text); background: var(--card);
@@ -212,31 +213,14 @@
       box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
     }
     .amount-inline-group {
-      display: flex;
+      display: inline-flex;
       flex-direction: row;
       align-items: center;
-      width: 100%;
+      max-width: 100%;
       overflow: hidden;
       white-space: nowrap;
       font-size: 0.9rem;
       line-height: 1.25;
-    }
-    .custom-caret {
-      display: none;
-      width: 2px;
-      height: 1.05em;
-      background: var(--accent);
-      border-radius: 1px;
-      flex-shrink: 0;
-      margin-right: 3px;
-      animation: caretBlink 1s steps(1, end) infinite;
-    }
-    .amount-field-box.amount-active .custom-caret {
-      display: inline-block;
-    }
-    @keyframes caretBlink {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: 0; }
     }
     .amount-display-text {
       color: var(--text);
@@ -248,6 +232,23 @@
     .amount-display-text.is-placeholder {
       color: #94a3b8;
       font-weight: 400;
+    }
+    .custom-caret {
+      display: none;
+      width: 2px;
+      height: 1.05em;
+      background: var(--accent);
+      border-radius: 1px;
+      flex-shrink: 0;
+      margin-left: 2px;
+      animation: caretBlink 1s steps(1, end) infinite;
+    }
+    .amount-field-box.amount-active .custom-caret {
+      display: inline-block;
+    }
+    @keyframes caretBlink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
     }
     input:focus, select:focus {
       outline: none;
@@ -532,8 +533,8 @@
               <label for="amountBox">金額（點選顯示鍵盤）</label>
               <div id="amountBox" class="amount-field-box" tabindex="0" role="textbox" aria-label="金額">
                 <div class="amount-inline-group">
-                  <span id="customCaret" class="custom-caret" aria-hidden="true"></span>
                   <span id="amountDisplayText" class="amount-display-text is-placeholder">0</span>
+                  <span id="customCaret" class="custom-caret" aria-hidden="true"></span>
                 </div>
               </div>
               <div id="calcPreview" class="calc-preview">計算結果：$0</div>
@@ -744,69 +745,148 @@
       setNumpadOpen(true);
     }
 
+    function createChubbyCatPngDataUrl(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const s = size / 192;
+      ctx.save();
+      ctx.scale(s, s);
+
+      // 圓形底色
+      const bg = ctx.createRadialGradient(68, 58, 12, 96, 96, 96);
+      bg.addColorStop(0, '#fde68a');
+      bg.addColorStop(1, '#f59e0b');
+      ctx.beginPath();
+      ctx.arc(96, 96, 96, 0, Math.PI * 2);
+      ctx.fillStyle = bg;
+      ctx.fill();
+
+      ctx.strokeStyle = '#451a03';
+      ctx.lineWidth = 5;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+
+      // 左右貓耳
+      ctx.beginPath();
+      ctx.moveTo(44, 74); ctx.lineTo(36, 34); ctx.lineTo(74, 52); ctx.closePath();
+      ctx.fillStyle = '#f97316'; ctx.fill(); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(148, 74); ctx.lineTo(156, 34); ctx.lineTo(118, 52); ctx.closePath();
+      ctx.fillStyle = '#f97316'; ctx.fill(); ctx.stroke();
+
+      // 耳內粉橘色
+      ctx.beginPath();
+      ctx.moveTo(49, 65); ctx.lineTo(44, 43); ctx.lineTo(66, 54); ctx.closePath();
+      ctx.fillStyle = '#fed7aa'; ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(143, 65); ctx.lineTo(148, 43); ctx.lineTo(126, 54); ctx.closePath();
+      ctx.fillStyle = '#fed7aa'; ctx.fill();
+
+      // 肥貓身體與肚肚
+      ctx.beginPath();
+      ctx.ellipse(96, 130, 56, 42, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#fb923c'; ctx.fill(); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.ellipse(96, 138, 35, 26, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff7ed'; ctx.fill();
+
+      // 圓胖貓臉
+      ctx.beginPath();
+      ctx.ellipse(96, 84, 50, 40, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#fb923c'; ctx.fill(); ctx.stroke();
+
+      // 額頭虎斑紋
+      ctx.strokeStyle = '#c2410c';
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(84, 49); ctx.lineTo(88, 62);
+      ctx.moveTo(96, 47); ctx.lineTo(96, 63);
+      ctx.moveTo(108, 49); ctx.lineTo(104, 62);
+      ctx.stroke();
+
+      // 眼睛與腮紅
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath(); ctx.arc(76, 82, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(116, 82, 6, 0, Math.PI * 2); ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.arc(74, 80, 2.2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(114, 80, 2.2, 0, Math.PI * 2); ctx.fill();
+
+      ctx.fillStyle = 'rgba(251, 113, 133, 0.65)';
+      ctx.beginPath(); ctx.ellipse(62, 92, 8, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(130, 92, 8, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+
+      // 鼻子與貓嘴
+      ctx.fillStyle = '#f43f5e';
+      ctx.beginPath(); ctx.moveTo(96, 87); ctx.lineTo(91, 92); ctx.lineTo(101, 92); ctx.closePath(); ctx.fill();
+
+      ctx.strokeStyle = '#451a03';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(88, 96);
+      ctx.quadraticCurveTo(92, 101, 96, 96);
+      ctx.quadraticCurveTo(100, 101, 104, 96);
+      ctx.stroke();
+
+      // 鬍鬚
+      ctx.beginPath();
+      ctx.moveTo(36, 84); ctx.lineTo(54, 87);
+      ctx.moveTo(36, 95); ctx.lineTo(54, 95);
+      ctx.moveTo(156, 84); ctx.lineTo(138, 87);
+      ctx.moveTo(156, 95); ctx.lineTo(138, 95);
+      ctx.stroke();
+
+      // 肥貓拿著的大 $ 金幣
+      ctx.strokeStyle = '#451a03';
+      ctx.lineWidth = 4.5;
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath(); ctx.arc(108, 136, 25, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = '#92400e';
+      ctx.font = '900 29px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('$', 108, 138);
+
+      // 左右前爪捧住 $
+      ctx.fillStyle = '#fb923c';
+      ctx.beginPath(); ctx.ellipse(76, 138, 13, 9.5, -0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(134, 138, 13, 9.5, 0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+      ctx.restore();
+      return canvas.toDataURL('image/png');
+    }
+
     function setupChubbyCatAppIcon() {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-        <defs>
-          <radialGradient id="bgGrad" cx="35%" cy="30%" r="70%">
-            <stop offset="0%" stop-color="#fde68a"/>
-            <stop offset="100%" stop-color="#f59e0b"/>
-          </radialGradient>
-        </defs>
-        <circle cx="96" cy="96" r="96" fill="url(#bgGrad)"/>
-        <!-- 圓尖貓耳 -->
-        <path d="M44 74 L36 34 L74 52 Z" fill="#f97316" stroke="#451a03" stroke-width="5" stroke-linejoin="round"/>
-        <path d="M148 74 L156 34 L118 52 Z" fill="#f97316" stroke="#451a03" stroke-width="5" stroke-linejoin="round"/>
-        <path d="M49 65 L44 43 L66 54 Z" fill="#fed7aa"/>
-        <path d="M143 65 L148 43 L126 54 Z" fill="#fed7aa"/>
-        <!-- 肥嘟嘟貓身與圓臉 -->
-        <ellipse cx="96" cy="128" rx="56" ry="44" fill="#fb923c" stroke="#451a03" stroke-width="5"/>
-        <ellipse cx="96" cy="136" rx="36" ry="28" fill="#fff7ed"/>
-        <ellipse cx="96" cy="84" rx="50" ry="40" fill="#fb923c" stroke="#451a03" stroke-width="5"/>
-        <!-- 額頭虎斑 -->
-        <path d="M84 48 L88 62 M96 46 L96 63 M108 48 L104 62" stroke="#c2410c" stroke-width="4.5" stroke-linecap="round"/>
-        <!-- 眼睛與腮紅 -->
-        <circle cx="76" cy="82" r="6" fill="#1e293b"/>
-        <circle cx="74" cy="80" r="2.2" fill="#ffffff"/>
-        <circle cx="116" cy="82" r="6" fill="#1e293b"/>
-        <circle cx="114" cy="80" r="2.2" fill="#ffffff"/>
-        <ellipse cx="62" cy="92" rx="8" ry="4.5" fill="#fb7185" opacity="0.65"/>
-        <ellipse cx="130" cy="92" rx="8" ry="4.5" fill="#fb7185" opacity="0.65"/>
-        <!-- 貓鼻與微笑嘴 -->
-        <polygon points="96,87 91,92 101,92" fill="#f43f5e"/>
-        <path d="M88 96 Q92 101 96 96 Q100 101 104 96" fill="none" stroke="#451a03" stroke-width="3.5" stroke-linecap="round"/>
-        <!-- 鬍鬚 -->
-        <line x1="36" y1="84" x2="54" y2="87" stroke="#451a03" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="36" y1="95" x2="54" y2="95" stroke="#451a03" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="156" y1="84" x2="138" y2="87" stroke="#451a03" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="156" y1="95" x2="138" y2="95" stroke="#451a03" stroke-width="3.5" stroke-linecap="round"/>
-        <!-- 雙手捧著大 $ 金幣/牌 -->
-        <circle cx="114" cy="134" r="25" fill="#facc15" stroke="#451a03" stroke-width="4.5"/>
-        <circle cx="114" cy="134" r="19" fill="none" stroke="#ca8a04" stroke-width="2.5" stroke-dasharray="4 3"/>
-        <text x="114" y="143" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="900" fill="#92400e">$</text>
-        <!-- 肥貓前爪 -->
-        <ellipse cx="78" cy="136" rx="13" ry="9.5" fill="#fb923c" stroke="#451a03" stroke-width="4.5"/>
-        <ellipse cx="134" cy="138" rx="13" ry="9.5" fill="#fb923c" stroke="#451a03" stroke-width="4.5"/>
-      </svg>`;
+      const icon192 = createChubbyCatPngDataUrl(192);
+      const icon512 = createChubbyCatPngDataUrl(512);
 
-      el.headerCatIcon.innerHTML = svg;
-      const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-      el.faviconLink.href = iconUrl;
-      el.appleIconLink.href = iconUrl;
+      el.headerCatIcon.innerHTML = `<img src="${icon192}" alt="肥貓拿 $ 圖示" />`;
+      el.faviconLink.href = icon192;
+      el.appleIconLink.href = icon192;
 
-      const manifest = {
+      const manifestObj = {
+        id: './?v=cat-dollar-1',
         name: '隨手記帳',
         short_name: '隨手記帳',
-        start_url: '.',
+        start_url: './?v=cat-dollar-1',
+        scope: './',
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#ffffff',
         icons: [
-          { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
-          { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+          { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
         ]
       };
-      const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-      el.manifestLink.href = URL.createObjectURL(manifestBlob);
+      const manifestDataUrl = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestObj));
+      el.manifestLink.href = manifestDataUrl;
     }
 
     function todayStr() {
@@ -1336,7 +1416,7 @@
       if (currentTab === 'report') renderReport();
     }
 
-    // 點選金額框時顯示外框線、前置閃爍游標與數字鍵盤，不彈出手機原生鍵盤
+    // 點選金額框時顯示外框線、隨文字移動的閃爍游標與數字鍵盤，不彈出手機原生鍵盤
     el.amountBox.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       openCustomNumpad();
@@ -1414,66 +1494,3 @@
       }
 
       saveRecords();
-      exitEditMode();
-      render();
-    });
-
-    el.txList.addEventListener('click', (e) => {
-      const delBtn = e.target.closest('[data-del-id]');
-      if (delBtn) {
-        e.stopPropagation();
-        const id = delBtn.getAttribute('data-del-id');
-        records = records.filter(r => r.id !== id);
-        if (editingId === id) exitEditMode();
-        saveRecords();
-        render();
-        return;
-      }
-
-      const item = e.target.closest('[data-edit-id]');
-      if (item) {
-        startEditRecord(item.getAttribute('data-edit-id'));
-      }
-    });
-
-    el.exportBtn.addEventListener('click', () => {
-      const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' }));
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `expense-backup-${todayStr()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    el.importBtn.addEventListener('click', () => el.importFile.click());
-    el.importFile.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const data = JSON.parse(await file.text());
-        if (!Array.isArray(data)) throw new Error();
-        const map = new Map(records.map(i => [i.id, i]));
-        for (const item of data) if (item && item.id) map.set(item.id, item);
-        records = Array.from(map.values());
-        saveRecords();
-        render();
-        alert('備份匯入完成！');
-      } catch {
-        alert('匯入失敗，請確認選擇的是正確的 JSON 備份檔。');
-      } finally {
-        e.target.value = '';
-      }
-    });
-
-    setupChubbyCatAppIcon();
-    const nowDate = todayStr();
-    const nowDt = parseLocalDate(nowDate);
-    el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
-    buildMonthOptions(nowDate.slice(0, 7));
-    renderCategories();
-    syncAmountDisplay();
-    updateCalcPreview();
-    render();
-  </script>
-</body>
-</html>
