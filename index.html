@@ -34,7 +34,7 @@
     }
     .container { max-width: 480px; margin: 0 auto; padding: 10px 12px; }
 
-    /* 第一行：圓形肥貓拿 $ 圖示 + 品牌 + 今日日期 */
+    /* 第一行：圓形 APP 圖示 + 品牌 + 今日日期 */
     header {
       display: flex; justify-content: space-between; align-items: center;
       gap: 8px; margin-bottom: 8px;
@@ -46,8 +46,12 @@
       overflow: hidden; flex-shrink: 0;
       box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
       background: #fef3c7;
+      clip-path: circle(50% at 50% 50%);
     }
-    .app-icon-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .app-icon-badge img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: 50%; display: block;
+    }
     h1 { font-size: 1.08rem; margin: 0; color: var(--text); }
     .today-pill {
       font-size: 0.75rem; color: var(--text); background: var(--card);
@@ -467,7 +471,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- 第一行：圓形肥貓拿 $ 圖示 + 品牌 + 今日日期 -->
+    <!-- 第一行：圓形 APP 圖示 + 品牌 + 今日日期 -->
     <header>
       <div class="brand">
         <span id="headerCatIcon" class="app-icon-badge" aria-hidden="true"></span>
@@ -771,22 +775,27 @@
       setNumpadOpen(true);
     }
 
-    function createChubbyCatPngDataUrl(size) {
+    function createRoundAppIconPngDataUrl(size) {
       const canvas = document.createElement('canvas');
       canvas.width = size;
       canvas.height = size;
       const ctx = canvas.getContext('2d');
-      const s = size / 192;
-      ctx.save();
-      ctx.scale(s, s);
+      const r = size / 2;
 
-      const bg = ctx.createRadialGradient(68, 58, 12, 96, 96, 96);
-      bg.addColorStop(0, '#fde68a');
-      bg.addColorStop(1, '#f59e0b');
+      ctx.save();
       ctx.beginPath();
-      ctx.arc(96, 96, 96, 0, Math.PI * 2);
+      ctx.arc(r, r, r, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+
+      const bg = ctx.createRadialGradient(size * 0.34, size * 0.28, size * 0.06, r, r, r);
+      bg.addColorStop(0, '#fde68a');
+      bg.addColorStop(1, '#d97706');
       ctx.fillStyle = bg;
-      ctx.fill();
+      ctx.fillRect(0, 0, size, size);
+
+      const s = size / 192;
+      ctx.scale(s, s);
 
       ctx.strokeStyle = '#451a03';
       ctx.lineWidth = 5;
@@ -878,19 +887,19 @@
       return canvas.toDataURL('image/png');
     }
 
-    function setupChubbyCatAppIcon() {
-      const icon192 = createChubbyCatPngDataUrl(192);
-      const icon512 = createChubbyCatPngDataUrl(512);
+    function setupRoundAppIcon() {
+      const icon192 = createRoundAppIconPngDataUrl(192);
+      const icon512 = createRoundAppIconPngDataUrl(512);
 
-      el.headerCatIcon.innerHTML = `<img src="${icon192}" alt="肥貓拿 $ 圖示" />`;
+      el.headerCatIcon.innerHTML = `<img src="${icon192}" alt="圓形 APP 圖示" />`;
       el.faviconLink.href = icon192;
       el.appleIconLink.href = icon192;
 
       const manifestObj = {
-        id: './?v=cat-dollar-2',
+        id: './?v=round-cat-dollar-3',
         name: '隨手記帳',
         short_name: '隨手記帳',
-        start_url: './?v=cat-dollar-2',
+        start_url: './?v=round-cat-dollar-3',
         scope: './',
         display: 'standalone',
         background_color: '#ffffff',
@@ -1559,7 +1568,7 @@
       }
     });
 
-    setupChubbyCatAppIcon();
+    setupRoundAppIcon();
     const nowDate = todayStr();
     const nowDt = parseLocalDate(nowDate);
     el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
