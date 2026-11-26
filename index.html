@@ -192,6 +192,10 @@
       width: 100%; border-radius: 9px; border: 1px solid #cbd5e1;
       padding: 9px 10px; font-size: 0.9rem; background: #ffffff; color: var(--text);
     }
+    input[readonly] {
+      caret-color: transparent;
+      cursor: pointer;
+    }
     input:focus, select:focus { outline: none; border-color: var(--accent); }
     .calc-preview {
       font-size: 0.7rem; color: var(--muted); margin-top: 3px;
@@ -450,7 +454,7 @@
         <div id="catRow" class="cat-row-fit"></div>
       </section>
 
-      <!-- 新增支出：分類與金額輸入框在同一行，點選金額才出現加減乘除數字鍵盤 -->
+      <!-- 新增支出：分類與金額輸入框在同一行，點選金額才出現加減乘除數字鍵盤，不彈出手機鍵盤 -->
       <section class="card">
         <div class="section-head">
           <span class="section-title" id="formHeading">新增支出</span>
@@ -464,7 +468,7 @@
             </div>
             <div class="field-col">
               <label for="amount">金額（點選顯示鍵盤）</label>
-              <input type="text" id="amount" inputmode="decimal" placeholder="0" required />
+              <input type="text" id="amount" readonly placeholder="0" required />
               <div id="calcPreview" class="calc-preview">計算結果：$0</div>
             </div>
           </div>
@@ -645,6 +649,13 @@
 
     function setNumpadOpen(open) {
       el.numpadBox.classList.toggle('open', Boolean(open));
+    }
+
+    function openCustomNumpad() {
+      if (document.activeElement && document.activeElement !== el.amount && document.activeElement.tagName === 'INPUT') {
+        document.activeElement.blur();
+      }
+      setNumpadOpen(true);
     }
 
     function setupMoneyAppIcon() {
@@ -907,7 +918,7 @@
       el.submitBtn.textContent = '更新支出';
       el.cancelEditBtn.style.display = 'inline-block';
       updateCalcPreview();
-      setNumpadOpen(true);
+      openCustomNumpad();
       el.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
@@ -955,8 +966,7 @@
       for (const btn of el.catRow.querySelectorAll('.cat-mini')) {
         btn.addEventListener('click', () => {
           el.category.value = btn.dataset.cat;
-          el.amount.focus();
-          setNumpadOpen(true);
+          openCustomNumpad();
           renderCategoryRow(targetRecords);
         });
       }
@@ -1199,10 +1209,20 @@
       if (currentTab === 'report') renderReport();
     }
 
-    el.amount.addEventListener('focus', () => setNumpadOpen(true));
-    el.amount.addEventListener('click', () => setNumpadOpen(true));
-    el.amount.addEventListener('input', updateCalcPreview);
+    // 點選金額輸入框時展開自訂加減乘除鍵盤，不彈出手機原生鍵盤
+    el.amount.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      openCustomNumpad();
+    });
+    el.amount.addEventListener('click', (e) => {
+      e.preventDefault();
+      openCustomNumpad();
+    });
 
+    // 點選備註欄時收合自訂鍵盤，讓手機鍵盤正常輸入文字
+    el.note.addEventListener('focus', () => setNumpadOpen(false));
+
+    // 點選表單外區域（非金額框與非數字鍵盤）時收合數字鍵盤
     document.addEventListener('click', (e) => {
       if (e.target === el.amount || el.numpadBox.contains(e.target)) return;
       setNumpadOpen(false);
