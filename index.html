@@ -193,34 +193,32 @@
       padding: 9px 10px; font-size: 0.9rem; background: #ffffff; color: var(--text);
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    .amount-field-wrap {
+    .amount-field-box {
       position: relative;
       display: flex;
       align-items: center;
+      min-height: 39px;
+      width: 100%;
       border-radius: 9px;
       border: 1px solid #cbd5e1;
       background: #ffffff;
-      padding-right: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      overflow: hidden;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    .amount-field-wrap.amount-active {
+    .amount-field-box.amount-active {
       border-color: var(--accent);
       box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
     }
-    .amount-field-wrap input {
-      border: none;
-      box-shadow: none;
-      background: transparent;
-      caret-color: transparent;
-      cursor: pointer;
-      padding-right: 4px;
-      flex: 1;
-      min-width: 0;
-    }
-    .amount-field-wrap input:focus {
-      outline: none;
-      border: none;
-      box-shadow: none;
+    .amount-inline-group {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      font-size: 0.9rem;
+      line-height: 1.25;
     }
     .custom-caret {
       display: none;
@@ -229,14 +227,26 @@
       background: var(--accent);
       border-radius: 1px;
       flex-shrink: 0;
+      margin-right: 2px;
       animation: caretBlink 1s steps(1, end) infinite;
     }
-    .amount-field-wrap.amount-active .custom-caret {
+    .amount-field-box.amount-active .custom-caret {
       display: inline-block;
     }
     @keyframes caretBlink {
       0%, 49% { opacity: 1; }
       50%, 100% { opacity: 0; }
+    }
+    .amount-display-text {
+      color: var(--text);
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .amount-display-text.is-placeholder {
+      color: #94a3b8;
+      font-weight: 400;
     }
     input:focus, select:focus {
       outline: none;
@@ -518,10 +528,12 @@
               <select id="category"></select>
             </div>
             <div class="field-col">
-              <label for="amount">金額（點選顯示鍵盤）</label>
-              <div id="amountFieldWrap" class="amount-field-wrap">
-                <input type="text" id="amount" readonly placeholder="0" required />
-                <span id="customCaret" class="custom-caret" aria-hidden="true"></span>
+              <label for="amountBox">金額（點選顯示鍵盤）</label>
+              <div id="amountBox" class="amount-field-box" tabindex="0" role="textbox" aria-label="金額">
+                <span class="amount-inline-group">
+                  <span id="customCaret" class="custom-caret" aria-hidden="true"></span>
+                  <span id="amountDisplayText" class="amount-display-text is-placeholder">0</span>
+                </span>
               </div>
               <div id="calcPreview" class="calc-preview">計算結果：$0</div>
             </div>
@@ -655,6 +667,7 @@
     let showMonthMode = false; // 預設以當日支出為主；點選「當月」後才顯示月支出
     let selectedYmd = todayStr(); // 預設選取今日，日期列表當日反白
     let editingId = null;
+    let amountExpr = '';
     let records = loadRecords();
 
     const el = {
@@ -684,9 +697,9 @@
       formHeading: document.getElementById('formHeading'),
       editHint: document.getElementById('editHint'),
       form: document.getElementById('txForm'),
-      amountFieldWrap: document.getElementById('amountFieldWrap'),
-      amount: document.getElementById('amount'),
+      amountBox: document.getElementById('amountBox'),
       customCaret: document.getElementById('customCaret'),
+      amountDisplayText: document.getElementById('amountDisplayText'),
       calcPreview: document.getElementById('calcPreview'),
       numpadBox: document.getElementById('numpadBox'),
       category: document.getElementById('category'),
@@ -703,14 +716,27 @@
       importFile: document.getElementById('importFile')
     };
 
+    function syncAmountDisplay() {
+      const hasVal = amountExpr.length > 0;
+      el.amountDisplayText.textContent = hasVal ? amountExpr : '0';
+      el.amountDisplayText.classList.toggle('is-placeholder', !hasVal);
+    }
+
+    function setAmountExpr(nextVal) {
+      amountExpr = String(nextVal ?? '');
+      syncAmountDisplay();
+      updateCalcPreview();
+    }
+
     function setNumpadOpen(open) {
       const isOpen = Boolean(open);
       el.numpadBox.classList.toggle('open', isOpen);
-      el.amountFieldWrap.classList.toggle('amount-active', isOpen);
+      el.amountBox.classList.toggle('amount-active', isOpen);
+      syncAmountDisplay();
     }
 
     function openCustomNumpad() {
-      if (document.activeElement && document.activeElement !== el.amount && document.activeElement.tagName === 'INPUT') {
+      if (document.activeElement && document.activeElement !== el.amountBox && document.activeElement.tagName === 'INPUT') {
         document.activeElement.blur();
       }
       setNumpadOpen(true);
@@ -793,9 +819,9 @@
     }
 
     function updateCalcPreview() {
-      const val = evalMathAmount(el.amount.value);
+      const val = evalMathAmount(amountExpr);
       if (val === null) {
-        el.calcPreview.textContent = el.amount.value.trim() ? '算式有誤（如 100+50*2-10）' : '計算結果：$0';
+        el.calcPreview.textContent = amountExpr.trim() ? '算式有誤（如 100+50*2-10）' : '計算結果：$0';
         return;
       }
       el.calcPreview.textContent = `計算結果：${formatMoney(val)}`;
@@ -958,24 +984,22 @@
       el.editHint.textContent = `記帳日期：${formatMonthDay(getTargetRecordDate())}`;
       el.submitBtn.textContent = '儲存支出';
       el.cancelEditBtn.style.display = 'none';
-      el.amount.value = '';
+      setAmountExpr('');
       el.note.value = '';
       setNumpadOpen(false);
-      updateCalcPreview();
     }
 
     function startEditRecord(id) {
       const target = records.find(r => r.id === id);
       if (!target) return;
       editingId = target.id;
-      el.amount.value = String(target.amount);
+      setAmountExpr(String(target.amount));
       el.category.value = CATEGORIES.includes(target.category) ? target.category : '其他';
       el.note.value = target.note || '';
       el.formHeading.textContent = '編輯支出';
       el.editHint.textContent = `原日期 ${formatMonthDay(target.date || todayStr())} · 修改後按更新`;
       el.submitBtn.textContent = '更新支出';
       el.cancelEditBtn.style.display = 'inline-block';
-      updateCalcPreview();
       openCustomNumpad();
       el.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -1243,168 +1267,4 @@
     function render() {
       renderMonthAndDays();
       const m = el.monthSelect.value;
-      const monthRecords = records.filter(r => !m || (r.date && r.date.startsWith(m)));
-      const activeDay = selectedYmd || (todayStr().startsWith(m) ? todayStr() : `${m}-01`);
-      const dayRecords = monthRecords.filter(r => r.date === activeDay);
-
-      if (showMonthMode) {
-        el.expTitleLabel.textContent = '月支出';
-        el.listHeading.textContent = '本月明細';
-        el.totalExpense.textContent = formatMoney(sumExpenses(monthRecords));
-        el.countLabel.textContent = `${monthRecords.length} 筆`;
-        renderCategoryRow(monthRecords);
-        renderGroupedTransactions(monthRecords);
-      } else {
-        el.expTitleLabel.textContent = `${formatMonthDay(activeDay)} 支出`;
-        el.listHeading.textContent = `${formatMonthDay(activeDay)} 明細`;
-        el.totalExpense.textContent = formatMoney(sumExpenses(dayRecords));
-        el.countLabel.textContent = `${dayRecords.length} 筆`;
-        renderCategoryRow(dayRecords);
-        renderGroupedTransactions(dayRecords);
-      }
-
-      renderBottomBalances();
-      if (currentTab === 'report') renderReport();
-    }
-
-    // 點選金額框時顯示外框線、閃爍游標與數字鍵盤，不彈出手機原生鍵盤
-    el.amountFieldWrap.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      openCustomNumpad();
-    });
-    el.amountFieldWrap.addEventListener('click', (e) => {
-      e.preventDefault();
-      openCustomNumpad();
-    });
-
-    // 點選備註欄時收合數字鍵盤與游標
-    el.note.addEventListener('focus', () => setNumpadOpen(false));
-
-    // 點選表單外區域（非金額框與非數字鍵盤）時收合數字鍵盤與游標
-    document.addEventListener('click', (e) => {
-      if (el.amountFieldWrap.contains(e.target) || el.numpadBox.contains(e.target)) return;
-      setNumpadOpen(false);
-    });
-
-    el.numpadBox.addEventListener('click', (e) => {
-      const keyBtn = e.target.closest('[data-key]');
-      if (!keyBtn) return;
-      const k = keyBtn.getAttribute('data-key');
-      if (k === 'C') {
-        el.amount.value = '';
-      } else if (k === 'DEL') {
-        el.amount.value = (el.amount.value || '').slice(0, -1);
-      } else {
-        el.amount.value = (el.amount.value || '') + k;
-      }
-      updateCalcPreview();
-    });
-
-    el.currentMonthBtn.addEventListener('click', () => {
-      el.monthSelect.value = todayStr().slice(0, 7);
-      showMonthMode = true;
-      render();
-    });
-
-    el.monthSelect.addEventListener('change', () => {
-      showMonthMode = false;
-      const ym = el.monthSelect.value;
-      selectedYmd = todayStr().startsWith(ym) ? todayStr() : `${ym}-01`;
-      render();
-    });
-
-    el.tabHome.addEventListener('click', () => switchTab('home'));
-    el.tabReport.addEventListener('click', () => switchTab('report'));
-    el.reportTypeSelect.addEventListener('change', renderReport);
-
-    el.category.addEventListener('change', render);
-    el.cancelEditBtn.addEventListener('click', exitEditMode);
-
-    el.form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const amount = evalMathAmount(el.amount.value);
-      if (amount === null || amount <= 0) {
-        alert('請輸入大於 0 的金額或加減乘算式');
-        return;
-      }
-
-      const cat = CATEGORIES.includes(el.category.value) ? el.category.value : '其他';
-      const note = el.note.value.trim();
-
-      if (editingId) {
-        records = records.map(r => (r.id === editingId ? { ...r, category: cat, amount, note } : r));
-      } else {
-        records.push({
-          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-          type: 'expense',
-          amount,
-          date: getTargetRecordDate(),
-          category: cat,
-          note,
-          createdAt: Date.now()
-        });
-      }
-
-      saveRecords();
-      exitEditMode();
-      render();
-    });
-
-    el.txList.addEventListener('click', (e) => {
-      const delBtn = e.target.closest('[data-del-id]');
-      if (delBtn) {
-        e.stopPropagation();
-        const id = delBtn.getAttribute('data-del-id');
-        records = records.filter(r => r.id !== id);
-        if (editingId === id) exitEditMode();
-        saveRecords();
-        render();
-        return;
-      }
-
-      const item = e.target.closest('[data-edit-id]');
-      if (item) {
-        startEditRecord(item.getAttribute('data-edit-id'));
-      }
-    });
-
-    el.exportBtn.addEventListener('click', () => {
-      const url = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' }));
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `expense-backup-${todayStr()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    el.importBtn.addEventListener('click', () => el.importFile.click());
-    el.importFile.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const data = JSON.parse(await file.text());
-        if (!Array.isArray(data)) throw new Error();
-        const map = new Map(records.map(i => [i.id, i]));
-        for (const item of data) if (item && item.id) map.set(item.id, item);
-        records = Array.from(map.values());
-        saveRecords();
-        render();
-        alert('備份匯入完成！');
-      } catch {
-        alert('匯入失敗，請確認選擇的是正確的 JSON 備份檔。');
-      } finally {
-        e.target.value = '';
-      }
-    });
-
-    setupMoneyAppIcon();
-    const nowDate = todayStr();
-    const nowDt = parseLocalDate(nowDate);
-    el.todayBadge.textContent = `${formatMonthDay(nowDate)} ${WEEKDAYS_SHORT[nowDt.getDay()]}`;
-    buildMonthOptions(nowDate.slice(0, 7));
-    renderCategories();
-    updateCalcPreview();
-    render();
-  </script>
-</body>
-</html>
+      const monthRecords = records.filter(r => !m || (r
